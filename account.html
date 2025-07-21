@@ -447,36 +447,7 @@
 </head>
 <body>
   <div class="parallax-bg"></div>
-  <header>
-    <div class="logo-nav-container">
-      <img id="logo-img" src="logo.png" alt="logo" />
-      <div class="nav-links">
-        <a href="index.html">主页</a>
-        <a href="rooms.html">房间列表</a>
-        <a href="account.html" style="color: #ffd700;">账号管理</a>
-      </div>
-    </div>
-    
-    <div class="user-section">
-      <!-- 登录按钮（未登录时） -->
-      <div id="login-button" class="glass-button" onclick="openAuth()">
-        <a href="javascript:void(0)" class="login-btn">登录</a>
-      </div>
-      <!-- 用户信息（登录后） -->
-      <div id="avatar-container" class="glass-button" style="display: none;">
-        <div class="user-info" onclick="toggleDropdown()">
-          <span class="username" id="username-display"></span>
-          <img id="user-avatar" src="" alt="用户头像" class="user-avatar" />
-        </div>
-        <div class="dropdown-content" id="user-dropdown">
-          <span id="dropdown-username"></span>
-          <a id="phira-profile-link" target="_blank">我的Phira账户</a>
-          <a href="account.html">账号管理</a>
-          <a href="javascript:void(0)" onclick="logout()">退出登录</a>
-        </div>
-      </div>
-    </div>
-  </header>
+  <div id="header-container"></div>
   
   <main>
     <div class="account-container">
@@ -693,6 +664,13 @@
   </style>
 
   <script>
+    // 加载header组件
+    fetch('header.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('header-container').innerHTML = html;
+        // 页面特定的初始化代码
+    });
     // 默认头像URL
     const DEFAULT_AVATAR = 'https://phira.moe/assets/user-6212ee95.png';
     let currentUser = null;
