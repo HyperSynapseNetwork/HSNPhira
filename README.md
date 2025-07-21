@@ -1,39 +1,51 @@
+
+
 # HSNPhira
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+## 介绍
+HSNPhira 是一个综合性的开源项目，旨在提供一个多功能的网络服务平台。它包含了用户管理、房间管理、命令执行以及服务端监控等特性，适用于需要集中管理用户和执行安全命令的场景。
 
-#### 软件架构
-软件架构说明
+## 软件架构
+该项目采用前后端分离架构，前端使用HTML和CSS构建用户界面，后端使用Python编写服务逻辑。主要模块包括：
+- 用户管理模块：负责用户的注册、登录和信息更新。
+- 房间管理模块：允许用户创建、加入、离开和管理房间。
+- 命令执行模块：提供执行预定义安全命令的接口。
+- 服务端管理模块：提供服务器健康检查、状态监控和自定义命令执行功能。
 
+## 安装教程
+1. 克隆项目到本地:
+   ```
+   git clone https://gitee.com/xxlxxlxxlxxlxxl/HSNPhira
+   ```
+2. 安装依赖:
+   ```
+   pip install -r requirements.txt
+   ```
+3. 配置数据库:
+   ```
+   python user_manager.py init_db
+   ```
+4. 启动服务:
+   ```
+   python app.py
+   ```
 
-#### 安装教程
+## 使用说明
+1. 访问 `index.html` 页面进行注册或登录。
+2. 登录后，您可以在 `account.html` 页面查看和编辑您的账户信息。
+3. 使用 `rooms.html` 页面查看房间列表并加入或创建房间。
+4. 管理员可通过 `server_admin.html` 和 `users_manage.html` 页面进行服务器管理及用户批量更新。
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 参与贡献
+- 欢迎提交 Issue 报告 Bug 或提出功能建议。
+- Fork 项目并在您的分支上开发新功能或修复 Bug。
+- 提交 Pull Request 回到本项目仓库。
 
-#### 使用说明
+## 特技
+- 支持用户身份验证和权限管理。
+- 提供安全的命令执行环境，防止执行危险命令。
+- 包含实时状态监控和服务器健康检查。
+- 提供用户界面来管理用户账户和房间信息。
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## 许可证
+HSNPhira 遵循 MIT 许可证。详情请查看 LICENSE 文件。
