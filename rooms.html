@@ -752,7 +752,7 @@
         const tbody = document.querySelector("#rooms-table tbody");
         tbody.innerHTML = "";
         if (rooms.length === 0) {
-          tbody.innerHTML = "<tr><td colspan='8'>暂无房间</td></tr>";
+          tbody.innerHTML = "<tr><td colspan='8'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
           return;
         }
         for (const room of rooms) {
@@ -792,12 +792,12 @@
     fetch("/roomsjson", { method: "HEAD" })
       .then(() => {
         const status = document.getElementById("status");
-        status.textContent = "服务器状态：在线 :)";
+        status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
         status.classList.add("online");
       })
       .catch(() => {
         const status = document.getElementById("status");
-        status.textContent = "服务器状态：离线 :(";
+        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
         status.classList.add("offline");
       });
   </script>
