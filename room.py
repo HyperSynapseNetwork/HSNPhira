@@ -516,7 +516,7 @@ def get_total_users():
         with open(USER_INFO_PATH, "r", encoding="utf-8") as f:
             info = json.load(f)
     except:
-        return jsonify({"error": "无法读取 蟑螂王.json"}), 500
+        return jsonify({"error": "无法读取 user_info.json"}), 500
 
     user_ids = list(info.keys())
     usernames = list(info.values())
