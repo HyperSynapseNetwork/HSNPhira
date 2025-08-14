@@ -154,7 +154,7 @@ function bindRoomsEvents() {
             
             // 无房间时显示提示信息
             if (rooms.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='8'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='8'>暂无房间</td></tr>";
                 return;
             }
             
