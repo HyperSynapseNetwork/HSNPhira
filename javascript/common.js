@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 定义无需登录即可访问的公共页面
     const publicPages = [   
         'index.html',
+        'privacy.html',
         'rooms.html'     
     ];
     
