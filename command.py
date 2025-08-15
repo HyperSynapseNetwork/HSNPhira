@@ -2,11 +2,11 @@
 import subprocess
 import shlex
 from flask import Flask, request, jsonify
+from werkzeug.security import check_password_hash
 
 # ================== 全局配置区 ================== (根据需要修改以下配置)
-# 三重密码设置
-PASSWORDS = ["nb3502022", "2022350", "nb3502022outlookcom"]
-
+# 密码哈希(采用werkzeug.security.generate_password_hash生成)
+PASSWORD = "scrypt:32768:8:1$EH5stqowTOhX3zCq$5b756d56d95d1d334a6323201afe37cb465dd0b98e28aae48b30457dcdc0fc4e4893a0d4c4d822e66fdef8d85090e4432f84d53939647d331326d9143f000fe1"
 # 命令白名单 (格式: {'命令别名': '实际命令', ...})
 COMMAND_WHITELIST = {
     "start": "bash /root/start.sh",              # 示例命令1: 删除当前目录所有文件
@@ -24,8 +24,8 @@ CUSTOM_COMMAND_ALIAS = "custom"
 
 # 危险命令黑名单 (不允许执行这些命令)
 DANGEROUS_COMMAND_BLACKLIST = [
-    "rm -rf /", "rm -rf /*", "dd if=/dev/", 
-    "mkfs", "mkfss", "fdisk", "shutdown", "halt", "poweroff", 
+    "rm -rf /", "rm -rf /*", "dd if=/dev/",
+    "mkfs", "mkfss", "fdisk", "shutdown", "halt", "poweroff",
     "reboot", "init 0", "mv / /dev/null", "chmod -R 000 /"
 ]
 
@@ -36,9 +36,6 @@ LISTEN_PORT = 7878      # 监听端口
 
 app = Flask(__name__)
 
-def verify_passwords(passwords):
-    """验证密码正确性"""
-    return bool(passwords) and passwords == PASSWORDS
 
 def is_dangerous_command(command):
     """检查是否危险命令"""
@@ -56,12 +53,12 @@ def execute_command(command):
         )
         stdout, stderr = process.communicate()
         returncode = process.returncode
-        
+
         if returncode != 0:
             return False, f"Command failed (exit {returncode}): {stderr.strip()}"
-        
+
         return True, stdout.strip()
-    
+
     except Exception as e:
         return False, str(e)
 
@@ -71,16 +68,16 @@ def execute_safe_command(cmd_alias, custom_cmd=None):
         # 自定义命令处理
         if not ALLOW_CUSTOM_COMMANDS:
             return False, "Custom commands are disabled"
-            
+
         if is_dangerous_command(custom_cmd):
             return False, "Dangerous command blocked"
-            
+
         return execute_command(custom_cmd)
     else:
         # 白名单命令处理
         if cmd_alias not in COMMAND_WHITELIST:
             return False, "Invalid command alias"
-        
+
         return execute_command(COMMAND_WHITELIST[cmd_alias])
 
 @app.route('/execute', methods=['POST'])
@@ -92,14 +89,16 @@ def command_execution():
     pwd3 = request.form.get('pwd3')
     cmd_alias = request.form.get('cmd')
     custom_cmd = request.form.get('custom_cmd')
-    
+
     # 验证所有密码
-    if not verify_passwords([pwd1, pwd2, pwd3]):
+    if any(
+        pwd is None for pwd in (pwd1, pwd2, pwd3)
+    ) and not check_password_hash(PASSWORD,f"{pwd1}{pwd2}{pwd3}"):
         return jsonify({
             "status": "error",
             "message": "Authentication failed"
         }), 403
-    
+
     # 自定义命令处理
     if cmd_alias == CUSTOM_COMMAND_ALIAS:
         if not custom_cmd:
@@ -107,18 +106,18 @@ def command_execution():
                 "status": "error",
                 "message": "Custom command required"
             }), 400
-            
+
         # 执行自定义命令
         success, result = execute_safe_command(None, custom_cmd)
     else:
         # 执行白名单命令
         success, result = execute_safe_command(cmd_alias, None)
-    
+
     # 返回结果
     if success:
         return jsonify({
             "status": "success",
-            "command": custom_cmd if cmd_alias == CUSTOM_COMMAND_ALIAS else COMMAND_WHITELIST.get(cmd_alias),
+            "command": custom_cmd if cmd_alias == CUSTOM_COMMAND_ALIAS else COMMAND_WHITELIST.get(str(cmd_alias)),
             "result": result
         })
     else:
@@ -132,15 +131,15 @@ if __name__ == '__main__':
     print(f"Loaded {len(COMMAND_WHITELIST)} whitelisted commands:")
     for alias, cmd in COMMAND_WHITELIST.items():
         print(f"  {alias}: {cmd}")
-    
+
     # 显示自定义命令设置
     if ALLOW_CUSTOM_COMMANDS:
         print(f"\nCustom commands are ENABLED (use alias '{CUSTOM_COMMAND_ALIAS}' and 'custom_cmd' parameter)")
     else:
         print("\nCustom commands are DISABLED")
-    
+
     print(f"\nBlacklisted dangerous commands: {DANGEROUS_COMMAND_BLACKLIST}")
-    
+
     # 启动服务器
     print(f"\nStarting server at http://{LISTEN_IP}:{LISTEN_PORT}")
     app.run(host=LISTEN_IP, port=LISTEN_PORT)
