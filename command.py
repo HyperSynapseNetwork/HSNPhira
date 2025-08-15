@@ -91,9 +91,7 @@ def command_execution():
     custom_cmd = request.form.get('custom_cmd')
 
     # 验证所有密码
-    if any(
-        pwd is None for pwd in (pwd1, pwd2, pwd3)
-    ) and not check_password_hash(PASSWORD,f"{pwd1}{pwd2}{pwd3}"):
+    if not check_password_hash(PASSWORD,f"{pwd1}{pwd2}{pwd3}"):
         return jsonify({
             "status": "error",
             "message": "Authentication failed"
