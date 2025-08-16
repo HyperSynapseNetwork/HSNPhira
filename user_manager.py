@@ -14,7 +14,7 @@ app = Flask(__name__)
 USERS_DB_PATH = "phira_users.db"
 PHIRA_MAPPING_FILE = "/root/user_info.json"  # Phira映射文件路径
 ADMIN_PASSWORD = "nb2022outlook"        # 普通管理员密码
-SUPER_ADMIN_PASSWORD = "qq13616825601"  # 超级管理员密码
+SUPER_ADMIN_PASSWORD = "问号"  # 超级管理员密码
 UPDATE_INTERVAL = 10  # 更新间隔（秒）
 
 # 加载Phira映射
