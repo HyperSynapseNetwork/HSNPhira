@@ -1,11 +1,10 @@
 from ..extensions import db, lm
-from ..common import ModelInfoMixin
-from . import Perm
+from . import Permission
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 
-class User(ModelInfoMixin, UserMixin, db.Model):
+class User(UserMixin, db.Model):
 	__tablename__ = "users"
 
 	# user id
@@ -13,11 +12,9 @@ class User(ModelInfoMixin, UserMixin, db.Model):
 	# user's group id
 	group_id = db.Column(db.Integer, db.ForeignKey("groups.id"), nullable=False)
 	# user's group
-	group = db.relationship("Group", back_populates="users")
+	group = db.relationship("Group", back_populates="_users")
 	# username
 	username = db.Column(db.String(32), unique=True, nullable=False)
-	# hash of user's password
-	password_hash = db.Column(db.String(128), nullable=False)
 	# user's Phira id
 	phira_id = db.Column(db.Integer, unique=True, nullable=True)
 	# user's Phira username
@@ -27,11 +24,13 @@ class User(ModelInfoMixin, UserMixin, db.Model):
 	# url to user's Phira avatar
 	phira_avatar = db.Column(db.String(128), nullable=True)
 	# user's register time
-	register_time = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+	register_time = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 	# when user logged in last time
-	last_login_time = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+	last_login_time = db.Column(db.DateTime, nullable=True)
 	# when user's Phira profile was synced last time
-	last_sync_time = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+	last_sync_time = db.Column(db.DateTime, nullable=True)
+	# hash of user's password
+	password_hash = db.Column(db.String(128), nullable=False)
 
 	@property
 	def password(self):
@@ -48,55 +47,39 @@ class User(ModelInfoMixin, UserMixin, db.Model):
 		return check_password_hash(self.password_hash, password)
 	
 	def check_sync_time(self) -> bool:
+		if not self.last_sync_time:
+			return True
 		now = datetime.now(timezone.utc).replace(tzinfo=None)
 		return (now - self.last_sync_time) >= timedelta(minutes=5)
 
 	def update_login_time(self) -> None:
-		self.last_login_time = datetime.now(timezone.utc)
-
+		self._last_login_time = datetime.now(timezone.utc)
+	
 	def update_sync_time(self) -> None:
 		self.last_sync_time = datetime.now(timezone.utc)
-	
-	def has_permission(self, perm: Perm) -> bool:
+
+	def has_permission(self, perm: Permission) -> bool:
 		return (self.group.permissions & perm) == perm
 
-	def to_dict(self) -> dict:
-		return {
-			"id": self.id,
-			"group_id": self.group_id,
-			"username": self.username,
-			"phira_id": self.phira_id,
-			"phira_username": self.phira_username,
-			"phira_rks": self.phira_rks,
-			"phira_avatar": self.phira_avatar,
-			"register_time": self.register_time,
-			"last_login_time": self.last_login_time,
-			"last_sync_time": self.last_sync_time
-		}
 
-
-class Group(ModelInfoMixin, db.Model):
+class Group(db.Model):
 	__tablename__ = "groups"
 
 	# group id
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
 	# users in the group
-	users = db.relationship("User", back_populates="group")
+	_users = db.relationship("User", back_populates="group")
 	# name of the group
 	name = db.Column(db.String(32), unique=True, nullable=False)
 	# bitmask of permissions
 	permissions = db.Column(db.Integer, nullable=False)
 
-	def has_permission(self, perm: Perm) -> bool:
-		return (self.permissions & perm) == perm
+	@property
+	def users(self):
+		return [user.id for user in self._users] if self._users else []
 
-	def to_dict(self) -> dict:
-		return {
-			"id": self.id,
-			"users": [user.id for user in self.users] if self.users else [],
-			"name": self.name,
-			"permissions": self.permissions
-		}
+	def has_permission(self, perm: Permission) -> bool:
+		return (self.permissions & perm) == perm
 
 
 @lm.user_loader

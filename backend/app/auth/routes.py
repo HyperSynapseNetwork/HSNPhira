@@ -1,8 +1,7 @@
 from ..extensions import db, lm
-from ..common import ClientError, check_request
 from .services import AuthService
-from flask import Blueprint, request, jsonify
-from flask_login import login_required
+from .schemas import user_schema, login_schema, group_schema
+from flask import Blueprint, jsonify, request
 
 
 class AuthAPI:
@@ -14,8 +13,8 @@ class AuthAPI:
 		self._bp.add_url_rule("/logout", methods=["POST"], view_func=self.logout)
 		self._bp.add_url_rule("/users", methods=["POST"], view_func=self.create_user)
 		self._bp.add_url_rule("/users", methods=["GET"], view_func=self.get_user_list)
-		self._bp.add_url_rule("/users/<int:id>", methods=["GET"], view_func=self.get_user_profile)
-		self._bp.add_url_rule("/users/<int:id>", methods=["PATCH"], view_func=self.update_user_profile)
+		self._bp.add_url_rule("/users/<int:id>", methods=["GET"], view_func=self.get_user_info)
+		self._bp.add_url_rule("/users/<int:id>", methods=["PATCH"], view_func=self.update_user_info)
 		self._bp.add_url_rule("/users/<int:id>", methods=["DELETE"], view_func=self.delete_user)
 		self._bp.add_url_rule("/groups", methods=["GET"], view_func=self.get_group_list)
 		self._bp.add_url_rule("/groups", methods=["POST"], view_func=self.create_group)
@@ -27,19 +26,12 @@ class AuthAPI:
 		app.register_blueprint(self._bp)
 
 	def create_user(self):
-		data = check_request(
-			request.json,
-			[("username", str), ("password", str), ("phira_id", int)]
-		)
-		return self._service.create_user(**data, group_id=3).to_dict()
+		data = user_schema().load(request.json)
+		return jsonify(self._service.create_user(data))
 
 	def login(self):
-		data = check_request(
-			request.json,
-			[("username", str), ("password", str)],
-			[("remember", bool, True)]
-		)
-		return self._service.login(**data).to_dict()
+		data = login_schema().load(request.json)
+		return jsonify(self._service.login(data))
 
 	def logout(self):
 		self._service.logout()
@@ -48,16 +40,12 @@ class AuthAPI:
 	def get_user_list(self):
 		return jsonify(self._service.get_user_list())
 
-	def get_user_profile(self, id: int):
-		return jsonify(self._service.get_user_profile(id))
+	def get_user_info(self, id: int):
+		return jsonify(self._service.get_user_info(id))
 
-	def update_user_profile(self, id: int):
-		data = check_request(
-			request.json, [],
-			[("group_id", int), ("username", str), ("password", str), ("phira_id", int)]
-		)
-		self._service.update_user_profile(id, data)
-		return jsonify({"message": "success"})
+	def update_user_info(self, id: int):
+		data = user_schema(partial=True).load(request.json)
+		return jsonify(self._service.update_user_info(id, data))
 
 	def delete_user(self, id: int):
 		self._service.delete_user(id)
@@ -67,22 +55,15 @@ class AuthAPI:
 		return jsonify(self._service.get_group_list())
 
 	def create_group(self):
-		data = check_request(
-			request.json,
-			[("name", str), ("permissions", int)]
-		)
-		return self._service.create_group(**data).to_dict()
+		data = group_schema().load(request.json)
+		return jsonify(self._service.create_group(data))
 
 	def get_group_info(self, id: int):
 		return jsonify(self._service.get_group_info(id))
 
 	def update_group_info(self, id: int):
-		data = check_request(
-			request.json, [],
-			[("name", str), ("permissions", int)]
-		)
-		self._service.update_group_info(id, data)
-		return jsonify({"message": "success"})
+		data = group_schema(partial=True).load(request.json)
+		return jsonify(self._service.update_group_info(id, data))
 
 	def delete_group(self, id: int):
 		self._service.delete_group(id)

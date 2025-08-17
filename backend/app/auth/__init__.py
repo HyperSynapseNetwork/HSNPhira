@@ -5,7 +5,7 @@ from functools import wraps
 from enum import IntFlag
 
 
-class Perm(IntFlag):
+class Permission(IntFlag):
 	# no permission
 	NONE = 0
 	# all permissions
@@ -17,36 +17,19 @@ class Perm(IntFlag):
 	# has group management permission
 	GROUP_MANAGEMENT = 0x00000004
 
+	def to_list(self) -> list[str]:
+		return [perm.name for perm in Permission if perm in self]
 
-@contextmanager
-def perm_required_context(perms: Perm):
-	if not current_user.is_authenticated:
+
+def ensure_perm(perm: Permission):
+	if not current_user or not current_user.is_authenticated:
 		raise ClientError("unauthenticated", 401)
-	if not current_user.group or (current_user.group.permissions&perms) != perms:
-		raise ClientError("permission denied", 403)
-	yield None
-
-def perm_required(perm: Perm):
-	def decorator(func):
-		@wraps(func)
-		def wrapper(*args, **kwargs):
-			with perm_required_context(perm):
-				return func(*args, **kwargs)
-		return wrapper
-	return decorator
+	if not current_user.group or not current_user.has_permission(perm):
+		raise ClientError(f"permission denied (requires: {", ".join(perm.to_list())})", 403)
 
 
-@contextmanager
-def super_admin_required_context():
-	if not current_user.is_authenticated:
+def ensure_super_admin():
+	if not current_user or not current_user.is_authenticated:
 		raise ClientError("unauthenticated", 401)
 	if current_user.id != 1:
-		raise ClientError("permission denied", 403)
-	yield None
-
-def super_admin_required(func):
-	@wraps(func)
-	def wrapper(*args, **kwargs):
-		with super_admin_required_context():
-			return func(*args, **kwargs)
-	return wrapper
+		raise ClientError("permission denied (requires super admin)", 403)
