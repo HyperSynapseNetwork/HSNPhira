@@ -22,9 +22,9 @@ class ModelInfoMixin:
 
 def check_request(req: dict|None,
 				  required: list[tuple[str, type]],
-				  optional: list[tuple[str, type]|tuple[str, type, Any]] = []) -> str|dict:
+				  optional: list[tuple[str, type]|tuple[str, type, Any]] = []) -> dict:
 	if not req:
-		return "invalid request"
+		raise ClientError("invalid request"), 400
 	res = {}
 	for k, v in required:
 		if k not in req:

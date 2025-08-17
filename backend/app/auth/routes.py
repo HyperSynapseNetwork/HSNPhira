@@ -10,14 +10,15 @@ class AuthAPI:
 		self._bp = Blueprint("auth", __name__, url_prefix="/auth")
 		self._service = AuthService()
 
-		self._bp.add_url_rule("/register", methods=["POST"], view_func=self.register)
 		self._bp.add_url_rule("/login", methods=["POST"], view_func=self.login)
 		self._bp.add_url_rule("/logout", methods=["POST"], view_func=self.logout)
+		self._bp.add_url_rule("/users", methods=["POST"], view_func=self.create_user)
 		self._bp.add_url_rule("/users", methods=["GET"], view_func=self.get_user_list)
 		self._bp.add_url_rule("/users/<int:id>", methods=["GET"], view_func=self.get_user_profile)
 		self._bp.add_url_rule("/users/<int:id>", methods=["PATCH"], view_func=self.update_user_profile)
 		self._bp.add_url_rule("/users/<int:id>", methods=["DELETE"], view_func=self.delete_user)
 		self._bp.add_url_rule("/groups", methods=["GET"], view_func=self.get_group_list)
+		self._bp.add_url_rule("/groups", methods=["POST"], view_func=self.create_group)
 		self._bp.add_url_rule("/groups/<int:id>", methods=["GET"], view_func=self.get_group_info)
 		self._bp.add_url_rule("/groups/<int:id>", methods=["PATCH"], view_func=self.update_group_info)
 		self._bp.add_url_rule("/groups/<int:id>", methods=["DELETE"], view_func=self.delete_group)
@@ -25,14 +26,11 @@ class AuthAPI:
 	def assign_to_app(self, app):
 		app.register_blueprint(self._bp)
 
-	def register(self):
+	def create_user(self):
 		data = check_request(
 			request.json,
 			[("username", str), ("password", str), ("phira_id", int)]
-		) 
-		if isinstance(data, str):
-			return jsonify({"error": data}), 400
-
+		)
 		return self._service.create_user(**data, group_id=3).to_dict()
 
 	def login(self):
@@ -41,9 +39,6 @@ class AuthAPI:
 			[("username", str), ("password", str)],
 			[("remember", bool, True)]
 		)
-		if isinstance(data, str):
-			return jsonify({"error": data}), 400
-
 		return self._service.login(**data).to_dict()
 
 	def logout(self):
@@ -61,8 +56,6 @@ class AuthAPI:
 			request.json, [],
 			[("group_id", int), ("username", str), ("password", str), ("phira_id", int)]
 		)
-		if isinstance(data, str):
-			return jsonify({"error": data}), 400
 		self._service.update_user_profile(id, data)
 		return jsonify({"message": "success"})
 
@@ -73,6 +66,13 @@ class AuthAPI:
 	def get_group_list(self):
 		return jsonify(self._service.get_group_list())
 
+	def create_group(self):
+		data = check_request(
+			request.json,
+			[("name", str), ("permissions", int)]
+		)
+		return self._service.create_group(**data).to_dict()
+
 	def get_group_info(self, id: int):
 		return jsonify(self._service.get_group_info(id))
 
@@ -81,9 +81,6 @@ class AuthAPI:
 			request.json, [],
 			[("name", str), ("permissions", int)]
 		)
-		if isinstance(data, str):
-			return jsonify({"error": data}), 400
-
 		self._service.update_group_info(id, data)
 		return jsonify({"message": "success"})
 
