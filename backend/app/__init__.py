@@ -1,4 +1,5 @@
 from .auth.routes import AuthAPI
+from .rooms.routes import RoomsAPI
 from .extensions import db, lm, ma
 from .config import Config
 from .common import ClientError
@@ -26,6 +27,8 @@ def create_app():
 	# blueprints
 	auth_api = AuthAPI()
 	auth_api.assign_to_app(app)
+	rooms_api = RoomsAPI()
+	rooms_api.assign_to_app(app)
 
 	# commands
 	@app.cli.command("seed_db")

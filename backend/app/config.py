@@ -6,7 +6,7 @@ class DebugConfig:
     # password for root user
     ROOT_PASSWORD = "super-secret-password"
     # path to phira-mp log processor
-    PHIRA_LOG_PROCESSOR_PATH = ""
+    PHIRA_LOG_PROCESSOR_PATH = "./start_logprocessor.sh"
 
 	# database configurations
     SQLALCHEMY_DATABASE_URI = "sqlite:///hsn_phira.db"
