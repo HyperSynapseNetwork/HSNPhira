@@ -10,22 +10,6 @@ import requests
 
 
 class AuthService:
-	@database_protect
-	@staticmethod
-	def seed_db():
-		default_groups=[
-			{"name": "super_admin", "permissions": Permission.ALL},
-			{"name": "admin", "permissions": Permission.IMPORTANT|Permission.USER_MANAGEMENT},
-			{"name": "user", "permissions": 0}
-		]
-		default_users=[
-			{"username": "root", "password": Config.SECRET_KEY, "group_id": 1}
-		]
-		for kwargs in default_groups:
-			db.session.add(Group(**kwargs))
-		for kwargs in default_users:
-			db.session.add(User(**kwargs))
-	
 	def sync_phira_profile(self, user: User, force: bool = False) -> None:
 		if user.phira_id and (force or user.check_sync_time()):
 			url = f"https://phira.5wyxi.com/user/{user.phira_id}"
@@ -40,6 +24,10 @@ class AuthService:
 			user.phira_rks = data.get("rks", float('nan'))
 			user.phira_avatar = data.get("avatar")
 			user.update_sync_time()
+
+	@login_required
+	def get_current_user_info(self):
+		return user_schema().dump(current_user)
 
 	@database_protect
 	def create_user(self, data: dict[str, Any]) -> dict[str, Any]:
@@ -74,6 +62,7 @@ class AuthService:
 		logout_user()
 	
 	@database_protect
+	@login_required
 	def get_user_list(self) -> list[dict]:
 		users = User.query.all()
 		for user in users:
@@ -81,6 +70,7 @@ class AuthService:
 		return user_schema(many=True).dump(users)
 
 	@database_protect
+	@login_required
 	def get_user_info(self, user_id: int) -> dict[str, Any]:
 		user = User.query.filter_by(id=user_id).first()
 		if not user:
@@ -126,6 +116,7 @@ class AuthService:
 		return user_schema().dump(user)
 
 	@database_protect
+	@login_required
 	def delete_user(self, user_id: int) -> None:
 		ensure_perm(Permission.USER_MANAGEMENT)
 		q = User.query.filter_by(id=user_id)
@@ -137,6 +128,7 @@ class AuthService:
 		q.delete()
 
 	@database_protect
+	@login_required
 	def create_group(self, data: dict[str, Any]) -> dict[str, Any]:
 		ensure_perm(Permission.GROUP_MANAGEMENT)
 		group = Group(**data)
@@ -145,14 +137,17 @@ class AuthService:
 		db.session.add(group)
 		return group
 
+	@login_required
 	def get_group_list(self) -> list[dict[str, Any]]:
 		return group_schema(many=True).dump(Group.query.all())
 
+	@login_required
 	def get_group_info(self, group_id: int) -> dict[str, Any]:
 		group = Group.query.filter_by(id=group_id).first()
 		return group_schema().dump(group)
 
 	@database_protect
+	@login_required
 	def update_group_info(self, group_id: int, data: dict[str, Any]) -> dict[str, Any]:
 		ensure_perm(Permission.GROUP_MANAGEMENT)
 		group = Group.query.filter_by(id=group_id).first()
@@ -170,6 +165,7 @@ class AuthService:
 		return group_schema().dump(group)
 	
 	@database_protect
+	@login_required
 	def delete_group(self, group_id: int) -> None:
 		ensure_perm(Permission.GROUP_MANAGEMENT)
 		q = Group.query.filter_by(id=group_id)

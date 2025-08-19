@@ -11,6 +11,7 @@ class AuthAPI:
 
 		self._bp.add_url_rule("/login", methods=["POST"], view_func=self.login)
 		self._bp.add_url_rule("/logout", methods=["POST"], view_func=self.logout)
+		self._bp.add_url_rule("/me", methods=["GET"], view_func=self.get_current_user_info)
 		self._bp.add_url_rule("/users", methods=["POST"], view_func=self.create_user)
 		self._bp.add_url_rule("/users", methods=["GET"], view_func=self.get_user_list)
 		self._bp.add_url_rule("/users/<int:id>", methods=["GET"], view_func=self.get_user_info)
@@ -24,6 +25,9 @@ class AuthAPI:
 
 	def assign_to_app(self, app):
 		app.register_blueprint(self._bp)
+
+	def get_current_user_info(self):
+		return jsonify(self._service.get_current_user_info())
 
 	def create_user(self):
 		data = user_schema().load(request.json)

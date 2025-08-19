@@ -1,5 +1,4 @@
 from .auth.routes import AuthAPI
-from .auth.services import AuthService
 from .extensions import db, lm, ma
 from .config import Config
 from .common import ClientError
@@ -31,7 +30,8 @@ def create_app():
 	# commands
 	@app.cli.command("seed_db")
 	def seed_db():
-		AuthService.seed_db()
+		import auth.models
+		auth.models.seed_db()
 
 	# ensure db is created
 	with app.app_context():
