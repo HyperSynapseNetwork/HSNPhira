@@ -934,7 +934,7 @@
       }
       
       // 尝试获取用户数据来验证密码
-      fetch('/usermgr/admin/users', {
+      fetch('/admin/users', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ password })
@@ -961,7 +961,7 @@
     
     // 加载所有用户数据
     function loadAllUsers() {
-      fetch('/usermgr/admin/users', {
+      fetch('/admin/users', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ password: adminPassword })
@@ -1076,7 +1076,7 @@
       if (phiraId) changes.phira_id = phiraId;
       if (password) changes.password = password;
       
-      fetch('/usermgr/admin/update', {
+      fetch('/admin/update', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -1158,7 +1158,7 @@
           break;
       }
       
-      fetch('/usermgr/admin/batch-update', {
+      fetch('/admin/batch-update', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
