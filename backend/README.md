@@ -49,6 +49,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 | admin | 2     | `IMPORTANT`、`USER_MANAGEMENT` |
 | user  | 3     | `NONE`                         |
 
+---
+
 #### `POST /api/auth/login`
 
 **说明**：登录用户
@@ -63,9 +65,13 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 }
 ```
 
+---
+
 #### `POST /api/auth/logout`
 
 **说明**：登出用户
+
+---
 
 #### `GET /api/auth/me`
 
@@ -88,6 +94,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 }
 ```
 
+---
+
 #### `POST /api/auth/users`
 
 **说明**：创建用户
@@ -105,6 +113,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 
 **特殊说明**：若指定了 `group_id` 字段，则要求请求者拥有 `GROUP_MANAGEMENT` 权限。
 
+---
+
 #### `GET /api/auth/users`
 
 **说明**：获取用户列表
@@ -117,11 +127,15 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 ]
 ```
 
+---
+
 #### `GET /api/auth/users/<int:id>`
 
 **说明**：获取用户 ID 为 `id` 的用户信息
 
 **响应数据格式**：一个符合 `/api/auth/me` 响应格式的 object
+
+---
 
 #### `PATCH /api/auth/users/<int:id>`
 
@@ -138,6 +152,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 }
 ```
 
+---
+
 #### `DELETE /api/auth/users/<int:id>`
 
 **说明**：删除用户 ID 为 `id` 的用户
@@ -149,6 +165,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
   "message": "success"
 }
 ```
+
+---
 
 #### `GET /api/auth/groups`
 
@@ -167,6 +185,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 ]
 ```
 
+---
+
 #### `POST /api/auth/groups`
 
 **说明**：创建用户组
@@ -182,11 +202,15 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 
 **特殊说明**：需要 `GROUP_MANAGEMENT` 权限
 
+---
+
 #### `GET /api/auth/groups/<int:id>`
 
 **说明**：获取用户组 ID 为 `id` 的用户组信息
 
 **响应数据格式**：一个符合 `/api/auth/groups` 每一项格式的 object
+
+---
 
 #### `PATCH /api/auth/groups/<int:id>`
 
@@ -200,6 +224,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
   "permissions": /*整数，用户组权限*/
 }
 ```
+
+---
 
 #### `DELETE /api/auth/groups/<int:id>`
 
@@ -236,7 +262,7 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
       "rounds": [ // 房间已经进行过的所有轮游戏的信息
         {
           "chart": /*整数，该轮铺面 ID*/，
-          "records": [ // 该论玩家成绩信息
+          "records": [ // 该轮玩家成绩信息
             {
               "id": /*整数，记录 ID*/,
               "player": /*整数，玩家 ID*/,
@@ -262,17 +288,23 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 ]
 ```
 
+---
+
 #### `GET /api/rooms/info/<string:name>`
 
 **说明**：获取房间名称为 `name` 的房间信息
 
 **响应数据格式**：一个符合 `/api/rooms/info` 每一项格式的 object
 
+---
+
 #### `GET /api/rooms/user/<int:user_id>`
 
 **说明**：获取用户 ID 为 `user_id` 的用户所在房间信息
 
 **响应数据格式**：一个符合 `/api/rooms/info/<string:name>` 响应格式的 object
+
+---
 
 #### `GET /api/rooms/listen`
 
