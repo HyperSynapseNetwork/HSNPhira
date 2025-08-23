@@ -23,7 +23,7 @@ def ensure_perm(perm: Permission):
 	if not current_user or not current_user.is_authenticated:
 		raise ClientError("unauthenticated", 401)
 	if not current_user.group or not current_user.has_permission(perm):
-		raise ClientError(f"permission denied (requires: {", ".join(perm.to_list())})", 403)
+		raise ClientError(f"permission denied (requires: {', '.join(perm.to_list())})", 403)
 
 
 def ensure_root():
