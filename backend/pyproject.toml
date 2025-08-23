@@ -5,7 +5,7 @@ description = "HSNPhira backend"
 readme = "README.md"
 requires-python = "~=3.12.7"
 dependencies = [
-    "flask==3.1.1",
+    "flask~=3.1.1",
     "flask-login>=0.6.3",
     "flask-marshmallow>=1.3.0",
     "flask-migrate>=4.1.0",
@@ -17,4 +17,5 @@ dependencies = [
 
 [[tool.uv.index]]
 url = "https://mirrors.aliyun.com/pypi/simple/"
+extra-index-url = ["https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/", "https://mirrors.pku.edu.cn/pypi/web/simple/", "https://mirrors.ustc.edu.cn/pypi/simple"]
 default = true
