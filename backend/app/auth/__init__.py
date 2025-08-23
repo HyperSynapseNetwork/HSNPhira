@@ -26,8 +26,8 @@ def ensure_perm(perm: Permission):
 		raise ClientError(f"permission denied (requires: {", ".join(perm.to_list())})", 403)
 
 
-def ensure_super_admin():
+def ensure_root():
 	if not current_user or not current_user.is_authenticated:
 		raise ClientError("unauthenticated", 401)
 	if current_user.id != 1:
-		raise ClientError("permission denied (requires super admin)", 403)
+		raise ClientError("permission denied (requires root)", 403)

@@ -15,7 +15,7 @@ class PlayerRecord:
 	miss: int
 	max_combo: int
 	accuracy: float
-	full_combo: int
+	full_combo: bool
 	std: float
 	std_score: int
 

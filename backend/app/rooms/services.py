@@ -1,4 +1,3 @@
-from ..common import ClientError
 from ..config import Config
 from . import PlayerRecord, RoundData, RoomData
 from threading import Thread, Event
@@ -6,7 +5,6 @@ from queue import Queue
 import subprocess
 import dataclasses
 import json
-import os
 
 class ListeningThread(Thread):
 	def __init__(self, service, *args, **kwargs):
@@ -101,9 +99,10 @@ class RoomsService:
 				room.playing_users.discard(user)
 				if len(room.playing_users) == 0:
 					room.state = RoomData.State.SELECTING_CHART
+					room.chart = None
 					self.broadcast("update_room", {
 						"room": name,
-						"data": {"state": RoomData.State.SELECTING_CHART}
+						"data": {"state": RoomData.State.SELECTING_CHART, "chart": None}
 					})
 
 			case "NewHost":

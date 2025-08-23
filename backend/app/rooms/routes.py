@@ -1,11 +1,11 @@
-from .service import RoomsService
+from .services import RoomsService
 from flask import Blueprint, Response, jsonify
 from flask_login import login_required
 
 
 class RoomsAPI:
 	def __init__(self):
-		self._bp = Blueprint("rooms", __name__, url_prefix="/rooms")
+		self._bp = Blueprint("rooms", __name__, url_prefix="/api/rooms")
 		self._service = RoomsService()
 
 		self._bp.add_url_rule("/info", methods=["GET"], view_func=self.get_rooms)

@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 
 class AuthAPI:
 	def __init__(self) -> None:
-		self._bp = Blueprint("auth", __name__, url_prefix="/auth")
+		self._bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 		self._service = AuthService()
 
 		self._bp.add_url_rule("/login", methods=["POST"], view_func=self.login)

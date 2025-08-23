@@ -3,7 +3,7 @@ from ..config import Config
 from ..common import ClientError, database_protect
 from .models import User, Group
 from .schemas import user_schema, group_schema
-from . import Permission, ensure_perm, ensure_super_admin
+from . import Permission, ensure_perm, ensure_root
 from flask_login import login_user, logout_user, login_required, current_user
 from typing import Any
 import requests
@@ -124,7 +124,7 @@ class AuthService:
 		if not user:
 			raise ClientError(f"invalid user id {user_id}")
 		if user.has_permission(Permission.IMPORTANT):
-			ensure_super_admin()
+			ensure_root()
 		q.delete()
 
 	@database_protect

@@ -92,7 +92,7 @@ def load_user(user_id):
 @database_protect
 def seed_db():
 	default_groups=[
-		{"name": "super_admin", "permissions": Permission.ALL},
+		{"name": "root", "permissions": Permission.ALL},
 		{"name": "admin", "permissions": Permission.IMPORTANT|Permission.USER_MANAGEMENT},
 		{"name": "user", "permissions": 0}
 	]
