@@ -764,50 +764,43 @@
         
         // 处理每个房间
         for (const room of rooms) {
-          if (!room || !room.data || !room.data.host) {
+          if (!room || !room.host) {
             console.warn('跳过无效房间:', room);
             continue;
           }
-          const roomData = room.data;
-          
           // 获取房主信息
-          const hostInfo = await getUserInfo(roomData.host);
-          const hostName = hostInfo ? hostInfo.name : `用户${roomData.host}`;
-          
+          const hostInfo = await getUserInfo(room.host);
+          const hostName = hostInfo ? hostInfo.name : `用户${room.host}`;
           // 获取谱面信息（如果有）
           let chartText = "暂未选择";
           let chartImg = "暂未选择";
           let downloadBtn = "暂未选择";
-          
-          if (roomData.chart) {
-            const chartInfo = await getChartInfo(roomData.chart);
+          if (room.chart) {
+            const chartInfo = await getChartInfo(room.chart);
             if (chartInfo) {
               chartText = chartInfo.name
-                ? `<a href="https://phira.moe/chart/${roomData.chart}" target="_blank" class="chart-name-btn">${chartInfo.name}</a>`
-                : `ID: ${roomData.chart}`;
+                ? `<a href="https://phira.moe/chart/${room.chart}" target="_blank" class="chart-name-btn">${chartInfo.name}</a>`
+                : `ID: ${room.chart}`;
               chartImg = chartInfo.illustration
                 ? `<button class="chart-btn" onclick="showLightbox('${chartInfo.illustration}')">查看</button>`
                 : "无封面";
               downloadBtn = chartInfo.file
-                ? `<a href="${chartInfo.file}" download="chart_${roomData.chart}.zip"><button class="dl-btn">下载</button></a>`
+                ? `<a href="${chartInfo.file}" download="chart_${room.chart}.zip"><button class="dl-btn">下载</button></a>`
                 : "无文件";
             }
           }
-          
           // 状态显示
-          const stateInfo = STATE_MAP[roomData.state] || { text: roomData.state, class: '' };
+          const stateInfo = STATE_MAP[room.state] || { text: room.state, class: '' };
           const stateDisplay = `<span class="state-label ${stateInfo.class}">${stateInfo.text}</span>`;
-          
-          const hostBtn = `<a href="https://phira.moe/user/${roomData.host}" target="_blank"><button class="chart-btn">${hostName}</button></a>`;
-          const usersBtn = `<button class="chart-btn" onclick='showRoomUsers(${JSON.stringify(roomData.users)}, ${roomData.host})'>查看</button>`;
-          
+          const hostBtn = `<a href="https://phira.moe/user/${room.host}" target="_blank"><button class="chart-btn">${hostName}</button></a>`;
+          const usersBtn = `<button class="chart-btn" onclick='showRoomUsers(${JSON.stringify(room.users)}, ${room.host})'>查看</button>`;
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${room.name}</td>
             <td>${hostBtn}</td>
-            <td>${roomData.users.length}/${roomData.user_count}</td>
+            <td>${room.users.length}/${room.user_count || room.users.length}</td>
             <td>${stateDisplay}</td>
-            <td>${roomData.cycle ? "是" : "否"}</td>
+            <td>${room.cycle ? "是" : "否"}</td>
             <td>${chartText}</td>
             <td>${chartImg}</td>
             <td>${downloadBtn}</td>
