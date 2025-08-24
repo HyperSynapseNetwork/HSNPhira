@@ -62,7 +62,11 @@ build_backend() {
 	cd "$PROJECT_ROOT/backend"
 	message "preparing for backend..."
 	uv sync
-	uv run flask init-db
+	read -p "Do you want to initialize the database? This would drop all existing data. (y/N) " res
+	if [ "$res" == "y" ]; then
+		message "initializing the database..."
+		uv run flask seed-db
+	fi
 	message "backend is ready"
 }
 

@@ -3,7 +3,7 @@
 # configurations, you can change them
 export HSN_BACKEND_PORT=5000
 export HSN_PHIRA_MP_PORT=8080
-export HSN_LOGDIR="$PWD/log"
+export HSN_LOGDIR="$PWD/logs"
 export HSN_WORKDIR="$PWD/work"
 export HSN_SECRET_KEY="super-secret-key"
 export HSN_ROOT_PASSWORD="super-secret-password"
