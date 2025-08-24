@@ -715,9 +715,8 @@
       }
       
       try {
-        const res = await fetch(`链接3${userId}`);
+        const res = await fetch(`https://phira.5wyxi.com/user/${userId}`);
         if (!res.ok) return null;
-        
         const userData = await res.json();
         USER_CACHE.set(userId, userData);
         return userData;
@@ -734,9 +733,8 @@
       }
       
       try {
-        const res = await fetch(`链接1${chartId}`);
+        const res = await fetch(`https://phira.5wyxi.com/chart/${chartId}`);
         if (!res.ok) return null;
-        
         const chartData = await res.json();
         CHART_CACHE.set(chartId, chartData);
         return chartData;
