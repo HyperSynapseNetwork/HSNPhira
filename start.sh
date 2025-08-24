@@ -8,6 +8,7 @@ export HSN_WORKDIR="$PWD/work"
 export HSN_SECRET_KEY="super-secret-key"
 export HSN_ROOT_PASSWORD="super-secret-password"
 export HSN_LOG_PROCESSOR_PIPE="$HSN_WORKDIR/logprocessor.pipe"
+export HSN_STRICT_REGISTRATION=1
 
 # in strict mode
 set -euo pipefail
@@ -54,7 +55,6 @@ monitor() {
 }
 
 # setup directories
-rm -f -R "$HSN_LOGDIR" "$HSN_WORKDIR"
 mkdir -p "$HSN_LOGDIR" "$HSN_WORKDIR"
 
 # run
@@ -68,6 +68,7 @@ start_backend() {
 }
 start_log_processor() {
 	cd ./phira-mp-logprocessor
+	rm -rf "$HSN_LOG_PROCESSOR_PIPE"
 	mkfifo "$HSN_LOG_PROCESSOR_PIPE"
 	exec yarn start --logdir="$HSN_LOGDIR" > "$HSN_LOG_PROCESSOR_PIPE"
 }

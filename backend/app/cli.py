@@ -1,6 +1,6 @@
 from .extensions import db
 from .config import Config
-from .common import database_guard, executor_guard
+from .common import database_guard
 from .auth.models import User, Group
 from .auth import Permission
 
@@ -10,7 +10,6 @@ from flask.cli import with_appcontext
 
 @click.command("init-db")
 @with_appcontext
-@executor_guard
 @database_guard
 def init_db():
 	db.drop_all()

@@ -1,9 +1,10 @@
 from ..extensions import ma
-from ..common import SchemaBase, schema_factory
-from .models import User, Group
+from ..common import schema_factory
+from .models import User, Group, Visited
 
-class UserSchema(SchemaBase):
-	class Meta(SchemaBase.Meta):
+
+class UserSchema(ma.SQLAlchemySchema):
+	class Meta:
 		model = User
 
 	id = ma.auto_field(dump_only=True)
@@ -18,13 +19,15 @@ class UserSchema(SchemaBase):
 	last_login_time = ma.auto_field(dump_only=True)
 	last_sync_time = ma.auto_field(dump_only=True)
 
+
 class LoginSchema(ma.Schema):
 	username = ma.String(required=True)
 	password = ma.String(required=True)
 	remember = ma.Boolean(required=False, load_default=True)
 
-class GroupSchema(SchemaBase):
-	class Meta(SchemaBase.Meta):
+
+class GroupSchema(ma.SQLAlchemySchema):
+	class Meta:
 		model = Group
 
 	id = ma.auto_field(dump_only=True)
@@ -33,6 +36,12 @@ class GroupSchema(SchemaBase):
 	users = ma.List(ma.Integer(), dump_only=True)
 
 
+class VisitedSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Visited
+
+
 user_schema = schema_factory(UserSchema)
 login_schema = schema_factory(LoginSchema)
 group_schema = schema_factory(GroupSchema)
+visited_schema = schema_factory(VisitedSchema)

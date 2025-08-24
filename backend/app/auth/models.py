@@ -83,6 +83,12 @@ class Group(db.Model):
 		return (self.permissions & perm) == perm
 
 
+class Visited(db.Model):
+	__tablename__ = "known_phira_ids"
+
+	phira_id = db.Column(db.Integer, primary_key=True, nullable=False)
+
+
 @lm.user_loader
 def load_user(user_id):
 	return User.query.get(int(user_id))

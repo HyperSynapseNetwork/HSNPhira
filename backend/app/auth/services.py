@@ -1,16 +1,19 @@
+from ..config import Config
 from ..extensions import db
 from ..common import ClientError, database_guard
-from .models import User, Group
-from .schemas import user_schema, group_schema
+from .models import User, Group, Visited
+from .schemas import user_schema, group_schema, visited_schema
 from . import Permission, ensure_perm, ensure_root
 
-from flask import Flask
 from flask_login import login_user, logout_user, login_required, current_user
 from typing import Any
 import requests
 
 
 class AuthService:
+	def __init__(self, app):
+		self.app = app
+
 	def sync_phira_profile(self, user: User, force: bool = False) -> None:
 		if user.phira_id and (force or user.check_sync_time()):
 			url = f"https://phira.5wyxi.com/user/{user.phira_id}"
@@ -37,6 +40,8 @@ class AuthService:
 			raise ClientError("username already exists")
 		if User.query.filter_by(phira_id=user.phira_id).first():
 			raise ClientError("phira id already bound")
+		if Config.STRICT_REGISTRATION and not Visited.query.filter_by(phira_id=user.phira_id).first():
+			raise ClientError("must have been played in server at least once")
 		if user.group_id != 3:
 			ensure_perm(Permission.GROUP_MANAGEMENT)
 
@@ -63,7 +68,6 @@ class AuthService:
 		logout_user()
 	
 	@database_guard
-	@login_required
 	def get_user_list(self) -> list[dict]:
 		users = User.query.all()
 		for user in users:
@@ -71,7 +75,6 @@ class AuthService:
 		return user_schema(many=True).dump(users)
 
 	@database_guard
-	@login_required
 	def get_user_info(self, user_id: int) -> dict[str, Any]:
 		user = User.query.filter_by(id=user_id).first()
 		if not user:
@@ -138,11 +141,9 @@ class AuthService:
 		db.session.add(group)
 		return group
 
-	@login_required
 	def get_group_list(self) -> list[dict[str, Any]]:
 		return group_schema(many=True).dump(Group.query.all())
 
-	@login_required
 	def get_group_info(self, group_id: int) -> dict[str, Any]:
 		group = Group.query.filter_by(id=group_id).first()
 		return group_schema().dump(group)
@@ -173,3 +174,9 @@ class AuthService:
 		if not q.first():
 			raise ClientError(f"invalid group id {group_id}")
 		q.delete()
+
+	def get_visited(self) -> list[int]:
+		return visited_schema(many=True).dump(Visited.query.all())
+
+	def get_visited_count(self) -> int:
+		return Visited.query.count()

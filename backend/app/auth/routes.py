@@ -7,8 +7,9 @@ from flask import Flask, Blueprint, jsonify, request
 
 class AuthAPI:
 	def __init__(self, app: Flask) -> None:
+		self.app = app
 		self._bp = Blueprint("auth", __name__, url_prefix="/api/auth")
-		self._service = AuthService()
+		self._service = AuthService(app)
 
 		self._bp.add_url_rule("/login", methods=["POST"], view_func=self.login)
 		self._bp.add_url_rule("/logout", methods=["POST"], view_func=self.logout)
@@ -23,8 +24,10 @@ class AuthAPI:
 		self._bp.add_url_rule("/groups/<int:id>", methods=["GET"], view_func=self.get_group_info)
 		self._bp.add_url_rule("/groups/<int:id>", methods=["PATCH"], view_func=self.update_group_info)
 		self._bp.add_url_rule("/groups/<int:id>", methods=["DELETE"], view_func=self.delete_group)
+		self._bp.add_url_rule("/visited", methods=["GET"], view_func=self.get_visited)
+		self._bp.add_url_rule("/visited/count", methods=["GET"], view_func=self.get_visited_count)
 
-		app.register_blueprint(self._bp)
+		self.app.register_blueprint(self._bp)
 
 	def get_current_user_info(self):
 		return jsonify(self._service.get_current_user_info())
@@ -72,3 +75,9 @@ class AuthAPI:
 	def delete_group(self, id: int):
 		self._service.delete_group(id)
 		return jsonify({"message": "success"})
+
+	def get_visited(self):
+		return jsonify(self._service.get_visited())
+
+	def get_visited_count(self):
+		return jsonify(self._service.get_visited_count())

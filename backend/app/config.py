@@ -15,6 +15,8 @@ class Config:
 	ROOT_PASSWORD = os.getenv("HSN_ROOT_PASSWORD", "super-secret-password")
 	# path to phira-mp log processor
 	LOG_PROCESSOR_PIPE = os.getenv("HSN_LOG_PROCESSOR_PIPE", "test/log_processor.pipe")
+	# whether to require user has played in server before register
+	STRICT_REGISTRATION = (os.getenv("HSN_STRICT_REGISTRATION") is not None)
 	# database configurations
 	SQLALCHEMY_DATABASE_URI = os.getenv("HSN_DATABASE_URI", "sqlite:///hsn_phira.db")
 	SQLALCHEMY_TRACK_MODIFICATIONS = False

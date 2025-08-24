@@ -1,21 +1,26 @@
+from ..extensions import db
 from ..config import Config
-from ..common import executor, exit_event
+from ..common import database_guard
+from ..auth.models import Visited
+from ..auth.schemas import visited_schema
 from . import PlayerRecord, RoundData, RoomData
 
-from threading import Thread, Event
 from queue import Queue
 import dataclasses, json
 import os, time, select
 import logging
 
 class RoomsService:
-	def __init__(self):
+	def __init__(self, app):
+		self.app = app
 		self._rooms: dict[str, RoomData] = {}
 		self._users_room: dict[int, str] = {}
 		self._queues: set[Queue] = set()
-		executor.submit(self.listening_thread)
 
-	def listening_thread(self):
+		self.app.register_task(self.listening_thread)
+
+	def listening_thread(self, exit_event):
+		self.app.logger.info("listening events from logprocessor")
 		fd = None
 		file_obj = None
 
@@ -43,12 +48,13 @@ class RoomsService:
 						event = json.loads(line)
 						self.process_event(event)
 					except Exception as e:
-						logging.error(f"failed to process event: {e}")
+						self.app.logger.error(f"failed to process event: {e}")
 		finally:
 			if file_obj:
 				file_obj.close()
 
 	def process_event(self, event: dict):
+		self.app.logger.info(f"received event: {event}")
 		name = event.get("room")
 		user = event.get("user")
 		room = self._rooms.get(name) if name else None
@@ -62,6 +68,7 @@ class RoomsService:
 					"room": name,
 					"data": dataclasses.asdict(room)
 				})
+				self.try_update_visited(user)
 
 			case "UpdateRoom":
 				data = event["data"]
@@ -82,6 +89,7 @@ class RoomsService:
 				self._users_room[user] = name
 				room.users.add(user)
 				self.broadcast("join_room", {"room": name, "user": user})
+				self.try_update_visited(user)
 
 			case "LeaveRoom":
 				name = self._users_room.pop(user)
@@ -114,16 +122,23 @@ class RoomsService:
 				room.host = user
 				self.broadcast("update_room", {"room": name, "data": {"host": user}})
 
-	def get_rooms(self):
+	def get_rooms(self) -> list[RoomData]:
 		return [{"name": name, **dataclasses.asdict(room)} for name, room in self._rooms.items()]
 
-	def get_room(self, name: str):
+	def get_room(self, name: str) -> RoomData|None:
 		room = self._rooms.get(name)
 		return dataclasses.asdict(room) if room else None
 
-	def get_users_room(self, user_id: int):
+	def get_users_room(self, user_id: int) -> RoomData|None:
 		name = self._users_room.get(user_id)
 		return dataclasses.asdict(self._rooms[name]) if name else None
+
+	@database_guard
+	def try_update_visited(self, phira_id):
+		print(f"visit: {phira_id}")
+		if not Visited.query.filter_by(phira_id=phira_id).first():
+			new = Visited(phira_id=phira_id)
+			db.session.add(new)
 
 	def broadcast(self, event: str, data):
 		for q in self._queues:

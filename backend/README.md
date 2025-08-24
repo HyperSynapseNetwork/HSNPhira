@@ -239,6 +239,35 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 }
 ```
 
+---
+
+#### `GET /api/auth/visited`
+
+**说明**：获取曾经使用过服务器的 Phira 用户列表
+
+**响应数据格式**：
+
+```json
+[
+  {
+    phira_id: /*整数，用户的 Phira ID*/
+  },
+  /*每项为符合以上格式的 object*/
+]
+```
+
+---
+
+#### `GET /api/auth/visited/count`
+
+**说明**：获取曾经使用过服务器的 Phira 用户数量
+
+**响应数据格式**：
+
+```json
+/*整数，表示用户数量*/
+```
+
 ### 房间管理 api
 
 #### `GET /api/rooms/info`
@@ -326,5 +355,4 @@ data: /*字符串，可解析为一个 json object*/
 | `join_room`    | `{"room": /*字符串，房间名*/, "user": /*整数，用户 Phira ID*/}` | 用户加入房间 |
 | `leave_room`   | `{"room": /*字符串，房间名*/, "user": /*整数，用户 Phira ID*/}` | 用户离开房间 |
 | `player_score` | `{"room": /*字符串，房间名*/, "record": /*记录数据，格式见上文*/}` | 玩家完成游戏 |
-|                |                                                              |              |
 
