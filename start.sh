@@ -64,6 +64,7 @@ start_phira_mp() {
 }
 start_backend() {
 	cd ./backend
+	uv run flask db upgrade
 	exec uv run main.py --port="$HSN_BACKEND_PORT"
 }
 start_log_processor() {

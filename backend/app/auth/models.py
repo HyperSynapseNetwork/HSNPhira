@@ -84,7 +84,7 @@ class Group(db.Model):
 
 
 class Visited(db.Model):
-	__tablename__ = "known_phira_ids"
+	__tablename__ = "visited"
 
 	phira_id = db.Column(db.Integer, primary_key=True, nullable=False)
 
