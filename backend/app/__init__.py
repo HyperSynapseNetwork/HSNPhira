@@ -51,17 +51,3 @@ def create_app():
 	app.cli.add_command(cli.init_db)
 
 	return app
-
-
-@click.command()
-@click.option('--host', default=Config.HOST, help="set host")
-@click.option('--port', default=Config.PORT, type=int, help="set port")
-@click.option('--debug/--no-debug', default=Config.DEBUG, is_flag=True, help="whether to run in debug mode")
-@executor_guard
-def start_app(host, port, debug):
-	try:
-		app = create_app()
-		app.run(host=host, port=port, debug=debug)
-	finally:
-		exit_event.set()
-		executor.shutdown()
