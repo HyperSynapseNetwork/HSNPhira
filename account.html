@@ -169,7 +169,7 @@
       padding-bottom: 50px;
     }
     
-    /* 新增3D卡片效果 - 修复了动画问题 */
+    /* 3D卡片效果 */
     .account-container {
       transform-style: preserve-3d;
       transform: translateZ(20px);
@@ -184,6 +184,7 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.2);
       margin: 1rem;
+      box-sizing: border-box;
     }
 
     @keyframes gentleSway {
@@ -216,24 +217,33 @@
     }
     .account-info {
       flex: 1;
+      min-width: 0;
     }
     .account-name {
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
       color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .account-subtitle {
       color: #aaa;
       margin-bottom: 0.3rem;
       font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .account-stats {
       display: flex;
       margin-top: 1rem;
       gap: 1.5rem;
+      flex-wrap: wrap;
     }
     .stat-item {
       text-align: center;
+      min-width: 80px;
     }
     .stat-value {
       font-size: 1.5rem;
@@ -273,7 +283,6 @@
       margin-bottom: 0.5rem;
       color: #ddd;
     }
-    /* 修复input元素爆宽度问题 */
     .form-input {
       width: 100%;
       padding: 0.8rem 1rem;
@@ -284,7 +293,7 @@
       font-size: 1rem;
       outline: none;
       transition: all 0.3s ease;
-      box-sizing: border-box; /* 添加box-sizing修复宽度问题 */
+      box-sizing: border-box;
     }
     .form-input:focus {
       border-color: rgba(255, 255, 255, 0.4);
@@ -297,6 +306,7 @@
     }
     .form-col {
       flex: 1;
+      min-width: 0;
     }
     .badge {
       display: inline-block;
@@ -332,6 +342,7 @@
       justify-content: center;
       gap: 0.5rem;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
     }
     .btn:hover {
       background: rgba(255, 255, 255, 0.15);
@@ -349,6 +360,7 @@
       display: flex;
       gap: 1rem;
       margin-top: 1rem;
+      flex-wrap: wrap;
     }
     .info-grid {
       display: grid;
@@ -362,6 +374,7 @@
       padding: 1.2rem;
       border: 1px solid rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(6px);
+      min-width: 0;
     }
     .info-title {
       color: #aaa;
@@ -409,6 +422,15 @@
       justify-content: flex-end;
       gap: 1rem;
       margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+    .checkbox-container input[type="checkbox"] {
+      margin-right: 0.5rem;
     }
     @media (max-width: 768px) {
       header {
@@ -444,18 +466,55 @@
       .account-stats {
         justify-content: center;
       }
+      .btn-container {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .form-actions {
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
   <div class="parallax-bg"></div>
-  <div id="header-container"></div>
+  
+  <header>
+    <div class="logo-nav-container">
+      <img id="logo-img" src="https://phira.htadiy.cc/logo.png" alt="HyperSynapse Logo">
+      <div class="nav-links">
+        <a href="index.html">主页</a>
+        <a href="rooms.html">房间列表</a>
+        <a href="account.html" class="active">账号管理</a>
+      </div>
+    </div>
+    
+    <div class="user-section">
+      <!-- 登录按钮（未登录时） -->
+      <div id="login-button" class="glass-button" onclick="openAuth()">
+        <a href="javascript:void(0)" class="login-btn">登录</a>
+      </div>
+      <!-- 用户信息（登录后） -->
+      <div id="avatar-container" style="display: none;" class="glass-button">
+        <div class="user-info" onclick="toggleDropdown()">
+          <span class="username" id="username-display"></span>
+          <img class="user-avatar" id="user-avatar" src="" alt="用户头像">
+        </div>
+        <div class="dropdown-content" id="user-dropdown">
+          <span id="dropdown-username"></span>
+          <a id="phira-profile-link" target="_blank">我的Phira账户</a>
+          <a href="account.html">账号管理</a>
+          <a href="javascript:void(0)" onclick="logout()">退出登录</a>
+        </div>
+      </div>
+    </div>
+  </header>
   
   <main>
     <div class="account-container">
       <div class="account-header">
         <div class="account-avatar">
-          
+          <img id="user-avatar-large" src="" alt="用户头像" class="account-avatar">
         </div>
         <div class="account-info">
           <h1 class="account-name" id="account-name">加载中...</h1>
@@ -562,12 +621,22 @@
         
         <div class="info-grid" id="permissions-grid">
           <div class="info-card">
-            <div class="info-title">用户组</div>
-            <div class="info-value" id="group-name">-</div>
+            <div class="info-title">系统管理员</div>
+            <div class="info-value">
+              <span id="admin-status">否</span>
+            </div>
           </div>
           <div class="info-card">
-            <div class="info-title">权限位掩码</div>
-            <div class="info-value" id="permissions-value">-</div>
+            <div class="info-title">用户管理权限</div>
+            <div class="info-value">
+              <span id="user-management-status">否</span>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-title">用户组管理权限</div>
+            <div class="info-value">
+              <span id="group-management-status">否</span>
+            </div>
           </div>
         </div>
         
@@ -588,78 +657,25 @@
       <input id="auth-name" placeholder="用户名" />
       <input id="auth-password" type="password" placeholder="密码" />
       <input id="auth-phiraid" class="collapsed" placeholder="Phira ID (仅注册)"/>
+      
+      <!-- 记住我复选框 -->
+      <div class="checkbox-container">
+        <input type="checkbox" id="remember-me">
+        <label for="remember-me">记住我</label>
+      </div>
+      
+      <!-- 用户协议复选框（仅注册时显示） -->
+      <div id="agreement-container" class="checkbox-container" style="display: none;">
+        <input type="checkbox" id="agree-terms" required>
+        <label for="agree-terms">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
+      </div>
+      
       <button onclick="submitAuth()">确认</button>
       <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
       <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
       <button class="btn btn-outline" onclick="closeAuth()">关闭</button>
     </div>
   </div>
-
-  <style>
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(6px);
-      z-index: 99999;
-    }
-    .modal-content {
-      background: rgba(255,255,255,0.08);
-      padding: 1.5rem;
-      border-radius: 16px;
-      color: #fff;
-      backdrop-filter: blur(20px);
-      max-width: 320px;
-      width: 90%;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .modal-content h3 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: #a1e5ef;
-    }
-    .modal-content input {
-      box-sizing: border-box;
-      display: block;
-      margin: 0.5rem 0;
-      padding: 0.8rem;
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      backdrop-filter: blur(8px);
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-    .modal-content input:focus {
-      box-shadow: 0 0 0.5rem rgba(255, 255, 255, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-    }
-    .modal-content button {
-      width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.8rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .modal-content button:hover {
-      background: rgba(255,255,255,0.15);
-      transform: translateY(-2px);
-    }
-  </style>
 
   <script>
     // 默认头像URL
@@ -668,27 +684,8 @@
     let authMode = 'login';
     
     // 页面加载时检查登录状态
-    document.addEventListener('DOMContentLoaded', () => {
-      // 使用新版API检查登录状态
-      fetch('/api/auth/me', {
-        method: 'GET',
-        credentials: 'include'
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('未登录');
-        return response.json();
-      })
-      .then(user => {
-        currentUser = user;
-        updateUserDisplay();
-        loadAccountDetails();
-      })
-      .catch(error => {
-        // 未登录，重定向到登录页
-        window.location.href = 'index.html';
-      });
-      
-      // 添加3D卡片交互效果 - 修复了动画问题
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 添加3D卡片交互效果
       const accountContainer = document.querySelector('.account-container');
       
       if (accountContainer) {
@@ -711,76 +708,93 @@
         
         accountContainer.addEventListener('mouseleave', () => {
           accountContainer.classList.remove('tilting');
-          // 修复：移除内联样式，恢复原始动画
-          accountContainer.style.transform = '';
+          accountContainer.style.transform = 'translateZ(20px) rotateX(0) rotateY(0)';
+          
+          // 重新启用轻微晃动动画
+          setTimeout(() => {
+            accountContainer.style.animation = 'gentleSway 8s infinite ease-in-out';
+          }, 300);
         });
+      }
+      
+      // 检查会话状态
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          currentUser = await response.json();
+          updateUserDisplay();
+          loadAccountDetails();
+        } else {
+          // 未登录，显示登录按钮
+          document.getElementById('login-button').style.display = 'flex';
+        }
+      } catch (error) {
+        console.error('检查会话失败:', error);
+        document.getElementById('login-button').style.display = 'flex';
       }
     });
     
-    // 加载账户详细信息 - 适配新版API
-    async function loadAccountDetails() {
+    // 加载账户详细信息
+    function loadAccountDetails() {
       if (!currentUser) return;
       
-      try {
-        // 获取用户组信息
-        const groupRes = await fetch(`/api/auth/groups/${currentUser.group_id}`, {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const groupData = await groupRes.json();
-        
-        // 设置用户数据
-        document.getElementById('account-name').textContent = currentUser.username;
-        document.getElementById('username-display').textContent = currentUser.username;
-        document.getElementById('dropdown-username').textContent = currentUser.username;
-        document.getElementById('account-id').textContent = currentUser.id;
-        document.getElementById('phira-id').textContent = currentUser.phira_id || '未绑定';
-        document.getElementById('phira-name').textContent = currentUser.phira_username || '未绑定';
-        document.getElementById('info-username').textContent = currentUser.username;
-        document.getElementById('rks-value').textContent = currentUser.phira_rks ? parseFloat(currentUser.phira_rks).toFixed(2) : '0.00';
-        
-        // 设置注册日期和最后登录时间
-        document.getElementById('join-date').textContent = formatDate(currentUser.register_time);
-        document.getElementById('last-login').textContent = formatDate(currentUser.last_login_time);
-        
-        // 设置权限信息
-        document.getElementById('group-name').textContent = groupData.name || '未知';
-        document.getElementById('permissions-value').textContent = '0x' + groupData.permissions.toString(16).toUpperCase();
-        
-        // 设置头像
-        const avatarUrl = currentUser.phira_avatar || DEFAULT_AVATAR;
-        document.getElementById('user-avatar').src = avatarUrl;
-        document.getElementById('user-avatar-large-img').src = avatarUrl;
-        
-        // 更新权限徽章
-        const badgesContainer = document.getElementById('account-badges');
-        badgesContainer.innerHTML = '';
-        
-        // 根据权限值显示徽章
-        if (groupData.permissions & 0x00000002) { // USER_MANAGEMENT
-          const adminBadge = document.createElement('span');
-          adminBadge.className = 'badge badge-admin';
-          adminBadge.textContent = '管理员';
-          badgesContainer.appendChild(adminBadge);
-        }
-        
-        if (groupData.permissions & 0x00000001) { // IMPORT
-          const devBadge = document.createElement('span');
-          devBadge.className = 'badge badge-dev';
-          devBadge.textContent = '重要用户';
-          badgesContainer.appendChild(devBadge);
-        }
-      } catch (error) {
-        console.error('加载账户详情失败:', error);
-        showMessage('username-message', '无法加载账户详情', false);
+      // 设置用户数据
+      document.getElementById('account-name').textContent = currentUser.username;
+      document.getElementById('username-display').textContent = currentUser.username;
+      document.getElementById('dropdown-username').textContent = currentUser.username;
+      document.getElementById('account-id').textContent = currentUser.id;
+      document.getElementById('phira-id').textContent = currentUser.phira_id;
+      document.getElementById('phira-name').textContent = currentUser.phira_username;
+      document.getElementById('info-username').textContent = currentUser.username;
+      document.getElementById('rks-value').textContent = currentUser.phira_rks ? parseFloat(currentUser.phira_rks).toFixed(2) : '0.00';
+      
+      // 设置头像
+      const avatarUrl = currentUser.phira_avatar || DEFAULT_AVATAR;
+      document.getElementById('user-avatar').src = avatarUrl;
+      document.getElementById('user-avatar-large').src = avatarUrl;
+      
+      // 设置注册日期
+      document.getElementById('join-date').textContent = formatDate(currentUser.register_time);
+      
+      // 设置最后登录时间
+      document.getElementById('last-login').textContent = formatDate(currentUser.last_login_time);
+      
+      // 设置权限信息
+      document.getElementById('admin-status').textContent = (currentUser.permissions & 0xFFFFFFFF) === 0xFFFFFFFF ? "是" : "否";
+      document.getElementById('user-management-status').textContent = (currentUser.permissions & 0x00000002) ? "是" : "否";
+      document.getElementById('group-management-status').textContent = (currentUser.permissions & 0x00000004) ? "是" : "否";
+      
+      // 更新权限徽章
+      const badgesContainer = document.getElementById('account-badges');
+      badgesContainer.innerHTML = '';
+      
+      if ((currentUser.permissions & 0xFFFFFFFF) === 0xFFFFFFFF) {
+        const adminBadge = document.createElement('span');
+        adminBadge.className = 'badge badge-admin';
+        adminBadge.textContent = '管理员';
+        badgesContainer.appendChild(adminBadge);
+      }
+      
+      if (currentUser.permissions & 0x00000002) {
+        const userMgmtBadge = document.createElement('span');
+        userMgmtBadge.className = 'badge badge-admin';
+        userMgmtBadge.textContent = '用户管理';
+        badgesContainer.appendChild(userMgmtBadge);
+      }
+      
+      if (currentUser.permissions & 0x00000004) {
+        const groupMgmtBadge = document.createElement('span');
+        groupMgmtBadge.className = 'badge badge-dev';
+        groupMgmtBadge.textContent = '用户组管理';
+        badgesContainer.appendChild(groupMgmtBadge);
       }
     }
     
-    // 格式化日期时间
+    // 格式化日期
     function formatDate(dateString) {
       if (!dateString) return '-';
       const date = new Date(dateString);
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      return date.toLocaleString();
     }
     
     // 更新用户显示区域
@@ -795,18 +809,15 @@
         // 显示头像容器
         if (avatarContainer) avatarContainer.style.display = 'flex';
         
-        // 更新用户名
+        // 更新用户名和头像
         if (document.getElementById('username-display')) {
           document.getElementById('username-display').textContent = currentUser.username;
         }
+        if (document.getElementById('user-avatar')) {
+          document.getElementById('user-avatar').src = currentUser.phira_avatar || DEFAULT_AVATAR;
+        }
         if (document.getElementById('dropdown-username')) {
           document.getElementById('dropdown-username').textContent = currentUser.username;
-        }
-        
-        // 更新头像
-        if (document.getElementById('user-avatar')) {
-          const avatarUrl = currentUser.phira_avatar || DEFAULT_AVATAR;
-          document.getElementById('user-avatar').src = avatarUrl;
         }
       } else {
         // 显示登录按钮
@@ -815,30 +826,6 @@
         // 隐藏头像容器
         if (avatarContainer) avatarContainer.style.display = 'none';
       }
-    }
-    
-    // 切换下拉菜单显示状态
-    function toggleDropdown() {
-      const dropdown = document.getElementById('user-dropdown');
-      if (dropdown) {
-        dropdown.classList.toggle('show');
-      }
-    }
-    
-    // 退出登录 - 适配新版API
-    function logout() {
-      fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      })
-      .then(() => {
-        currentUser = null;
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-      })
-      .catch(error => {
-        console.error('退出登录失败:', error);
-      });
     }
     
     // 重置用户名表单
@@ -875,7 +862,7 @@
       messageElement.style.display = 'none';
     }
     
-    // 更新用户名 - 适配新版API
+    // 更新用户名
     async function updateUsername() {
       const newUsername = document.getElementById('new-username').value;
       const password = document.getElementById('username-password').value;
@@ -894,39 +881,33 @@
         const response = await fetch(`/api/auth/users/${currentUser.id}`, {
           method: 'PATCH',
           headers: {'Content-Type': 'application/json'},
-          credentials: 'include',
           body: JSON.stringify({
             username: newUsername,
-            current_password: password
+            password: password
           })
         });
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || '更新失败');
+          showMessage('username-message', errorData.message || '更新失败', false);
+          return;
         }
         
-        // 更新本地存储的用户信息
+        // 更新本地显示
         currentUser.username = newUsername;
-        
-        // 更新页面显示
         document.getElementById('account-name').textContent = newUsername;
         document.getElementById('info-username').textContent = newUsername;
-        if (document.getElementById('username-display')) {
-          document.getElementById('username-display').textContent = newUsername;
-        }
-        if (document.getElementById('dropdown-username')) {
-          document.getElementById('dropdown-username').textContent = newUsername;
-        }
+        document.getElementById('username-display').textContent = newUsername;
+        document.getElementById('dropdown-username').textContent = newUsername;
         
         showMessage('username-message', '用户名更新成功！', true);
         resetUsernameForm();
       } catch (error) {
-        showMessage('username-message', error.message || '更新失败', false);
+        showMessage('username-message', '网络错误，请重试', false);
       }
     }
     
-    // 更新密码 - 适配新版API
+    // 更新密码
     async function updatePassword() {
       const currentPassword = document.getElementById('current-password').value;
       const newPassword = document.getElementById('new-password').value;
@@ -956,26 +937,26 @@
         const response = await fetch(`/api/auth/users/${currentUser.id}`, {
           method: 'PATCH',
           headers: {'Content-Type': 'application/json'},
-          credentials: 'include',
           body: JSON.stringify({
-            password: newPassword,
-            current_password: currentPassword
+            currentPassword: currentPassword,
+            password: newPassword
           })
         });
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || '更新失败');
+          showMessage('password-message', errorData.message || '更新失败', false);
+          return;
         }
         
         showMessage('password-message', '密码更新成功！', true);
         resetPasswordForm();
       } catch (error) {
-        showMessage('password-message', error.message || '更新失败', false);
+        showMessage('password-message', '网络错误，请重试', false);
       }
     }
     
-    // 登录/注册相关功能 - 适配新版API
+    // 以下是登录/注册相关功能
     function openAuth() {
       document.getElementById('auth-modal').style.display = 'flex';
       document.getElementById('auth-msg').textContent = '';
@@ -989,6 +970,10 @@
     function toggleAuthMode() {
       authMode = authMode === 'login' ? 'register' : 'login';
       updateAuthUI();
+      
+      // 显示/隐藏用户协议复选框
+      const agreementContainer = document.getElementById('agreement-container');
+      agreementContainer.style.display = authMode === 'register' ? 'block' : 'none';
     }
     
     function updateAuthUI() {
@@ -1005,56 +990,97 @@
     }
     
     async function submitAuth() {
-      const name = document.getElementById('auth-name').value;
+      const username = document.getElementById('auth-name').value;
       const password = document.getElementById('auth-password').value;
       const phira_id = document.getElementById('auth-phiraid').value;
+      const rememberMe = document.getElementById('remember-me').checked;
+      const agreeTerms = authMode === 'register' ? document.getElementById('agree-terms').checked : true;
       const msg = document.getElementById('auth-msg');
       msg.textContent = '处理中...';
     
       try {
-        let endpoint, body;
-        if (authMode === 'login') {
-          endpoint = '/api/auth/login';
-          body = JSON.stringify({ username: name, password, remember: true });
-        } else {
-          endpoint = '/api/auth/users';
-          body = JSON.stringify({ username: name, password, phira_id: parseInt(phira_id) });
+        // 注册时需要确认用户协议
+        if (authMode === 'register' && !agreeTerms) {
+          msg.textContent = '请同意用户协议';
+          return;
         }
+        
+        const endpoint = authMode === 'login' 
+          ? '/api/auth/login'
+          : '/api/auth/users';
+          
+        const payload = authMode === 'login'
+          ? { username, password, remember: rememberMe }
+          : { username, password, phira_id };
         
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          credentials: 'include',
-          body: body
+          body: JSON.stringify(payload)
         });
         
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.message || '操作失败');
+          msg.textContent = errorData.message || '操作失败';
+          return;
         }
         
-        const data = await res.json();
-        
-        // 获取用户信息
-        const meRes = await fetch('/api/auth/me', {
-          method: 'GET',
-          credentials: 'include'
-        });
-        currentUser = await meRes.json();
-        
-        // 更新显示
-        updateUserDisplay();
-        loadAccountDetails();
+        // 登录成功后获取用户信息
+        if (authMode === 'login') {
+          const userRes = await fetch('/api/auth/me');
+          if (!userRes.ok) {
+            msg.textContent = '获取用户信息失败';
+            return;
+          }
+          currentUser = await userRes.json();
+          updateUserDisplay();
+          loadAccountDetails();
+        }
         
         msg.textContent = authMode === 'login' ? '登录成功！' : '注册成功！';
         setTimeout(() => {
           closeAuth();
+          if (authMode === 'register') {
+            authMode = 'login';
+            updateAuthUI();
+          }
           msg.textContent = '';
         }, 1000);
-      } catch (error) {
-        msg.textContent = error.message || '操作失败';
+      } catch (e) {
+        msg.textContent = '网络错误';
+        console.error('认证错误:', e);
       }
     }
+    
+    // 退出登录
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        currentUser = null;
+        window.location.reload();
+      } catch (error) {
+        console.error('登出失败:', error);
+      }
+    }
+    
+    // 切换下拉菜单显示状态
+    function toggleDropdown() {
+      const dropdown = document.getElementById('user-dropdown');
+      if (dropdown) {
+        dropdown.classList.toggle('show');
+      }
+    }
+    
+    // 点击其他地方关闭下拉菜单
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('user-dropdown');
+      const userInfo = document.querySelector('.user-info');
+      if (dropdown && dropdown.classList.contains('show') && 
+          !e.target.closest('.user-info') && 
+          !e.target.closest('.dropdown-content')) {
+        dropdown.classList.remove('show');
+      }
+    });
   </script>
 </body>
 </html>
