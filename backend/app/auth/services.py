@@ -1,9 +1,10 @@
-from ..extensions import db, lm
-from ..config import Config
-from ..common import ClientError, database_protect
+from ..extensions import db
+from ..common import ClientError, database_guard
 from .models import User, Group
 from .schemas import user_schema, group_schema
 from . import Permission, ensure_perm, ensure_root
+
+from flask import Flask
 from flask_login import login_user, logout_user, login_required, current_user
 from typing import Any
 import requests
@@ -29,7 +30,7 @@ class AuthService:
 	def get_current_user_info(self):
 		return user_schema().dump(current_user)
 
-	@database_protect
+	@database_guard
 	def create_user(self, data: dict[str, Any]) -> dict[str, Any]:
 		user = User(**data)
 		if User.query.filter_by(username=user.id).first():
@@ -44,7 +45,7 @@ class AuthService:
 		db.session.add(user)
 		return user_schema().dump(user)
 
-	@database_protect
+	@database_guard
 	def login(self, data: dict[str, Any]) -> dict[str, Any]:
 		user: User|None = User.query.filter_by(username=data["username"]).first()
 		if not user:
@@ -61,7 +62,7 @@ class AuthService:
 	def logout(self) -> None:
 		logout_user()
 	
-	@database_protect
+	@database_guard
 	@login_required
 	def get_user_list(self) -> list[dict]:
 		users = User.query.all()
@@ -69,7 +70,7 @@ class AuthService:
 			self.sync_phira_profile(user)
 		return user_schema(many=True).dump(users)
 
-	@database_protect
+	@database_guard
 	@login_required
 	def get_user_info(self, user_id: int) -> dict[str, Any]:
 		user = User.query.filter_by(id=user_id).first()
@@ -78,7 +79,7 @@ class AuthService:
 		self.sync_phira_profile(user)
 		return user_schema().dump(user)
 
-	@database_protect
+	@database_guard
 	@login_required
 	def update_user_info(self, user_id: int, data: dict[str, Any]) -> dict[str, Any]:
 		user: User = User.query.filter_by(id=user_id).first()
@@ -115,7 +116,7 @@ class AuthService:
 
 		return user_schema().dump(user)
 
-	@database_protect
+	@database_guard
 	@login_required
 	def delete_user(self, user_id: int) -> None:
 		ensure_perm(Permission.USER_MANAGEMENT)
@@ -127,7 +128,7 @@ class AuthService:
 			ensure_root()
 		q.delete()
 
-	@database_protect
+	@database_guard
 	@login_required
 	def create_group(self, data: dict[str, Any]) -> dict[str, Any]:
 		ensure_perm(Permission.GROUP_MANAGEMENT)
@@ -146,7 +147,7 @@ class AuthService:
 		group = Group.query.filter_by(id=group_id).first()
 		return group_schema().dump(group)
 
-	@database_protect
+	@database_guard
 	@login_required
 	def update_group_info(self, group_id: int, data: dict[str, Any]) -> dict[str, Any]:
 		ensure_perm(Permission.GROUP_MANAGEMENT)
@@ -164,7 +165,7 @@ class AuthService:
 
 		return group_schema().dump(group)
 	
-	@database_protect
+	@database_guard
 	@login_required
 	def delete_group(self, group_id: int) -> None:
 		ensure_perm(Permission.GROUP_MANAGEMENT)

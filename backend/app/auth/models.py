@@ -1,7 +1,6 @@
 from ..extensions import db, lm
-from ..common import database_protect
-from ..config import Config
 from . import Permission
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
@@ -87,19 +86,3 @@ class Group(db.Model):
 @lm.user_loader
 def load_user(user_id):
 	return User.query.get(int(user_id))
-
-
-@database_protect
-def seed_db():
-	default_groups=[
-		{"name": "root", "permissions": Permission.ALL},
-		{"name": "admin", "permissions": Permission.IMPORTANT|Permission.USER_MANAGEMENT},
-		{"name": "user", "permissions": 0}
-	]
-	default_users=[
-		{"username": "root", "password": Config.ROOT_PASSWORD, "group_id": 1}
-	]
-	for kwargs in default_groups:
-		db.session.add(Group(**kwargs))
-	for kwargs in default_users:
-		db.session.add(User(**kwargs))

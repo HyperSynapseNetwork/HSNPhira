@@ -1,7 +1,7 @@
 from ..extensions import db
 from functools import wraps
 
-def database_protect(func):
+def database_guard(func):
 	@wraps(func)
 	def wrapper(*args, **kwargs):
 		try:

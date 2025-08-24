@@ -1,4 +1,5 @@
 from ..common import ClientError
+
 from flask_login import current_user
 from enum import IntFlag
 

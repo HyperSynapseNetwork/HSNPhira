@@ -1,49 +1,52 @@
 from ..config import Config
+from ..common import executor, exit_event
 from . import PlayerRecord, RoundData, RoomData
+
 from threading import Thread, Event
 from queue import Queue
-import subprocess
-import dataclasses
-import json
-
-class ListeningThread(Thread):
-	def __init__(self, service, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self._stop_event: Event|None = None
-		self._child: subprocess.Popen|None = None
-		self._service: RoomsService = service
-
-	def __del__(self):
-		self.stop()
-		if self._child:
-			self._child.wait()
-		self.join()
-
-	def run(self):
-		self._stop_event = Event()
-		self._child = subprocess.Popen(
-			Config.PHIRA_LOG_PROCESSOR_PATH,
-			stdout=subprocess.PIPE
-		)
-		while True:
-			line = self._child.stdout.readline()
-			if self._stop_event.is_set() or line == b"":
-				break
-			event = json.loads(line.decode())
-			self._service.process_event(event)
-
-	def stop(self):
-		self._stop_event.set()
-		if self._child and self._child.poll() is not None:
-			self._child.kill()
+import dataclasses, json
+import os, time, select
+import logging
 
 class RoomsService:
 	def __init__(self):
 		self._rooms: dict[str, RoomData] = {}
 		self._users_room: dict[int, str] = {}
 		self._queues: set[Queue] = set()
-		self._listening_thread = ListeningThread(self)
-		self._listening_thread.start()
+		executor.submit(self.listening_thread)
+
+	def listening_thread(self):
+		fd = None
+		file_obj = None
+
+		try:
+			while not exit_event.is_set():
+				try:
+					fd = os.open(Config.LOG_PROCESSOR_PIPE, os.O_RDONLY | os.O_NONBLOCK)
+					file_obj = os.fdopen(fd, 'r', encoding='utf-8', errors='replace')
+				except OSError as e:
+					logging.error(f"failed to open pipe: {e}, retrying...")
+					time.sleep(0.5)
+					continue
+
+				while not exit_event.is_set():
+					try:
+						rlist, _, _ = select.select([file_obj.fileno()], [], [], 0.5)
+					except (ValueError, OSError):
+						break
+					if not rlist:
+						continue
+					line = file_obj.readline()
+					if line == "":
+						break
+					try:
+						event = json.loads(line)
+						self.process_event(event)
+					except Exception as e:
+						logging.error(f"failed to process event: {e}")
+		finally:
+			if file_obj:
+				file_obj.close()
 
 	def process_event(self, event: dict):
 		name = event.get("room")

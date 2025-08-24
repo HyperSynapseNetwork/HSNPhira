@@ -1,11 +1,12 @@
 from ..extensions import db, lm
 from .services import AuthService
 from .schemas import user_schema, login_schema, group_schema
-from flask import Blueprint, jsonify, request
+
+from flask import Flask, Blueprint, jsonify, request
 
 
 class AuthAPI:
-	def __init__(self) -> None:
+	def __init__(self, app: Flask) -> None:
 		self._bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 		self._service = AuthService()
 
@@ -23,7 +24,6 @@ class AuthAPI:
 		self._bp.add_url_rule("/groups/<int:id>", methods=["PATCH"], view_func=self.update_group_info)
 		self._bp.add_url_rule("/groups/<int:id>", methods=["DELETE"], view_func=self.delete_group)
 
-	def assign_to_app(self, app):
 		app.register_blueprint(self._bp)
 
 	def get_current_user_info(self):

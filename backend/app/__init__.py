@@ -1,14 +1,21 @@
+from . import cli
+from .extensions import db
+from .common import ClientError, executor, exit_event, executor_guard
+from .config import Config
+from .extensions import db, lm, ma
 from .auth.routes import AuthAPI
 from .rooms.routes import RoomsAPI
-from .extensions import db, lm, ma
-from .config import Config
-from .common import ClientError
+
 from flask import Flask, jsonify
 from marshmallow import ValidationError
+import logging
+from logging.handlers import RotatingFileHandler
+import click
+
 
 def create_app():
-	# create app object
-	app = Flask(__name__)
+	# create Flask object
+	app = Flask("HSNPhira")
 	app.config.from_object(Config)
 
 	# initialize extensions
@@ -17,27 +24,44 @@ def create_app():
 	ma.init_app(app)
 
 	# error handlers
-	app.register_error_handler(Exception, lambda e: (repr(e), 500))
-	app.register_error_handler(ValidationError, lambda e: (jsonify({"error": f"{e.normalized_messages()}"}), 400))
+	app.register_error_handler(Exception, lambda e: (jsonify({"error": repr(e)}), 500))
 	app.register_error_handler(ClientError, lambda e: (jsonify({"error": e.args[0]}), e.code))
+	app.register_error_handler(ValidationError, lambda e: (jsonify({
+		"error": ", ".join([f"{k}: {v}" for k, v in e.messages().items()])
+	}), 400))
 	app.register_error_handler(400, lambda e: (jsonify({"error": "bad request"}), 400))
-	app.register_error_handler(401, lambda e: (jsonify({"error": "unauthorized"}), 401))
+	app.register_error_handler(403, lambda e: (jsonify({"error": "forbidden"}), 403))
 	app.register_error_handler(404, lambda e: (jsonify({"error": "not found"}), 404))
 
+	# logging
+	if (logdir := Config.LOGDIR):
+		handler = RotatingFileHandler(logdir + "/hsn_backend.log", maxBytes=1024*1024, backupCount=10)
+		formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+		handler.setFormatter(formatter)
+
+		app.logger.addHandler(handler)
+		werkzeug_logger = logging.getLogger('werkzeug')
+		werkzeug_logger.addHandler(handler)
+
 	# blueprints
-	auth_api = AuthAPI()
-	auth_api.assign_to_app(app)
-	rooms_api = RoomsAPI()
-	rooms_api.assign_to_app(app)
+	auth_api = AuthAPI(app)
+	rooms_api = RoomsAPI(app)
 
-	# commands
-	@app.cli.command("seed_db")
-	def seed_db():
-		import auth.models
-		auth.models.seed_db()
-
-	# ensure db is created
-	with app.app_context():
-		db.create_all()
+	# cli commands
+	app.cli.add_command(cli.init_db)
 
 	return app
+
+
+@click.command()
+@click.option('--host', default=Config.HOST, help="set host")
+@click.option('--port', default=Config.PORT, type=int, help="set port")
+@click.option('--debug/--no-debug', default=Config.DEBUG, is_flag=True, help="whether to run in debug mode")
+@executor_guard
+def start_app(host, port, debug):
+	try:
+		app = create_app()
+		app.run(host=host, port=port, debug=debug)
+	finally:
+		exit_event.set()
+		executor.shutdown()
