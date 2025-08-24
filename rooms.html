@@ -423,7 +423,7 @@
       <div id="avatar-container" style="display: none;" class="glass-button">
         <div class="user-info" onclick="toggleDropdown()">
           <span class="username" id="username-display"></span>
-          
+          <img class="user-avatar" id="user-avatar" src="" alt="头像" />
         </div>
         <div class="dropdown-content" id="user-dropdown">
           <span id="dropdown-username"></span>
@@ -460,7 +460,7 @@
   </main>
 
   <div id="lightbox" onclick="hideLightbox()">
-    
+  <img id="lightbox-img" src="" alt="曲绘" />
   </div>
 
   <div id="user-modal" class="modal">
@@ -755,7 +755,7 @@
         const rooms = await res.json();
         const tbody = document.querySelector("#rooms-table tbody");
         
-        if (rooms.length === 0) {
+        if (!Array.isArray(rooms) || rooms.length === 0) {
           tbody.innerHTML = "<tr><td colspan='9'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
           return;
         }
@@ -765,6 +765,7 @@
         
         // 处理每个房间
         for (const room of rooms) {
+          if (!room || !room.data || !room.data.host) continue; // 跳过无效房间
           const roomData = room.data;
           
           // 获取房主信息
