@@ -662,13 +662,6 @@
   </style>
 
   <script>
-    // 加载header组件
-    fetch('header.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('header-container').innerHTML = html;
-        // 页面特定的初始化代码
-    });
     // 默认头像URL
     const DEFAULT_AVATAR = 'https://phira.moe/assets/user-6212ee95.png';
     let currentUser = null;
