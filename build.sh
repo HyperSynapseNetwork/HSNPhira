@@ -65,7 +65,7 @@ build_backend() {
 	read -p "Do you want to initialize the database? This would drop all existing data. (y/N) " res
 	if [ "$res" == "y" ]; then
 		message "initializing the database..."
-		uv run flask seed-db
+		uv run flask init-db
 	fi
 	message "backend is ready"
 }

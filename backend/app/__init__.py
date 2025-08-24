@@ -30,6 +30,7 @@ def create_app():
 		"error": ", ".join([f"{k}: {v}" for k, v in e.messages().items()])
 	}), 400))
 	app.register_error_handler(400, lambda e: (jsonify({"error": "bad request"}), 400))
+	app.register_error_handler(401, lambda e: (jsonify({"error": "unauthorized"}), 401))
 	app.register_error_handler(403, lambda e: (jsonify({"error": "forbidden"}), 403))
 	app.register_error_handler(404, lambda e: (jsonify({"error": "not found"}), 404))
 
