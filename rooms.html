@@ -142,7 +142,7 @@
       display: block;
       padding: 0.3rem 0.5rem;
       font-weight: bold;
-      color: #ffd700;
+      color: #a1e5ef;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       margin-bottom: 0.5rem;
     }
@@ -170,9 +170,22 @@
     .status {
       margin-bottom: 1rem;
       font-size: 1.2rem;
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(6px);
+      width: 95%;
+      max-width: 800px;
     }
-    .status.online { color: #0f0; }
-    .status.offline { color: #f33; }
+    .status.online { 
+      color: #0f0; 
+      border: 1px solid rgba(0, 255, 0, 0.2);
+    }
+    .status.offline { 
+      color: #f33; 
+      border: 1px solid rgba(255, 0, 0, 0.2);
+    }
     
     /* 3D卡片容器样式 */
     #table-container {
@@ -195,6 +208,8 @@
       transform: translateZ(20px);
       transition: transform 0.3s ease;
       animation: gentleSway 8s infinite ease-in-out;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     @keyframes gentleSway {
@@ -209,6 +224,15 @@
       transition: transform 0.1s linear;
     }
     
+    table.hovering {
+      animation: gentleHover 2s infinite ease-in-out;
+    }
+    
+    @keyframes gentleHover {
+      0%, 100% { transform: translateZ(20px) translateY(0); }
+      50% { transform: translateZ(20px) translateY(-5px); }
+    }
+    
     th, td {
       padding: 0.8rem 1rem;
       text-align: left;
@@ -217,6 +241,7 @@
     th {
       background: rgba(255, 255, 255, 0.1);
       font-weight: bold;
+      color: #a1e5ef;
     }
     tr:nth-child(even) {
       background: rgba(255, 255, 255, 0.03);
@@ -256,25 +281,6 @@
     .chart-name-btn:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: scale(1.05);
-    }
-    .state-indicator {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      text-align: center;
-    }
-    .state-selecting {
-      background-color: rgba(65, 105, 225, 0.3); /* 蓝色 */
-      border: 1px solid rgba(65, 105, 225, 0.5);
-    }
-    .state-waiting {
-      background-color: rgba(50, 205, 50, 0.3); /* 绿色 */
-      border: 1px solid rgba(50, 205, 50, 0.5);
-    }
-    .state-playing {
-      background-color: rgba(220, 20, 60, 0.3); /* 红色 */
-      border: 1px solid rgba(220, 20, 60, 0.5);
     }
     #lightbox {
       display: flex;
@@ -330,10 +336,12 @@
       max-width: 300px;
       width: 90%;
       animation: zoomIn 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .modal-content h3 {
       margin-top: 0;
       font-size: 1.1rem;
+      color: #a1e5ef;
     }
     .modal-content ul {
       list-style: none;
@@ -345,6 +353,23 @@
     .highlight-host {
       font-weight: bold;
       color: #ffd700;
+    }
+    .state-label {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .state-selecting {
+      background: rgba(255, 215, 0, 0.2);
+      color: #ffd700;
+    }
+    .state-ready {
+      background: rgba(0, 255, 0, 0.2);
+      color: #0f0;
+    }
+    .state-playing {
+      background: rgba(255, 0, 0, 0.2);
+      color: #f33;
     }
     @media (max-width: 768px) {
       header {
@@ -369,17 +394,23 @@
         padding: 0.6rem 0.8rem;
         font-size: 0.8rem;
       }
+      table {
+        display: block;
+        overflow-x: auto;
+      }
     }
   </style>
 </head>
 <body>
   <div class="parallax-bg"></div>
+  
   <header>
     <div class="logo-nav-container">
-      
+      <img id="logo-img" src="https://phira.htadiy.cc/logo.png" alt="HyperSynapse Logo">
       <div class="nav-links">
         <a href="index.html">主页</a>
         <a href="rooms.html">房间列表</a>
+        <a href="account.html" class="active">账号管理</a>
       </div>
     </div>
     
@@ -397,7 +428,6 @@
         <div class="dropdown-content" id="user-dropdown">
           <span id="dropdown-username"></span>
           <a id="phira-profile-link" target="_blank">我的Phira账户</a>
-          <!-- 添加账号管理链接 -->
           <a href="account.html">账号管理</a>
           <a href="javascript:void(0)" onclick="logout()">退出登录</a>
         </div>
@@ -444,11 +474,23 @@
   <!-- 登录注册弹窗 -->
   <div id="auth-modal" class="modal" style="z-index: 99999">
     <div class="modal-content glass-card" id="auth-box">
-      <h3 id="auth-title">用户登录（群主是猫娘ヽヽ(≧≧Д≦≦)ノ）</h3>
+      <h3 id="auth-title">用户登录</h3>
       <input id="auth-name" placeholder="用户名" />
       <input id="auth-password" type="password" placeholder="密码" />
       <input id="auth-phiraid" class="collapsed" placeholder="Phira ID (仅注册)"/>
-      <p>注册本产品账户或使用本产品即代表您已同意<a href="https://phira.htadiy.cc/privacy.html">本产品用户协议</a>。</p>
+      
+      <!-- 记住我复选框 -->
+      <div class="checkbox-container">
+        <input type="checkbox" id="remember-me">
+        <label for="remember-me">记住我</label>
+      </div>
+      
+      <!-- 用户协议复选框（仅注册时显示） -->
+      <div id="agreement-container" class="checkbox-container" style="display: none;">
+        <input type="checkbox" id="agree-terms" required>
+        <label for="agree-terms">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
+      </div>
+      
       <button onclick="submitAuth()">确认</button>
       <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
       <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
@@ -457,110 +499,105 @@
   </div>
 
   <style>
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+    .checkbox-container input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
     #auth-modal input {
       box-sizing: border-box;
-      display: inline-block;
-      margin: 0.35rem 0;
-      padding: 0.4rem 0.8rem;
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.8rem;
       width: 100%;
       border: none;
-      border-radius: 999px;
+      border-radius: 8px;
       background: rgba(255,255,255,0.1);
       color: #fff;
       backdrop-filter: blur(8px);
-      font-size: 0.9rem;
-      line-height: 1.4rem;
+      font-size: 0.95rem;
       outline: none;
       transition: all 0.3s ease;
     }
-
     #auth-modal input:focus {
-      box-shadow: 0 0 0.5rem rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 0.5rem rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.4);
     }
-
     #auth-modal input.collapsed {
-      display: block;
-      margin: 0 0;
-      max-height: 0;
-      min-height: 0;
-      line-height: 0;
-      font-size: 0;
-      padding: 0 0.8rem;
+      display: none;
+      margin: 0;
+      height: 0;
+      padding: 0;
     }
-
     #auth-modal button {
       width: 100%;
-      margin: 0.35rem 0;
-      padding: 0.4rem;
+      margin: 0.5rem 0;
+      padding: 0.8rem;
       font-size: 1rem;
-      line-height: 1.4rem;
-      border-radius: 999px;
+      border-radius: 8px;
       border: none;
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.1);
       color: #fff;
       backdrop-filter: blur(12px);
       cursor: pointer;
       transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
-
     #auth-modal button:hover {
       background: rgba(255,255,255,0.15);
-      transform: scale(1.05);
+      transform: translateY(-2px);
     }
-
     .glass-card {
       position: relative;
       background: rgba(255,255,255,0.08);
-      padding: 1.2rem 1.5rem;
+      padding: 1.5rem;
       border-radius: 16px;
       color: #fff;
       backdrop-filter: blur(20px);
-      width: 280px;
+      width: 320px;
       max-width: 90%;
-      perspective: 1000px;
-      transition: transform 0.1s ease;
-      animation: shake 4s infinite ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: rotateX(0deg) rotateY(0deg); }
-      20% { transform: rotateX(1deg) rotateY(-1deg); }
-      40% { transform: rotateX(-1deg) rotateY(1.5deg); }
-      60% { transform: rotateX(0.5deg) rotateY(-1.5deg); }
-      80% { transform: rotateX(-1deg) rotateY(1deg); }
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
   </style>
 
   <script>
-    // 全局变量
-    let chartCache = {};
-    let userCache = {};
-    let fetchInterval;
+    // 默认头像URL
     const DEFAULT_AVATAR = 'https://phira.moe/assets/user-6212ee95.png';
-    let authMode = 'login';
+    const USER_CACHE = new Map();
+    const CHART_CACHE = new Map();
+    const STATE_MAP = {
+      'SELECTING_CHART': { text: '选谱中', class: 'state-selecting' },
+      'WAITING_FOR_READY': { text: '准备中', class: 'state-ready' },
+      'PLAYING': { text: '游戏中', class: 'state-playing' }
+    };
+    
     let currentUser = null;
-    let isMouseOverTable = false;
+    let authMode = 'login';
+    let autoRefreshInterval;
+    let isHoveringTable = false;
+    let lastMousePosition = { x: 0, y: 0 };
 
     // 页面加载时检查登录状态
-    document.addEventListener('DOMContentLoaded', () => {
-      const savedUser = localStorage.getItem('user');
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        updateUserDisplay();
-      }
-      
+    document.addEventListener('DOMContentLoaded', async () => {
       // 添加3D卡片交互效果
       const tableContainer = document.getElementById('table-container');
       const roomsTable = document.getElementById('rooms-table');
       
       if (tableContainer && roomsTable) {
+        tableContainer.addEventListener('mouseenter', () => {
+          isHoveringTable = true;
+          roomsTable.classList.remove('hovering');
+          roomsTable.classList.add('tilting');
+        });
+        
         tableContainer.addEventListener('mousemove', (e) => {
-          isMouseOverTable = true;
+          if (!isHoveringTable) return;
           
-          if (!roomsTable.classList.contains('tilting')) {
-            roomsTable.classList.add('tilting');
-            roomsTable.style.animation = 'none'; // 停止动画
-          }
+          lastMousePosition = { x: e.clientX, y: e.clientY };
           
           const rect = tableContainer.getBoundingClientRect();
           const x = e.clientX - rect.left;
@@ -575,18 +612,36 @@
         });
         
         tableContainer.addEventListener('mouseleave', () => {
-          isMouseOverTable = false;
+          isHoveringTable = false;
           roomsTable.classList.remove('tilting');
-          roomsTable.style.transform = 'none';
-          roomsTable.style.animation = 'gentleSway 8s infinite ease-in-out';
+          roomsTable.style.transform = 'translateZ(20px)';
+          
+          // 重新启用轻微晃动动画
+          setTimeout(() => {
+            roomsTable.classList.add('hovering');
+          }, 300);
         });
+        
+        // 初始悬停动画
+        roomsTable.classList.add('hovering');
       }
       
-      // 初始加载数据
-      fetchRooms();
+      // 检查会话状态
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          currentUser = await response.json();
+          updateUserDisplay();
+        }
+      } catch (error) {
+        console.error('检查会话失败:', error);
+      }
       
-      // 每3秒刷新一次数据
-      fetchInterval = setInterval(fetchRooms, 3000);
+      // 加载房间数据
+      loadRooms();
+      
+      // 设置每3秒自动刷新
+      autoRefreshInterval = setInterval(loadRooms, 3000);
     });
 
     // 更新用户显示区域
@@ -602,9 +657,9 @@
         avatarContainer.style.display = 'flex';
         
         // 更新用户名和头像
-        document.getElementById('username-display').textContent = currentUser.name;
-        document.getElementById('user-avatar').src = currentUser.image_url || DEFAULT_AVATAR;
-        document.getElementById('dropdown-username').textContent = currentUser.name;
+        document.getElementById('username-display').textContent = currentUser.username;
+        document.getElementById('user-avatar').src = currentUser.phira_avatar || DEFAULT_AVATAR;
+        document.getElementById('dropdown-username').textContent = currentUser.username;
         
         // 更新Phira账户链接
         const phiraLink = document.getElementById('phira-profile-link');
@@ -640,234 +695,164 @@
     });
 
     // 退出登录
-    function logout() {
-      localStorage.removeItem('user');
-      currentUser = null;
-      updateUserDisplay();
-      // 关闭下拉菜单
-      const dropdown = document.getElementById('user-dropdown');
-      if (dropdown) dropdown.classList.remove('show');
-    }
-
-    function openAuth() {
-      document.getElementById('auth-modal').style.display = 'flex';
-      document.getElementById('auth-msg').textContent = '';
-      updateAuthUI();
-    }
-
-    function closeAuth() {
-      document.getElementById('auth-modal').style.display = 'none';
-    }
-
-    function toggleAuthMode() {
-      authMode = authMode === 'login' ? 'register' : 'login';
-      updateAuthUI();
-    }
-
-    function updateAuthUI() {
-      var title = document.getElementById('auth-title');
-      var phiraid = document.getElementById('auth-phiraid');
-      if (authMode === 'login') {
-        title.textContent = '用户登录';
-        phiraid.classList.add('collapsed');
-      }
-      else {
-        title.textContent = '用户注册';
-        phiraid.classList.remove('collapsed');
-      }
-    }
-
-    async function submitAuth() {
-      const name = document.getElementById('auth-name').value;
-      const password = document.getElementById('auth-password').value;
-      const phira_id = document.getElementById('auth-phiraid').value;
-      const msg = document.getElementById('auth-msg');
-      msg.textContent = '处理中...';
-
+    async function logout() {
       try {
-        const res = await fetch(`/usermgr/${authMode}`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(
-            authMode === 'login' 
-              ? { name, password } 
-              : { name, password, phira_id }
-          )
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-          // 保存用户信息到本地存储
-          currentUser = data.user || { name };
-          localStorage.setItem('user', JSON.stringify(currentUser));
-          
-          // 更新显示
-          updateUserDisplay();
-          
-          msg.textContent = '登录成功！';
-          setTimeout(() => {
-            closeAuth();
-            msg.textContent = '';
-          }, 1000);
-        } else {
-          msg.textContent = data.message || '操作失败';
-        }
-      } catch (e) {
-        msg.textContent = '网络错误';
+        await fetch('/api/auth/logout', { method: 'POST' });
+        currentUser = null;
+        updateUserDisplay();
+        // 关闭下拉菜单
+        const dropdown = document.getElementById('user-dropdown');
+        if (dropdown) dropdown.classList.remove('show');
+      } catch (err) {
+        console.error('登出失败:', err);
       }
     }
 
-    // 鼠标倾斜跟随效果
-    document.addEventListener('mousemove', (e) => {
-      const box = document.getElementById('auth-box');
-      if (!box) return;
-      const x = (e.clientX / window.innerWidth - 0.5) * 20;
-      const y = (e.clientY / window.innerHeight - 0.5) * 20;
-      box.style.transform = `rotateX(${-y}deg) rotateY(${x}deg)`;
-    });
-
-    // 强制横屏功能
-    function lockOrientation() {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(e => console.log(e));
-      } else if (screen.lockOrientation) {
-        screen.lockOrientation('landscape');
-      } else if (screen.mozLockOrientation) {
-        screen.mozLockOrientation('landscape');
-      } else if (screen.msLockOrientation) {
-        screen.msLockOrientation('landscape');
+    // 获取用户信息
+    async function getUserInfo(userId) {
+      if (USER_CACHE.has(userId)) {
+        return USER_CACHE.get(userId);
       }
-    }
-    
-    // 页面加载时和方向变化时强制横屏
-    window.addEventListener('load', lockOrientation);
-    window.addEventListener('orientationchange', lockOrientation);
-    
-    // 房间状态翻译
-    function translateState(state) {
-      switch (state) {
-        case 'SELECTING_CHART': 
-          return '<span class="state-indicator state-selecting">选谱中</span>';
-        case 'WAITING_FOR_READY': 
-          return '<span class="state-indicator state-waiting">准备中</span>';
-        case 'PLAYING': 
-          return '<span class="state-indicator state-playing">游玩中</span>';
-        default: 
-          return state;
+      
+      try {
+        const res = await fetch(`链接3${userId}`);
+        if (!res.ok) return null;
+        
+        const userData = await res.json();
+        USER_CACHE.set(userId, userData);
+        return userData;
+      } catch (err) {
+        console.error('获取用户信息错误:', err);
+        return null;
       }
     }
     
     // 获取谱面信息
-    async function getChartMeta(chartId) {
-      if (!chartId) return null;
-      
-      // 检查缓存
-      if (chartCache[chartId]) {
-        return chartCache[chartId];
+    async function getChartInfo(chartId) {
+      if (CHART_CACHE.has(chartId)) {
+        return CHART_CACHE.get(chartId);
       }
       
       try {
-        const res = await fetch(`https://phira.5wyxi.com/chart/${chartId}`);
+        const res = await fetch(`链接1${chartId}`);
         if (!res.ok) return null;
+        
         const chartData = await res.json();
-        chartCache[chartId] = chartData;
+        CHART_CACHE.set(chartId, chartData);
         return chartData;
       } catch (err) {
+        console.error('获取谱面信息错误:', err);
         return null;
       }
     }
     
-    // 获取用户信息
-    async function getUserInfo(userId) {
-      if (!userId) return null;
-      
-      // 检查缓存
-      if (userCache[userId]) {
-        return userCache[userId];
-      }
-      
-      try {
-        const res = await fetch(`https://phira.5wyxi.com/users/${userId}`);
-        if (!res.ok) return null;
-        const userData = await res.json();
-        userCache[userId] = userData;
-        return userData;
-      } catch (err) {
-        return null;
-      }
-    }
-    
-    // 获取房间数据
-    async function fetchRooms() {
+    // 加载房间数据
+    async function loadRooms() {
       try {
         const res = await fetch('/api/rooms/info');
-        if (!res.ok) throw new Error('API请求失败');
-        const rooms = await res.json();
-        renderRooms(rooms);
+        if (!res.ok) throw new Error('获取房间信息失败');
         
-        // 更新服务器状态显示
-        const status = document.getElementById('status');
+        const rooms = await res.json();
+        const tbody = document.querySelector("#rooms-table tbody");
+        
+        if (rooms.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='9'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
+          return;
+        }
+        
+        // 清除现有内容
+        tbody.innerHTML = "";
+        
+        // 处理每个房间
+        for (const room of rooms) {
+          const roomData = room.data;
+          
+          // 获取房主信息
+          const hostInfo = await getUserInfo(roomData.host);
+          const hostName = hostInfo ? hostInfo.name : `用户${roomData.host}`;
+          
+          // 获取谱面信息（如果有）
+          let chartText = "暂未选择";
+          let chartImg = "暂未选择";
+          let downloadBtn = "暂未选择";
+          
+          if (roomData.chart) {
+            const chartInfo = await getChartInfo(roomData.chart);
+            if (chartInfo) {
+              chartText = chartInfo.name
+                ? `<a href="https://phira.moe/chart/${roomData.chart}" target="_blank" class="chart-name-btn">${chartInfo.name}</a>`
+                : `ID: ${roomData.chart}`;
+              chartImg = chartInfo.illustration
+                ? `<button class="chart-btn" onclick="showLightbox('${chartInfo.illustration}')">查看</button>`
+                : "无封面";
+              downloadBtn = chartInfo.file
+                ? `<a href="${chartInfo.file}" download="chart_${roomData.chart}.zip"><button class="dl-btn">下载</button></a>`
+                : "无文件";
+            }
+          }
+          
+          // 状态显示
+          const stateInfo = STATE_MAP[roomData.state] || { text: roomData.state, class: '' };
+          const stateDisplay = `<span class="state-label ${stateInfo.class}">${stateInfo.text}</span>`;
+          
+          const hostBtn = `<a href="https://phira.moe/user/${roomData.host}" target="_blank"><button class="chart-btn">${hostName}</button></a>`;
+          const usersBtn = `<button class="chart-btn" onclick='showRoomUsers(${JSON.stringify(roomData.users)}, ${roomData.host})'>查看</button>`;
+          
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${room.name}</td>
+            <td>${hostBtn}</td>
+            <td>${roomData.users.length}/${roomData.user_count}</td>
+            <td>${stateDisplay}</td>
+            <td>${roomData.cycle ? "是" : "否"}</td>
+            <td>${chartText}</td>
+            <td>${chartImg}</td>
+            <td>${downloadBtn}</td>
+            <td>${usersBtn}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+        
+        // 更新服务器状态
+        const status = document.getElementById("status");
         status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
-        status.classList.add('online');
-      } catch (error) {
-        console.error('获取房间数据失败:', error);
-        const status = document.getElementById('status');
+        status.classList.add("online");
+        status.classList.remove("offline");
+      } catch (err) {
+        console.error('加载房间信息错误:', err);
+        const status = document.getElementById("status");
         status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
-        status.classList.add('offline');
+        status.classList.add("offline");
+        status.classList.remove("online");
       }
     }
     
-    // 渲染房间数据
-    async function renderRooms(rooms) {
-      const tbody = document.querySelector("#rooms-table tbody");
+    // 显示房间用户
+    async function showRoomUsers(userIds, hostId) {
+      const modal = document.getElementById("user-modal");
+      const list = document.getElementById("user-list");
       
-      if (rooms.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='9'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
-        return;
+      // 显示加载中
+      list.innerHTML = '<li>加载中...</li>';
+      modal.style.display = "flex";
+      
+      // 获取所有用户详细信息
+      const users = [];
+      for (const userId of userIds) {
+        const userInfo = await getUserInfo(userId);
+        if (userInfo) {
+          users.push({
+            id: userId,
+            name: userInfo.name,
+            isHost: userId === hostId
+          });
+        }
       }
       
-      // 创建文档片段
-      const fragment = document.createDocumentFragment();
-      
-      for (const room of rooms) {
-        const tr = document.createElement('tr');
-        
-        // 获取谱面信息
-        const chartMeta = room.data.chart ? await getChartMeta(room.data.chart) : null;
-        
-        // 获取房主信息
-        const hostInfo = await getUserInfo(room.data.host);
-        
-        tr.innerHTML = `
-          <td>${room.name}</td>
-          <td>${hostInfo ? 
-            `<a href="https://phira.moe/user/${room.data.host}" target="_blank">
-              <button class="chart-btn">${hostInfo.name}</button>
-            </a>` : 
-            room.data.host}</td>
-          <td>${room.data.users.length}</td>
-          <td>${translateState(room.data.state)}</td>
-          <td>${room.data.cycle ? "是" : "否"}</td>
-          <td>${chartMeta ? 
-            `<a href="https://phira.moe/chart/${room.data.chart}" target="_blank" class="chart-name-btn">
-              ${chartMeta.name}
-            </a>` : 
-            (room.data.chart ? `ID: ${room.data.chart}` : "暂未选择")}</td>
-          <td>${chartMeta && chartMeta.illustration ? 
-            `` : 
-            "无"}</td>
-          <td>${chartMeta && chartMeta.file ? 
-            `<a href="${chartMeta.file}" download="chart_${room.data.chart}.zip">
-              <button class="dl-btn">下载</button>
-            </a>` : 
-            "无"}</td>
-          <td><button class="chart-btn" onclick='showUsers(${JSON.stringify(room.data.users || [])})'>查看</button></td>
-        `;
-        
-        fragment.appendChild(tr);
-      }
-      
-      tbody.innerHTML = '';
-      tbody.appendChild(fragment);
+      // 更新用户列表
+      list.innerHTML = users.map(user => 
+        `<li class="${user.isHost ? 'highlight-host' : ''}">${user.name || `用户${user.id}`}</li>`
+      ).join("");
     }
     
     function showLightbox(src) {
@@ -886,27 +871,102 @@
       }, 300);
     }
     
-    async function showUsers(userIds) {
-      const modal = document.getElementById("user-modal");
-      const list = document.getElementById("user-list");
-      
-      // 显示加载中
-      list.innerHTML = '<li>加载中...</li>';
-      modal.style.display = "flex";
-      
-      // 异步获取所有用户信息
-      const userList = [];
-      for (const userId of userIds) {
-        const userInfo = await getUserInfo(userId);
-        userList.push(userInfo ? userInfo.name : `用户${userId}`);
-      }
-      
-      // 渲染用户列表
-      list.innerHTML = userList.map(name => `<li>${name}</li>`).join("");
-    }
-    
     function closeModal() {
       document.getElementById("user-modal").style.display = "none";
+    }
+    
+    function openAuth() {
+      document.getElementById('auth-modal').style.display = 'flex';
+      document.getElementById('auth-msg').textContent = '';
+      updateAuthUI();
+    }
+    
+    function closeAuth() {
+      document.getElementById('auth-modal').style.display = 'none';
+    }
+    
+    function toggleAuthMode() {
+      authMode = authMode === 'login' ? 'register' : 'login';
+      updateAuthUI();
+      
+      // 显示/隐藏用户协议复选框
+      const agreementContainer = document.getElementById('agreement-container');
+      agreementContainer.style.display = authMode === 'register' ? 'block' : 'none';
+    }
+    
+    function updateAuthUI() {
+      var title = document.getElementById('auth-title');
+      var phiraid = document.getElementById('auth-phiraid');
+      if (authMode === 'login') {
+        title.textContent = '用户登录';
+        phiraid.classList.add('collapsed');
+      }
+      else {
+        title.textContent = '用户注册';
+        phiraid.classList.remove('collapsed');
+      }
+    }
+    
+    async function submitAuth() {
+      const username = document.getElementById('auth-name').value;
+      const password = document.getElementById('auth-password').value;
+      const phira_id = document.getElementById('auth-phiraid').value;
+      const rememberMe = document.getElementById('remember-me').checked;
+      const agreeTerms = authMode === 'register' ? document.getElementById('agree-terms').checked : true;
+      const msg = document.getElementById('auth-msg');
+      msg.textContent = '处理中...';
+    
+      try {
+        // 注册时需要确认用户协议
+        if (authMode === 'register' && !agreeTerms) {
+          msg.textContent = '请同意用户协议';
+          return;
+        }
+        
+        const endpoint = authMode === 'login' 
+          ? '/api/auth/login'
+          : '/api/auth/users';
+          
+        const payload = authMode === 'login'
+          ? { username, password, remember: rememberMe }
+          : { username, password, phira_id };
+        
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          msg.textContent = errorData.message || '操作失败';
+          return;
+        }
+        
+        // 登录成功后获取用户信息
+        if (authMode === 'login') {
+          const userRes = await fetch('/api/auth/me');
+          if (!userRes.ok) {
+            msg.textContent = '获取用户信息失败';
+            return;
+          }
+          currentUser = await userRes.json();
+          updateUserDisplay();
+        }
+        
+        msg.textContent = authMode === 'login' ? '登录成功！' : '注册成功！';
+        setTimeout(() => {
+          closeAuth();
+          if (authMode === 'register') {
+            authMode = 'login';
+            updateAuthUI();
+          }
+          msg.textContent = '';
+        }, 1000);
+      } catch (e) {
+        msg.textContent = '网络错误';
+        console.error('认证错误:', e);
+      }
     }
   </script>
 </body>
