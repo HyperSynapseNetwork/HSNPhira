@@ -751,6 +751,7 @@
         if (!res.ok) throw new Error('获取房间信息失败');
         
         const rooms = await res.json();
+        console.log('房间数据调试:', rooms); // 调试输出
         const tbody = document.querySelector("#rooms-table tbody");
         
         if (!Array.isArray(rooms) || rooms.length === 0) {
@@ -763,7 +764,10 @@
         
         // 处理每个房间
         for (const room of rooms) {
-          if (!room || !room.data || !room.data.host) continue; // 跳过无效房间
+          if (!room || !room.data || !room.data.host) {
+            console.warn('跳过无效房间:', room);
+            continue;
+          }
           const roomData = room.data;
           
           // 获取房主信息
