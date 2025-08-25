@@ -1,6 +1,6 @@
 from .extensions import db
 from .config import Config
-from .common import database_guard
+from .common.decorators import database_guard
 from .auth.models import User, Group
 from .auth import Permission
 

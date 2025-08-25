@@ -1,6 +1,9 @@
 from ..extensions import db, lm
 from .services import AuthService
-from .schemas import user_schema, login_schema, group_schema
+from .schemas import (
+	CreateUserSchema, GetUserSchema, UpdateUserSchema, LoginSchema,
+	CreateGroupSchema, GetGroupSchema, UpdateGroupSchema, VisitedSchema
+)
 
 from flask import Flask, Blueprint, jsonify, request
 
@@ -33,11 +36,11 @@ class AuthAPI:
 		return jsonify(self._service.get_current_user_info())
 
 	def create_user(self):
-		data = user_schema().load(request.json)
+		data = CreateUserSchema().load(request.json)
 		return jsonify(self._service.create_user(data))
 
 	def login(self):
-		data = login_schema().load(request.json)
+		data = LoginSchema().load(request.json)
 		return jsonify(self._service.login(data))
 
 	def logout(self):
@@ -51,7 +54,7 @@ class AuthAPI:
 		return jsonify(self._service.get_user_info(id))
 
 	def update_user_info(self, id: int):
-		data = user_schema(partial=True).load(request.json)
+		data = UpdateUserSchema().load(request.json)
 		return jsonify(self._service.update_user_info(id, data))
 
 	def delete_user(self, id: int):
@@ -62,14 +65,14 @@ class AuthAPI:
 		return jsonify(self._service.get_group_list())
 
 	def create_group(self):
-		data = group_schema().load(request.json)
+		data = UpdateGroupSchema().load(request.json)
 		return jsonify(self._service.create_group(data))
 
 	def get_group_info(self, id: int):
 		return jsonify(self._service.get_group_info(id))
 
 	def update_group_info(self, id: int):
-		data = group_schema(partial=True).load(request.json)
+		data = UpdateGroupSchema().load(request.json)
 		return jsonify(self._service.update_group_info(id, data))
 
 	def delete_group(self, id: int):

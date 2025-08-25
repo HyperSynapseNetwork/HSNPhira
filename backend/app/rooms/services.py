@@ -1,8 +1,8 @@
 from ..extensions import db
 from ..config import Config
-from ..common import database_guard
+from ..common.decorators import database_guard
 from ..auth.models import Visited
-from ..auth.schemas import visited_schema
+from ..auth.schemas import VisitedSchema
 from . import PlayerRecord, RoundData, RoomData
 
 from queue import Queue

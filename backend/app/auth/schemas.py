@@ -1,47 +1,69 @@
 from ..extensions import ma
-from ..common import schema_factory
+from ..common.decorators import singleton
 from .models import User, Group, Visited
 
 
-class UserSchema(ma.SQLAlchemySchema):
+@singleton
+class CreateUserSchema(ma.SQLAlchemySchema):
 	class Meta:
 		model = User
-
-	id = ma.auto_field(dump_only=True)
-	group_id = ma.auto_field(required=False, load_default=3)
 	username = ma.auto_field(required=True)
 	phira_id = ma.auto_field(required=True)
-	password = ma.String(load_only=True, required=True)
-	phira_username = ma.auto_field(dump_only=True)
-	phira_rks = ma.auto_field(dump_only=True)
-	phira_avatar = ma.auto_field(dump_only=True)
-	register_time = ma.auto_field(dump_only=True)
-	last_login_time = ma.auto_field(dump_only=True)
-	last_sync_time = ma.auto_field(dump_only=True)
+	group_id = ma.auto_field(required=False, load_default=3)
+	password = ma.String(required=True)
 
 
+@singleton
+class GetUserSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = User
+		include_fk = True
+		exclude = ["password_hash"]
+
+
+@singleton
+class UpdateUserSchema(ma.SQLAlchemySchema):
+	class Meta:
+		model = User
+	current_password = ma.String(required=True)
+	group_id = ma.auto_field(required=False)
+	username = ma.auto_field(required=False)
+	phira_id = ma.auto_field(required=False)
+	password = ma.String(required=False)
+
+
+@singleton
 class LoginSchema(ma.Schema):
 	username = ma.String(required=True)
 	password = ma.String(required=True)
 	remember = ma.Boolean(required=False, load_default=True)
 
 
-class GroupSchema(ma.SQLAlchemySchema):
+@singleton
+class CreateGroupSchema(ma.SQLAlchemySchema):
 	class Meta:
 		model = Group
-
-	id = ma.auto_field(dump_only=True)
 	name = ma.auto_field(required=True)
 	permissions = ma.auto_field(required=True)
-	users = ma.List(ma.Integer(), dump_only=True)
 
 
+@singleton
+class GetGroupSchema(ma.SQLAlchemyAutoSchema):
+	class Meta:
+		model = Group
+	users = ma.List(ma.Integer())
+
+
+@singleton
+class UpdateGroupSchema(ma.SQLAlchemySchema):
+	class Meta:
+		model = Group
+	current_password = ma.String(required=True)
+	name = ma.auto_field(required=False)
+	permissions = ma.auto_field(required=False)
+
+
+@singleton
 class VisitedSchema(ma.SQLAlchemyAutoSchema):
 	class Meta:
 		model = Visited
-
-
-user_schema = schema_factory(UserSchema)
-login_schema = schema_factory(LoginSchema)
-group_schema = schema_factory(GroupSchema)
-visited_schema = schema_factory(VisitedSchema)

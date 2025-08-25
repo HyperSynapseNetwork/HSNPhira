@@ -65,6 +65,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 }
 ```
 
+**响应数据格式**：登录的用户信息，格式见 `/api/auth/me`。
+
 ---
 
 #### `POST /api/auth/logout`
@@ -111,6 +113,8 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 }
 ```
 
+**响应数据格式**：登录的用户信息，格式见 `/api/auth/me`。
+
 **特殊说明**：若指定了 `group_id` 字段，则要求请求者拥有 `GROUP_MANAGEMENT` 权限。
 
 ---
@@ -145,12 +149,15 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 
 ```json
 {
+  "current_password": /*字符串，请求者账户的当前密码*/,
   "group_id": /*整数，可选，用户所在组 ID，默认值为 3（user 组）*/,
   "username": /*字符串，可选，用户名*/,
   "phira_id": /*整数，可选，用户的绑定的 Phira 账号 ID*/,
   "password": /*字符串，可选，用户密码*/
 }
 ```
+
+**返回数据格式**：修改后的用户信息，格式见 `/api/auth/me`。
 
 ---
 
@@ -220,10 +227,13 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 
 ```json
 {
+  "current_password": /*字符串，请求者用户的当前密码*/,
   "name": /*字符串，用户组名称*/,
   "permissions": /*整数，用户组权限*/
 }
 ```
+
+**响应数据格式**：修改后的组信息，格式见 `/api/auth/groups` 每一项
 
 ---
 

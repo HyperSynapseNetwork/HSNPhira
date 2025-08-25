@@ -1,6 +1,6 @@
 from . import cli
 from .extensions import db
-from .common import ClientError
+from .common.error import ClientError
 from .config import Config
 from .extensions import db, lm, ma, migrate
 from .auth.routes import AuthAPI
@@ -76,8 +76,8 @@ class HSNApplication(Flask):
 		return jsonify({"error": e.args[0]}), e.code
 	
 	def on_validation_error(self, e):
-		msg = ", ".join([f"{k}: {v}" for k, v in e.messages().items()])
-		return jsonify({"error": "msg"}), 400
+		msg = ", ".join([f"{k}: {v}" for k, v in e.normalized_messages().items()])
+		return jsonify({"error": msg}), 400
 
 	def on_400(self, e):
 		return jsonify({"error": "bad request"}), 400

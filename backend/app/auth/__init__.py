@@ -1,4 +1,4 @@
-from ..common import ClientError
+from ..common.error import ClientError
 
 from flask_login import current_user
 from enum import IntFlag
