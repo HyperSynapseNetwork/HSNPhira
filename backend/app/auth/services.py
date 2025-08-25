@@ -59,7 +59,7 @@ class AuthService:
 		user: User|None = User.query.filter_by(username=data["username"]).first()
 		if not user:
 			raise ClientError("invalid username")
-		if not current_user.check_password(data["password"]):
+		if not user.check_password(data["password"]):
 			raise ClientError("incorrect password")
 
 		login_user(user, remember=data["remember"])
@@ -92,7 +92,7 @@ class AuthService:
 		user: User = User.query.filter_by(id=user_id).first()
 		if not user:
 			raise ClientError("invalid user id")
-		if not user.check_password(data.get("current_password")):
+		if not current_user.check_password(data.get("current_password")):
 			raise ClientError("incorrect password")
 		if user.group_id == 1:
 			raise ClientError("cannot modify super admin", 403)
