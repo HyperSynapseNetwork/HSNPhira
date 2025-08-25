@@ -212,28 +212,32 @@
     }
     
     /* 3D卡片效果 */
-    .account-container {
-      transform-style: preserve-3d;
-      transform: translateZ(20px);
-      transition: transform 0.3s ease;
-      animation: gentleSway 8s infinite ease-in-out;
-      width: 95%;
-      max-width: 800px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      backdrop-filter: blur(12px);
-      padding: 2rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      margin: 1rem;
-      box-sizing: border-box;
-    }
-
-    @keyframes gentleSway {
-      0%, 100% { transform: translateZ(20px) rotateX(0.5deg) rotateY(0.5deg); }
-      25% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(-1deg); }
-      50% { transform: translateZ(20px) rotateX(0.5deg) rotateY(1deg); }
-      75% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg); }
+      if (accountContainer) {
+        let isMouseOver = false;
+        accountContainer.addEventListener('mousemove', (e) => {
+          if (!isMouseOver) {
+            isMouseOver = true;
+            accountContainer.classList.add('tilting');
+            accountContainer.style.animation = 'none'; // 停止 gentleSway 动画
+          }
+          const rect = accountContainer.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateY = (x - centerX) / centerX * 8;
+          const rotateX = (centerY - y) / centerY * 8;
+          accountContainer.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+        accountContainer.addEventListener('mouseleave', () => {
+          isMouseOver = false;
+          accountContainer.classList.remove('tilting');
+          accountContainer.style.transform = 'translateZ(20px) rotateX(0) rotateY(0)';
+          setTimeout(() => {
+            accountContainer.style.animation = 'gentleSway 8s infinite ease-in-out';
+          }, 300);
+        });
+      }
     }
 
     .account-container.tilting {
