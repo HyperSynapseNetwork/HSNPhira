@@ -20,6 +20,7 @@
       transition: opacity 0.6s;
       opacity: 1;
       pointer-events: auto;
+      flex-direction: column;
     }
     #page-loader.hide {
       opacity: 0;
@@ -31,6 +32,7 @@
       display: inline-block;
       text-align: center;
       font-size: 10px;
+      margin: auto;
     }
     .load_11 > div {
       background-color: #61E8EA;
@@ -104,33 +106,6 @@
       margin: 0.5rem 0;
       justify-content: flex-start;
     }
-    .glass-checkbox {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: 0;
-    }
-    .glass-checkbox input[type="checkbox"] {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 22px;
-      height: 22px;
-      border-radius: 8px;
-      background: #fff;
-      border: 2px solid #61E8EA;
-      box-shadow: 0 1px 4px rgba(97,232,234,0.08);
-      accent-color: #61E8EA;
-      margin: 0;
-    } /* 修复：添加闭合花括号 */
     
     html, body {
       margin: 0;
@@ -527,14 +502,9 @@
 </head>
 <body>
   <!-- 页面加载动画 -->
-  <div id="page-loader">
-    <div class="load_11">
-      <div class="rect1"></div>
-      <div class="rect2"></div>
-      <div class="rect3"></div>
-      <div class="rect4"></div>
-      <div class="rect5"></div>
-    </div>
+  <div id="page-loader" style="flex-direction:column;">
+    <div class="load_11" style="margin:auto;"></div>
+    <div style="width:100%;text-align:center;margin-top:1.2rem;font-size:0.95rem;color:#61E8EA;letter-spacing:1px;user-select:none;">安卓端横屏使用效果更佳哦~</div>
   </div>
   <div class="parallax-bg"></div>
   
@@ -571,6 +541,7 @@
   
   <main id="main-content" style="opacity:0;transition:opacity 0.6s;">
     <div id="status" class="status">服务器状态：检测中...</div>
+    <div id="tilt-area" style="position:relative;width:100%;height:0;"></div>
     <div id="table-container">
       <table id="rooms-table">
         <thead>
@@ -629,14 +600,6 @@
   </div>
 
   <style>
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      margin: 0.5rem 0;
-    }
-    .checkbox-container input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
     #auth-modal input {
       box-sizing: border-box;
       display: block;
@@ -713,28 +676,46 @@
 
     // 页面加载时检查登录状态
     document.addEventListener('DOMContentLoaded', async () => {
-      // 扩大表格倾斜范围，越靠边倾斜越小，回正过程平滑
+      // 扩大表格倾斜范围，使用表格几何中心为参照，面积为表格面积两倍的透明矩形
       const roomsTable = document.getElementById('rooms-table');
-      if (roomsTable) {
-        document.addEventListener('mousemove', (e) => {
-          const winW = window.innerWidth;
-          const winH = window.innerHeight;
-          const centerX = winW / 2;
-          const centerY = winH / 2;
-          const relX = (e.clientX - centerX) / centerX;
-          const relY = (e.clientY - centerY) / centerY;
-          const maxAngle = 6;
-          const rotateY = relX * maxAngle * (1 - Math.abs(relX) * 0.7);
-          const rotateX = -relY * maxAngle * (1 - Math.abs(relY) * 0.7);
-          roomsTable.style.transition = 'transform 0.5s cubic-bezier(.4,2,.3,1)';
-          roomsTable.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
-        document.addEventListener('mouseleave', () => {
-          roomsTable.style.transition = 'transform 1.2s cubic-bezier(.4,2,.3,1)';
-          roomsTable.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
-        });
+      const tableContainer = document.getElementById('table-container');
+      let tiltArea = document.getElementById('tilt-area');
+      function updateTiltArea() {
+        const rect = roomsTable.getBoundingClientRect();
+        tiltArea.style.position = 'absolute';
+        tiltArea.style.left = (rect.left - rect.width/2) + 'px';
+        tiltArea.style.top = (rect.top - rect.height/2) + 'px';
+        tiltArea.style.width = (rect.width * 2) + 'px';
+        tiltArea.style.height = (rect.height * 2) + 'px';
+        tiltArea.style.zIndex = 10;
+        tiltArea.style.background = 'rgba(0,0,0,0)';
       }
-
+      updateTiltArea();
+      window.addEventListener('resize', updateTiltArea);
+      // 鼠标在tiltArea上时表格倾斜
+      tiltArea.addEventListener('mousemove', (e) => {
+        const rect = roomsTable.getBoundingClientRect();
+        const centerX = rect.left + rect.width/2;
+        const centerY = rect.top + rect.height/2;
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const dx = mouseX - centerX;
+        const dy = mouseY - centerY;
+        const maxDist = Math.sqrt((rect.width/2)**2 + (rect.height/2)**2);
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const ratio = dist / maxDist;
+        const maxAngle = 35;
+        const angle = maxAngle * (dist / maxDist);
+        // 方向与距离决定倾斜角度
+        const rotateY = (dx / maxDist) * maxAngle;
+        const rotateX = -(dy / maxDist) * maxAngle;
+        roomsTable.style.transition = 'transform 0.2s cubic-bezier(.4,2,.3,1)';
+        roomsTable.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+      tiltArea.addEventListener('mouseleave', () => {
+        roomsTable.style.transition = 'transform 1.2s cubic-bezier(.4,2,.3,1)';
+        roomsTable.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
+      });
       // 检查会话状态
       try {
         const response = await fetch('/api/auth/me');
@@ -1157,7 +1138,7 @@
           const res = await fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, password, phiraId })
+            body: JSON.stringify({ username, password, phiraId })
           });
           if (!res.ok) throw new Error('注册失败');
           const result = await res.json();
@@ -1168,7 +1149,7 @@
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, password, rememberMe })
+            body: JSON.stringify({ username, password, rememberMe })
           });
           if (!res.ok) throw new Error('登录失败');
           const result = await res.json();
