@@ -827,6 +827,17 @@
         <h1 class="admin-title">管理员控制台</h1>
         <div class="user-count">用户总数: <span id="total-users">0</span></div>
       </div>
+      <!-- 用户组管理区 -->
+      <div class="form-section" style="margin-bottom:2rem;">
+        <h2 class="section-title">用户组管理</h2>
+        <div id="groups-message" class="message"></div>
+        <div class="info-grid" id="groups-list">
+          <!-- 用户组列表通过JS填充 -->
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="openCreateGroupModal()">创建用户组</button>
+        </div>
+      </div>
       
       <div class="filters">
         <input type="text" class="filter-input" id="search-name" placeholder="搜索用户名..." />
@@ -883,7 +894,37 @@
     </div>
   </main>
   
-  <!-- 编辑用户模态框 -->
+  <!-- 创建/编辑用户组模态框 -->
+  <div id="group-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="group-modal-title">创建用户组</h3>
+        <button class="close-modal" onclick="closeGroupModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="group-modal-message" class="message"></div>
+        <input type="hidden" id="group-id" />
+        <div class="form-group">
+          <label class="form-label">用户组名称</label>
+          <input type="text" class="form-input" id="group-name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">权限（整数位掩码）</label>
+          <input type="number" class="form-input" id="group-permissions" />
+        </div>
+        <div class="form-group" id="group-password-area" style="display:none;">
+          <label class="form-label">当前管理员密码</label>
+          <input type="password" class="form-input" id="group-current-password" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeGroupModal()">取消</button>
+        <button class="btn" id="group-modal-save-btn" onclick="saveGroupChanges()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 编辑用户模态框（增加当前密码输入） -->
   <div id="edit-modal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -892,26 +933,25 @@
       </div>
       <div class="modal-body">
         <div id="edit-message" class="message"></div>
-        
         <input type="hidden" id="edit-user-id" />
-        
         <div class="form-group">
           <label class="form-label">用户名</label>
           <input type="text" class="form-input" id="edit-username" />
         </div>
-        
+        <div class="form-group">
+          <label class="form-label">当前管理员密码</label>
+          <input type="password" class="form-input" id="edit-current-password" />
+        </div>
         <div class="form-group">
           <label class="form-label">密码</label>
           <div class="password-display" id="password-display">************</div>
           <button class="reveal-btn" onclick="togglePasswordDisplay()">显示/隐藏密码</button>
           <input type="password" class="form-input" id="edit-password" placeholder="输入新密码" style="margin-top: 0.5rem;" />
         </div>
-        
         <div class="form-group">
           <label class="form-label">Phira ID</label>
           <input type="text" class="form-input" id="edit-phira-id" />
         </div>
-        
         <div class="form-row">
           <div class="form-col">
             <label class="form-label">管理员状态</label>
@@ -960,6 +1000,8 @@
     // 全局变量
     let allUsers = [];
     let currentUser = null;
+    // 用户组管理相关
+    let allGroups = [];
 
     // 页面加载时检查登录状态和权限
     document.addEventListener('DOMContentLoaded', async () => {
@@ -981,6 +1023,8 @@
 
       // 加载用户列表
       await loadAllUsers();
+      // 加载用户组列表
+      await loadAllGroups();
 
       // 动画淡出
       setTimeout(() => {
@@ -1066,7 +1110,7 @@
       }
     }
     
-    // 保存用户更改（兼容新API）
+    // 保存用户更改（兼容新API，增加current_password）
     async function saveUserChanges() {
       const userId = parseInt(document.getElementById('edit-user-id').value);
       const username = document.getElementById('edit-username').value;
@@ -1074,11 +1118,12 @@
       const phiraId = document.getElementById('edit-phira-id').value;
       const admin = document.getElementById('edit-admin').value;
       const dev = document.getElementById('edit-dev').value;
+      const current_password = document.getElementById('edit-current-password').value;
       let group_id = 3;
       if (admin === 'yes') group_id = 2;
       if (dev === 'yes') group_id = 2;
       if (admin === 'yes' && dev === 'yes') group_id = 1;
-      const changes = { username, phira_id: phiraId, group_id };
+      const changes = { username, phira_id: phiraId, group_id, current_password };
       if (password) changes.password = password;
       try {
         const res = await fetch(`/api/auth/users/${userId}`, {
@@ -1209,6 +1254,126 @@
         messageElement.style.display = 'none';
       }, 5000);
     }
+    
+    // 加载所有用户组数据
+    async function loadAllGroups() {
+      try {
+        const res = await fetch('/api/auth/groups');
+        if (!res.ok) throw new Error('加载用户组失败');
+        allGroups = await res.json();
+        renderGroupsList(allGroups);
+      } catch (e) {
+        showGroupsMessage('加载用户组失败', false);
+      }
+    }
+    // 渲染用户组列表
+    function renderGroupsList(groups) {
+      const list = document.getElementById('groups-list');
+      list.innerHTML = '';
+      groups.forEach(group => {
+        const card = document.createElement('div');
+        card.className = 'info-card';
+        card.innerHTML = `
+          <div class="info-title">ID: ${group.id}</div>
+          <div class="info-value">${group.name}</div>
+          <div class="info-value">权限: ${group.permissions}</div>
+          <div class="form-actions">
+            <button class="btn" onclick="openEditGroupModal(${group.id})">编辑</button>
+            <button class="btn btn-outline" onclick="deleteGroup(${group.id})">删除</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+    function showGroupsMessage(msg, isSuccess) {
+      const el = document.getElementById('groups-message');
+      el.textContent = msg;
+      el.className = 'message ' + (isSuccess ? 'message-success' : 'message-error');
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+    function openCreateGroupModal() {
+      document.getElementById('group-modal-title').textContent = '创建用户组';
+      document.getElementById('group-id').value = '';
+      document.getElementById('group-name').value = '';
+      document.getElementById('group-permissions').value = '';
+      document.getElementById('group-password-area').style.display = 'none';
+      document.getElementById('group-modal').style.display = 'flex';
+      document.getElementById('group-modal-message').style.display = 'none';
+      document.getElementById('group-modal-save-btn').onclick = saveGroupChanges;
+    }
+    function openEditGroupModal(id) {
+      const group = allGroups.find(g => g.id === id);
+      if (!group) return;
+      document.getElementById('group-modal-title').textContent = '编辑用户组';
+      document.getElementById('group-id').value = group.id;
+      document.getElementById('group-name').value = group.name;
+      document.getElementById('group-permissions').value = group.permissions;
+      document.getElementById('group-password-area').style.display = 'block';
+      document.getElementById('group-modal').style.display = 'flex';
+      document.getElementById('group-modal-message').style.display = 'none';
+      document.getElementById('group-modal-save-btn').onclick = saveGroupChanges;
+    }
+    function closeGroupModal() {
+      document.getElementById('group-modal').style.display = 'none';
+    }
+    async function saveGroupChanges() {
+      const id = document.getElementById('group-id').value;
+      const name = document.getElementById('group-name').value;
+      const permissions = parseInt(document.getElementById('group-permissions').value);
+      const current_password = document.getElementById('group-current-password').value;
+      const msgEl = document.getElementById('group-modal-message');
+      msgEl.style.display = 'none';
+      if (!name || isNaN(permissions)) {
+        msgEl.textContent = '请填写完整信息';
+        msgEl.className = 'message message-error';
+        msgEl.style.display = 'block';
+        return;
+      }
+      try {
+        let res;
+        if (id) {
+          // 编辑
+          res = await fetch(`/api/auth/groups/${id}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, permissions, current_password })
+          });
+        } else {
+          // 创建
+          res = await fetch('/api/auth/groups', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, permissions })
+          });
+        }
+        if (!res.ok) throw new Error('操作失败');
+        msgEl.textContent = '保存成功';
+        msgEl.className = 'message message-success';
+        msgEl.style.display = 'block';
+        setTimeout(() => {
+          closeGroupModal();
+          loadAllGroups();
+        }, 1200);
+      } catch (e) {
+        msgEl.textContent = '操作失败';
+        msgEl.className = 'message message-error';
+        msgEl.style.display = 'block';
+      }
+    }
+    async function deleteGroup(id) {
+      if (!confirm('确定要删除该用户组吗？')) return;
+      try {
+        const res = await fetch(`/api/auth/groups/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('删除失败');
+        showGroupsMessage('用户组已删除', true);
+        loadAllGroups();
+      } catch (e) {
+        showGroupsMessage('删除失败', false);
+      }
+    }
+    // 页面加载时加载用户组
+    document.addEventListener('DOMContentLoaded', loadAllGroups);
     
     // 绑定搜索和过滤事件
     document.getElementById('search-name').addEventListener('input', () => renderUsersTable(allUsers));
