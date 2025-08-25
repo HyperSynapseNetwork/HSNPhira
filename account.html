@@ -370,6 +370,23 @@
     }
     .info-card {
       background: rgba(255, 255, 255, 0.05);
+      /* 卡片悬停效果 */
+      .info-card:hover {
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 8px 32px rgba(161, 229, 239, 0.25), 0 2px 8px rgba(0,0,0,0.18);
+        border: 1.5px solid #a1e5ef;
+        transform: scale(1.04);
+        transition: all 0.25s cubic-bezier(.4,2,.3,1);
+        z-index: 2;
+      }
+
+      /* 卡片内文字悬停效果 */
+      .info-title:hover, .info-value:hover {
+        color: #a1e5ef;
+        text-shadow: 0 0 6px #a1e5ef88;
+        cursor: pointer;
+        transition: color 0.2s, text-shadow 0.2s;
+      }
       border-radius: 12px;
       padding: 1.2rem;
       border: 1px solid rgba(255, 255, 255, 0.1);
