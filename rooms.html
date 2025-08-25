@@ -612,23 +612,15 @@
       <input id="auth-name" placeholder="用户名" />
       <input id="auth-password" type="password" placeholder="密码" />
       <input id="auth-phiraid" class="collapsed" placeholder="Phira ID (仅注册)"/>
-      
-      <!-- 记住我复选框 -->
+      <input id="auth-password-confirm" type="password" placeholder="确认密码" style="display:none;" />
       <div class="checkbox-container">
-        <div class="glass-checkbox">
-          <input type="checkbox" id="remember-me">
-        </div>
+        <input type="checkbox" id="remember-me">
         <label for="remember-me" style="margin-left:8px;">记住我</label>
       </div>
-      
-      <!-- 用户协议复选框（仅注册时显示） -->
       <div id="agreement-container" class="checkbox-container" style="display: none;">
-        <div class="glass-checkbox">
-          <input type="checkbox" id="agree-terms" required>
-        </div>
+        <input type="checkbox" id="agree-terms" required>
         <label for="agree-terms" style="margin-left:8px;">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
       </div>
-      
       <button onclick="submitAuth()">确认</button>
       <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
       <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
@@ -941,178 +933,185 @@
           }
           // 状态显示
           const stateInfo = STATE_MAP[room.state] || { text: room.state, class: '' };
-          const stateDisplay = `<span class="state-label ${stateInfo.class}">${stateInfo.text}</span>`;
-          const hostBtn = `<a href="https://phira.moe/user/${room.host}" target="_blank"><button class="chart-btn">${hostName}</button></a>`;
-          const usersBtn = `<button class="chart-btn" onclick='showRoomUsers(${JSON.stringify(room.users)}, ${room.host})'>查看</button>`;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${room.name}</td>
-            <td>${hostBtn}</td>
-            <td>${room.users.length}/100</td>
-            <td>${stateDisplay}</td>
-            <td>${room.cycle ? "是" : "否"}</td>
-            <td>${chartText}</td>
-            <td>${chartImg}</td>
-            <td>${downloadBtn}</td>
-            <td>${usersBtn}</td>
+          const stateDisplay = '<span class="state-label ' + stateInfo.class + '">' + stateInfo.text + '</span>';
+          // 人数显示
+          const playerCount = room.players ? room.players.length : 0;
+          const playerDisplay = `${playerCount} / ${room.max_players}`;
+          // 房间行HTML
+          const rowHTML = `
+            <tr>
+              <td>${room.name}</td>
+              <td>${hostName}</td>
+              <td>${playerDisplay}</td>
+              <td>${stateDisplay}</td>
+              <td>${room.loop ? '是' : '否'}</td>
+              <td>${chartText}</td>
+              <td>${chartImg}</td>
+              <td>${downloadBtn}</td>
+              <td>
+                <button class="dl-btn" onclick="showUsersInRoom('${room.id}', '${room.name}')">查看</button>
+              </td>
+            </tr>
           `;
-          tbody.appendChild(tr);
+          // 添加到表格
+          tbody.insertAdjacentHTML('beforeend', rowHTML);
         }
-        
-        // 更新服务器状态
-        const status = document.getElementById("status");
-        status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
-        status.classList.add("online");
-        status.classList.remove("offline");
       } catch (err) {
-        console.error('加载房间信息错误:', err);
-        const status = document.getElementById("status");
-        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
-        status.classList.add("offline");
-        status.classList.remove("online");
+        console.error(err);
+        const tbody = document.querySelector("#rooms-table tbody");
+        tbody.innerHTML = "<tr><td colspan='9' style='color:red;'>加载房间数据失败</td></tr>";
       }
     }
-    
-    // 显示房间用户
-    async function showRoomUsers(userIds, hostId) {
+
+    // 显示房间内用户
+    async function showUsersInRoom(roomId, roomName) {
       const modal = document.getElementById("user-modal");
-      const list = document.getElementById("user-list");
-      
-      // 显示加载中
-      list.innerHTML = '<li>加载中...</li>';
+      const userList = document.getElementById("user-list");
+      userList.innerHTML = "加载中...";
       modal.style.display = "flex";
       
-      // 获取所有用户详细信息
-      const users = [];
-      for (const userId of userIds) {
-        const userInfo = await getUserInfo(userId);
-        if (userInfo) {
-          users.push({
-            id: userId,
-            name: userInfo.name,
-            isHost: userId === hostId
-          });
+      try {
+        const res = await fetch(`/api/rooms/${roomId}/users`);
+        if (!res.ok) throw new Error('获取房间用户失败');
+        
+        const users = await res.json();
+        console.log('房间用户数据:', users); // 调试输出
+        
+        // 清空现有用户列表
+        userList.innerHTML = "";
+        
+        if (!Array.isArray(users) || users.length === 0) {
+          userList.innerHTML = "<li style='color:#f33;'>房间内暂无其他用户</li>";
+          return;
         }
+        
+        // 获取所有用户信息
+        const userInfos = await Promise.all(users.map(user => getUserInfo(user.id)));
+        
+        // 生成用户列表项
+        userInfos.forEach(userInfo => {
+          if (!userInfo) return;
+          const listItem = document.createElement("li");
+          listItem.textContent = userInfo.name;
+          listItem.style.color = "#61E8EA";
+          listItem.style.margin = "0.3rem 0";
+          listItem.style.fontWeight = "bold";
+          userList.appendChild(listItem);
+        });
+      } catch (err) {
+        console.error(err);
+        userList.innerHTML = "<li style='color:red;'>加载用户数据失败</li>";
       }
-      
-      // 更新用户列表
-      list.innerHTML = users.map(user => 
-        `<li class="${user.isHost ? 'highlight-host' : ''}">${user.name || `用户${user.id}`}</li>`
-      ).join("");
     }
-    
-    function showLightbox(src) {
-      const lb = document.getElementById("lightbox");
-      document.getElementById("lightbox-img").src = src;
-      lb.style.display = "flex";
-      requestAnimationFrame(() => lb.classList.add("active"));
-    }
-    
-    function hideLightbox() {
-      const lb = document.getElementById("lightbox");
-      lb.classList.remove("active");
+
+    // 打开认证弹窗
+    function openAuth() {
+      authMode = 'login';
+      document.getElementById('auth-title').textContent = '用户登录';
+      document.getElementById('auth-password-confirm').style.display = 'none';
+      document.getElementById('auth-phiraid').classList.add('collapsed');
+      document.getElementById('agreement-container').style.display = 'none';
+      document.getElementById('remember-me').checked = true;
+      document.getElementById('auth-msg').textContent = '';
+      document.getElementById('auth-modal').style.display = 'flex';
       setTimeout(() => {
-        lb.style.display = "none";
-        document.getElementById("lightbox-img").src = "";
+        document.getElementById('auth-name').focus();
       }, 300);
     }
-    
-    function closeModal() {
-      document.getElementById("user-modal").style.display = "none";
-    }
-    
-    function openAuth() {
-      document.getElementById('auth-modal').style.display = 'flex';
-      document.getElementById('auth-msg').textContent = '';
-      updateAuthUI();
-    }
-    
+
+    // 关闭认证弹窗
     function closeAuth() {
       document.getElementById('auth-modal').style.display = 'none';
+      clearAuthFields();
     }
-    
+
+    // 切换登录/注册模式
     function toggleAuthMode() {
       authMode = authMode === 'login' ? 'register' : 'login';
-      updateAuthUI();
-      
-      // 显示/隐藏用户协议复选框
-      const agreementContainer = document.getElementById('agreement-container');
-      agreementContainer.style.display = authMode === 'register' ? 'block' : 'none';
+      const isLogin = authMode === 'login';
+      document.getElementById('auth-title').textContent = isLogin ? '用户登录' : '用户注册';
+      document.getElementById('auth-password-confirm').style.display = isLogin ? 'none' : 'block';
+      document.getElementById('auth-phiraid').classList.toggle('collapsed', isLogin);
+      document.getElementById('agreement-container').style.display = isLogin ? 'none' : 'flex';
+      document.getElementById('auth-msg').textContent = '';
+      // 清空密码字段
+      document.getElementById('auth-password').value = '';
+      document.getElementById('auth-password-confirm').value = '';
+      setTimeout(() => {
+        document.getElementById('auth-name').focus();
+      }, 300);
     }
-    
-    function updateAuthUI() {
-      var title = document.getElementById('auth-title');
-      var phiraid = document.getElementById('auth-phiraid');
-      if (authMode === 'login') {
-        title.textContent = '用户登录';
-        phiraid.classList.add('collapsed');
-      }
-      else {
-        title.textContent = '用户注册';
-        phiraid.classList.remove('collapsed');
-      }
+
+    // 清空认证字段
+    function clearAuthFields() {
+      document.getElementById('auth-name').value = '';
+      document.getElementById('auth-password').value = '';
+      document.getElementById('auth-phiraid').value = '';
+      document.getElementById('auth-password-confirm').value = '';
+      document.getElementById('remember-me').checked = false;
+      document.getElementById('agreement-container').style.display = 'none';
+      document.getElementById('auth-msg').textContent = '';
     }
-    
+
+    // 提交认证信息
     async function submitAuth() {
-      const username = document.getElementById('auth-name').value;
-      const password = document.getElementById('auth-password').value;
-      const phira_id = document.getElementById('auth-phiraid').value;
+      const name = document.getElementById('auth-name').value.trim();
+      const password = document.getElementById('auth-password').value.trim();
+      const phiraId = document.getElementById('auth-phiraid').value.trim();
       const rememberMe = document.getElementById('remember-me').checked;
-      const agreeTerms = authMode === 'register' ? document.getElementById('agree-terms').checked : true;
-      const msg = document.getElementById('auth-msg');
-      msg.textContent = '处理中...';
-    
-      try {
-        // 注册时需要确认用户协议
-        if (authMode === 'register' && !agreeTerms) {
-          msg.textContent = '请同意用户协议';
-          return;
-        }
-        
-        const endpoint = authMode === 'login' 
-          ? '/api/auth/login'
-          : '/api/auth/users';
-          
-        const payload = authMode === 'login'
-          ? { username, password, remember: rememberMe }
-          : { username, password, phira_id };
-        
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(payload)
-        });
-        
-        if (!res.ok) {
-          const errorData = await res.json();
-          msg.textContent = errorData.message || '操作失败';
-          return;
-        }
-        
-        // 登录成功后获取用户信息
-        if (authMode === 'login') {
-          const userRes = await fetch('/api/auth/me');
-          if (!userRes.ok) {
-            msg.textContent = '获取用户信息失败';
-            return;
-          }
-          currentUser = await userRes.json();
-          updateUserDisplay();
-        }
-        
-        msg.textContent = authMode === 'login' ? '登录成功！' : '注册成功！';
-        setTimeout(() => {
-          closeAuth();
-          if (authMode === 'register') {
-            authMode = 'login';
-            updateAuthUI();
-          }
-          msg.textContent = '';
-        }, 1000);
-      } catch (e) {
-        msg.textContent = '网络错误';
-        console.error('认证错误:', e);
+      const isLogin = authMode === 'login';
+      
+      // 简单验证
+      if (!name || !password) {
+        showAuthMessage('用户名和密码不能为空', true);
+        return;
       }
+      if (!isLogin && !phiraId) {
+        showAuthMessage('Phira ID不能为空', true);
+        return;
+      }
+      
+      try {
+        // 注册
+        if (!isLogin) {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, password, phiraId })
+          });
+          if (!res.ok) throw new Error('注册失败');
+          const result = await res.json();
+          showAuthMessage('注册成功！请登录', false);
+          toggleAuthMode();
+        } else {
+          // 登录
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, password, rememberMe })
+          });
+          if (!res.ok) throw new Error('登录失败');
+          const result = await res.json();
+          currentUser = result;
+          updateUserDisplay();
+          closeAuth();
+          showAuthMessage('登录成功', false);
+        }
+      } catch (err) {
+        console.error(err);
+        showAuthMessage(err.message, true);
+      }
+    }
+
+    // 显示认证消息
+    function showAuthMessage(msg, isError) {
+      const msgElement = document.getElementById('auth-msg');
+      msgElement.textContent = msg;
+      msgElement.style.color = isError ? '#ff4444' : '#66bb6a';
+      msgElement.style.display = 'block';
+      setTimeout(() => {
+        msgElement.style.display = 'none';
+      }, 3000);
     }
   </script>
 </body>
