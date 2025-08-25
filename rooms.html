@@ -320,18 +320,18 @@
 
     /* 3D毛玻璃卡片效果 */
     table {
-  border-collapse: collapse;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-  animation: fadeIn 1s ease-out, gentleSway 8s infinite ease-in-out;
-  width: 100%;
-  transform-style: preserve-3d;
-  transform: translateZ(20px);
-  transition: transform 0.3s cubic-bezier(.4,2,.3,1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+        border-collapse: collapse;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+        animation: fadeIn 1s ease-out, gentleSway 8s infinite ease-in-out;
+        width: 100%;
+        transform-style: preserve-3d;
+        transform: translateZ(20px);
+        transition: transform 0.3s cubic-bezier(.4,2,.3,1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     @keyframes gentleSway {
@@ -342,12 +342,12 @@
     }
 
     table.tilting {
-  animation: none;
-  transition: transform 0.1s linear;
+        animation: none;
+        transition: transform 0.1s linear;
     }
     
     table.hovering {
-  animation: gentleHover 2s infinite cubic-bezier(.4,2,.3,1);
+        animation: gentleHover 2s infinite cubic-bezier(.4,2,.3,1);
     }
     
     @keyframes gentleHover {
@@ -948,7 +948,7 @@
           tr.innerHTML = `
             <td>${room.name}</td>
             <td>${hostBtn}</td>
-            <td>${room.users.length}/100 || room.users.length}</td>
+            <td>${room.users.length}/100</td>
             <td>${stateDisplay}</td>
             <td>${room.cycle ? "是" : "否"}</td>
             <td>${chartText}</td>
