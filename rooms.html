@@ -707,9 +707,9 @@
     
     let currentUser = null;
     let authMode = 'login';
-    let autoRefreshInterval;
     let isHoveringTable = false;
     let lastMousePosition = { x: 0, y: 0 };
+    let roomsEventSource = null;
 
     // 页面加载时检查登录状态
     document.addEventListener('DOMContentLoaded', async () => {
@@ -749,8 +749,19 @@
       // 检测服务器状态（ping phira.htadiy.cc）
       await checkServerStatus();
 
-      // 加载房间数据
-      await loadRooms();
+      // 首次GET请求初始化房间列表
+      try {
+        const res = await fetch('/api/rooms/info');
+        if (res.ok) {
+          const rooms = await res.json();
+          await renderRooms(rooms);
+        }
+      } catch (e) {
+        console.error('首次加载房间失败:', e);
+      }
+
+      // 使用SSE监听房间数据
+      startRoomsSSE();
 
       // 所有控件和数据加载完成后，淡出加载动画，主内容淡入
       setTimeout(() => {
@@ -759,13 +770,82 @@
         if (loader) loader.classList.add('hide');
         if (mainContent) mainContent.style.opacity = 1;
       }, 600);
-
-      // 设置每3秒自动刷新
-      autoRefreshInterval = setInterval(async () => {
-        await checkServerStatus();
-        await loadRooms();
-      }, 3000);
     });
+
+    // 使用SSE监听房间数据
+    function startRoomsSSE() {
+      if (roomsEventSource) roomsEventSource.close();
+      roomsEventSource = new EventSource('/api/rooms/info/stream');
+      roomsEventSource.onmessage = function(event) {
+        try {
+          const rooms = JSON.parse(event.data);
+          renderRooms(rooms);
+        } catch (e) {
+          console.error('SSE房间数据解析失败:', e);
+        }
+      };
+      roomsEventSource.onerror = function(e) {
+        console.error('SSE连接错误:', e);
+        // 可选：断线重连
+      };
+    }
+
+    // 渲染房间列表
+    async function renderRooms(rooms) {
+      const tbody = document.querySelector("#rooms-table tbody");
+      if (!Array.isArray(rooms) || rooms.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='9'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
+        return;
+      }
+      tbody.innerHTML = "";
+      for (const room of rooms) {
+        if (!room || !room.host) continue;
+        // 获取房主信息
+        const hostInfo = await getUserInfo(room.host);
+        const hostName = hostInfo ? hostInfo.name : `用户${room.host}`;
+        // 获取谱面信息（如果有）
+        let chartText = "暂未选择";
+        let chartImg = "暂未选择";
+        let downloadBtn = "暂未选择";
+        if (room.chart) {
+          const chartInfo = await getChartInfo(room.chart);
+          if (chartInfo) {
+            chartText = chartInfo.name
+              ? `<a href=\"https://phira.moe/chart/${room.chart}\" target=_blank class=\"chart-name-btn\">${chartInfo.name}</a>`
+              : `ID: ${room.chart}`;
+            chartImg = chartInfo.illustration
+              ? `<button class=\"chart-btn\" onclick=\"showLightbox('${chartInfo.illustration}')\">查看</button>`
+              : "无封面";
+            downloadBtn = chartInfo.file
+              ? `<a href=\"${chartInfo.file}\" download=\"chart_${room.chart}.zip\"><button class=\"dl-btn\">下载</button></a>`
+              : "无文件";
+          }
+        }
+        // 状态显示
+        const stateInfo = STATE_MAP[room.state] || { text: room.state, class: '' };
+        const stateDisplay = '<span class="state-label ' + stateInfo.class + '">' + stateInfo.text + '</span>';
+        // 人数显示
+        const playerCount = room.players ? room.players.length : 0;
+        const playerDisplay = `${playerCount} / ${room.max_players}`;
+        // 房间行HTML
+        const rowHTML = `
+          <tr>
+            <td>${room.name}</td>
+            <td>${hostName}</td>
+            <td>${playerDisplay}</td>
+            <td>${stateDisplay}</td>
+            <td>${room.loop ? '是' : '否'}</td>
+            <td>${chartText}</td>
+            <td>${chartImg}</td>
+            <td>${downloadBtn}</td>
+            <td>
+              <button class="dl-btn" onclick="showUsersInRoom('${room.id}', '${room.name}')">查看</button>
+            </td>
+          </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', rowHTML);
+      }
+    }
 
     // 检查 /api/rooms/info 是否有返回
     async function checkServerStatus() {
