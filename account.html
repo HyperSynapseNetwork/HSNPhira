@@ -84,8 +84,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
-                        url('https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg');
+      background-image: url('https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -485,48 +484,6 @@
       margin-top: 1rem;
       flex-wrap: wrap;
     }
-    .checkbox-container {
-  display: flex;
-  align-items: center;
-  margin: 0.5rem 0;
-  justify-content: flex-start;
-}
-.glass-checkbox {
-  position: relative;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 0;
-}
-.glass-checkbox input[type="checkbox"] {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 22px;
-  height: 22px;
-  border-radius: 8px;
-  background: #fff;
-  border: 2px solid #61E8EA;
-  box-shadow: 0 1px 4px rgba(97,232,234,0.08);
-  accent-color: #61E8EA;
-  margin: 0;
-    }
-    .checkbox-container input[type="checkbox"] {
-      margin-right: 0.5rem;
-      width: 18px;
-      height: 18px;
-      accent-color: #61E8EA;
-      min-width: 18px;
-      min-height: 18px;
-      vertical-align: middle;
-    }
     @media (max-width: 768px) {
       header {
         padding: 0.5rem 1rem;
@@ -601,10 +558,6 @@
     </div>
     
     <div class="user-section">
-      <!-- 登录按钮（未登录时） -->
-      <div id="login-button" class="glass-button" onclick="openAuth()">
-        <a href="javascript:void(0)" class="login-btn">登录</a>
-      </div>
       <!-- 用户信息（登录后） -->
       <div id="avatar-container" style="display: none;" class="glass-button">
         <div class="user-info" onclick="toggleDropdown()">
@@ -768,23 +721,15 @@
       <input id="auth-name" placeholder="用户名" />
       <input id="auth-password" type="password" placeholder="密码" />
       <input id="auth-phiraid" class="collapsed" placeholder="Phira ID (仅注册)"/>
-      
-      <!-- 记住我复选框 -->
+      <input id="auth-password-confirm" type="password" placeholder="确认密码" style="display:none;" />
       <div class="checkbox-container">
-        <div class="glass-checkbox">
-          <input type="checkbox" id="remember-me">
-        </div>
+        <input type="checkbox" id="remember-me">
         <label for="remember-me" style="margin-left:8px;">记住我</label>
       </div>
-      
-      <!-- 用户协议复选框（仅注册时显示） -->
       <div id="agreement-container" class="checkbox-container" style="display: none;">
-        <div class="glass-checkbox">
-          <input type="checkbox" id="agree-terms" required>
-        </div>
+        <input type="checkbox" id="agree-terms" required>
         <label for="agree-terms" style="margin-left:8px;">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
       </div>
-      
       <button onclick="submitAuth()">确认</button>
       <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
       <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
@@ -843,7 +788,7 @@
           
           accountContainer.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
-        
+         
         accountContainer.addEventListener('mouseleave', () => {
           accountContainer.classList.remove('tilting');
           accountContainer.style.transform = 'translateZ(20px) rotateX(0) rotateY(0)';
@@ -1124,13 +1069,16 @@
     function updateAuthUI() {
       var title = document.getElementById('auth-title');
       var phiraid = document.getElementById('auth-phiraid');
+      var passwordConfirm = document.getElementById('auth-password-confirm');
       if (authMode === 'login') {
         title.textContent = '用户登录';
         phiraid.classList.add('collapsed');
+        passwordConfirm.style.display = 'none';
       }
       else {
         title.textContent = '用户注册';
         phiraid.classList.remove('collapsed');
+        passwordConfirm.style.display = 'block';
       }
     }
     
