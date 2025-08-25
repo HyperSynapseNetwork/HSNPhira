@@ -101,20 +101,35 @@
       .checkbox-container {
         display: flex;
         align-items: center;
-        flex-direction: row;
         margin: 0.5rem 0;
-        width: auto;
         justify-content: flex-start;
       }
-      .checkbox-container input[type="checkbox"] {
-        margin-right: 0.5rem;
-        width: 18px;
-        height: 18px;
-        accent-color: #61E8EA;
-        min-width: 18px;
-        min-height: 18px;
-        vertical-align: middle;
+      .glass-checkbox {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0;
       }
+      .glass-checkbox input[type="checkbox"] {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 22px;
+        height: 22px;
+        border-radius: 8px;
+        background: #fff;
+        border: 2px solid #61E8EA;
+        box-shadow: 0 1px 4px rgba(97,232,234,0.08);
+        accent-color: #61E8EA;
+        margin: 0;
     html, body {
       margin: 0;
       padding: 0;
@@ -305,19 +320,18 @@
 
     /* 3D毛玻璃卡片效果 */
     table {
-      border-collapse: collapse;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      overflow: hidden;
-      backdrop-filter: blur(8px);
-      animation: fadeIn 1s ease-out;
-      width: 100%;
-      transform-style: preserve-3d;
-      transform: translateZ(20px);
-      transition: transform 0.3s ease;
-      animation: gentleSway 8s infinite ease-in-out;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 1s ease-out, gentleSway 8s infinite ease-in-out;
+  width: 100%;
+  transform-style: preserve-3d;
+  transform: translateZ(20px);
+  transition: transform 0.3s cubic-bezier(.4,2,.3,1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     @keyframes gentleSway {
@@ -328,12 +342,12 @@
     }
 
     table.tilting {
-      animation: none;
-      transition: transform 0.1s linear;
+  animation: none;
+  transition: transform 0.1s linear;
     }
     
     table.hovering {
-      animation: gentleHover 2s infinite ease-in-out;
+  animation: gentleHover 2s infinite cubic-bezier(.4,2,.3,1);
     }
     
     @keyframes gentleHover {
@@ -599,14 +613,18 @@
       
       <!-- 记住我复选框 -->
       <div class="checkbox-container">
-        <input type="checkbox" id="remember-me">
-        <label for="remember-me">记住我</label>
+        <div class="glass-checkbox">
+          <input type="checkbox" id="remember-me">
+        </div>
+        <label for="remember-me" style="margin-left:8px;">记住我</label>
       </div>
       
       <!-- 用户协议复选框（仅注册时显示） -->
       <div id="agreement-container" class="checkbox-container" style="display: none;">
-        <input type="checkbox" id="agree-terms" required>
-        <label for="agree-terms">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
+        <div class="glass-checkbox">
+          <input type="checkbox" id="agree-terms" required>
+        </div>
+        <label for="agree-terms" style="margin-left:8px;">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
       </div>
       
       <button onclick="submitAuth()">确认</button>
@@ -701,37 +719,29 @@
 
     // 页面加载时检查登录状态
     document.addEventListener('DOMContentLoaded', async () => {
-      // 添加3D卡片交互效果
-      const tableContainer = document.getElementById('table-container');
-      const roomsTable = document.getElementById('rooms-table');
-      if (tableContainer && roomsTable) {
-        tableContainer.addEventListener('mouseenter', () => {
-          isHoveringTable = true;
-          roomsTable.classList.remove('hovering');
-          roomsTable.classList.add('tilting');
-        });
-        tableContainer.addEventListener('mousemove', (e) => {
-          if (!isHoveringTable) return;
-          lastMousePosition = { x: e.clientX, y: e.clientY };
-          const rect = tableContainer.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const centerX = rect.width / 2;
-          const centerY = rect.height / 2;
-          const rotateY = (x - centerX) / centerX * 8;
-          const rotateX = (centerY - y) / centerY * 8;
-          roomsTable.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
-        tableContainer.addEventListener('mouseleave', () => {
-          isHoveringTable = false;
-          roomsTable.classList.remove('tilting');
-          roomsTable.style.transform = 'translateZ(20px)';
-          setTimeout(() => {
-            roomsTable.classList.add('hovering');
-          }, 300);
-        });
-        roomsTable.classList.add('hovering');
-      }
+      // 扩大表格倾斜范围，越靠边倾斜越小，回正过程平滑
+      document.addEventListener('DOMContentLoaded', () => {
+        const roomsTable = document.getElementById('rooms-table');
+        if (roomsTable) {
+          document.addEventListener('mousemove', (e) => {
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            const centerX = winW / 2;
+            const centerY = winH / 2;
+            const relX = (e.clientX - centerX) / centerX;
+            const relY = (e.clientY - centerY) / centerY;
+            const maxAngle = 6;
+            const rotateY = relX * maxAngle * (1 - Math.abs(relX) * 0.7);
+            const rotateX = -relY * maxAngle * (1 - Math.abs(relY) * 0.7);
+            roomsTable.style.transition = 'transform 0.5s cubic-bezier(.4,2,.3,1)';
+            roomsTable.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+          });
+          document.addEventListener('mouseleave', () => {
+            roomsTable.style.transition = 'transform 1.2s cubic-bezier(.4,2,.3,1)';
+            roomsTable.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
+          });
+        }
+      });
 
       // 检查会话状态
       try {
