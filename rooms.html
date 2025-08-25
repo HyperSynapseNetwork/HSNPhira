@@ -7,6 +7,114 @@
   <meta name="screen-orientation" content="landscape">
   <title>房间列表 - HyperSynapse Phira</title>
   <style>
+    /* 页面加载动画样式（五条竖条弹跳） */
+    #page-loader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.95);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #page-loader.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .load_11 {
+      width: 50px;
+      height: 40px;
+      display: inline-block;
+      text-align: center;
+      font-size: 10px;
+    }
+    .load_11 > div {
+      background-color: #61E8EA;
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+      -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+      animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+    .load_11 .rect2 {
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+    .load_11 .rect3 {
+      -webkit-animation-delay: -1.0s;
+      animation-delay: -1.0s;
+    }
+    .load_11 .rect4 {
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+    .load_11 .rect5 {
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+    @-webkit-keyframes sk-stretchdelay {
+      0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+      20% { -webkit-transform: scaleY(1.0) }
+    }
+    @keyframes sk-stretchdelay {
+      0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+      }
+      20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+      }
+    }
+    /* 文字悬停效果 */
+      /* 文字悬停效果（去下划线，发光晕） */
+      th:hover, td:hover, .status:hover, .modal-content h3:hover, .chart-name-btn:hover {
+        color: #61E8EA !important;
+        text-shadow: 0 0 8px #61E8EA88, 0 0 2px #61E8EA;
+        cursor: pointer;
+        transition: color 0.2s, text-shadow 0.2s;
+        text-decoration: none;
+      }
+
+      /* 卡片悬停效果 */
+      table:hover, .modal-content:hover, .glass-card:hover {
+        background: rgba(255,255,255,0.12);
+        box-shadow: 0 8px 32px rgba(97,232,234,0.25), 0 2px 8px rgba(0,0,0,0.18);
+        border: 1.5px solid #61E8EA;
+        transform: scale(1.03);
+        transition: all 0.25s cubic-bezier(.4,2,.3,1);
+        z-index: 2;
+      }
+
+      /* 用户协议链接样式 */
+      #agreement-container a {
+        color: #61E8EA !important;
+        text-decoration: none !important;
+        font-weight: bold;
+      }
+
+      /* 复选框容器修复 */
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        margin: 0.5rem 0;
+        width: auto;
+        justify-content: flex-start;
+      }
+      .checkbox-container input[type="checkbox"] {
+        margin-right: 0.5rem;
+        width: 18px;
+        height: 18px;
+        accent-color: #61E8EA;
+        min-width: 18px;
+        min-height: 18px;
+        vertical-align: middle;
+      }
     html, body {
       margin: 0;
       padding: 0;
@@ -402,6 +510,16 @@
   </style>
 </head>
 <body>
+  <!-- 页面加载动画 -->
+  <div id="page-loader">
+    <div class="load_11">
+      <div class="rect1"></div>
+      <div class="rect2"></div>
+      <div class="rect3"></div>
+      <div class="rect4"></div>
+      <div class="rect5"></div>
+    </div>
+  </div>
   <div class="parallax-bg"></div>
   
   <header>
@@ -435,7 +553,7 @@
     </div>
   </header>
   
-  <main>
+  <main id="main-content" style="opacity:0;transition:opacity 0.6s;">
     <div id="status" class="status">服务器状态：检测中...</div>
     <div id="table-container">
       <table id="rooms-table">
@@ -586,46 +704,35 @@
       // 添加3D卡片交互效果
       const tableContainer = document.getElementById('table-container');
       const roomsTable = document.getElementById('rooms-table');
-      
       if (tableContainer && roomsTable) {
         tableContainer.addEventListener('mouseenter', () => {
           isHoveringTable = true;
           roomsTable.classList.remove('hovering');
           roomsTable.classList.add('tilting');
         });
-        
         tableContainer.addEventListener('mousemove', (e) => {
           if (!isHoveringTable) return;
-          
           lastMousePosition = { x: e.clientX, y: e.clientY };
-          
           const rect = tableContainer.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
           const centerX = rect.width / 2;
           const centerY = rect.height / 2;
-          
           const rotateY = (x - centerX) / centerX * 8;
           const rotateX = (centerY - y) / centerY * 8;
-          
           roomsTable.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
-        
         tableContainer.addEventListener('mouseleave', () => {
           isHoveringTable = false;
           roomsTable.classList.remove('tilting');
           roomsTable.style.transform = 'translateZ(20px)';
-          
-          // 重新启用轻微晃动动画
           setTimeout(() => {
             roomsTable.classList.add('hovering');
           }, 300);
         });
-        
-        // 初始悬停动画
         roomsTable.classList.add('hovering');
       }
-      
+
       // 检查会话状态
       try {
         const response = await fetch('/api/auth/me');
@@ -636,13 +743,46 @@
       } catch (error) {
         console.error('检查会话失败:', error);
       }
-      
+
+      // 检测服务器状态（ping phira.htadiy.cc）
+      await checkServerStatus();
+
       // 加载房间数据
-      loadRooms();
-      
+      await loadRooms();
+
+      // 所有控件和数据加载完成后，淡出加载动画，主内容淡入
+      setTimeout(() => {
+        const loader = document.getElementById('page-loader');
+        const mainContent = document.getElementById('main-content');
+        if (loader) loader.classList.add('hide');
+        if (mainContent) mainContent.style.opacity = 1;
+      }, 600);
+
       // 设置每3秒自动刷新
-      autoRefreshInterval = setInterval(loadRooms, 3000);
+      autoRefreshInterval = setInterval(async () => {
+        await checkServerStatus();
+        await loadRooms();
+      }, 3000);
     });
+
+    // 检查 /api/rooms/info 是否有返回
+    async function checkServerStatus() {
+      const status = document.getElementById("status");
+      try {
+        const res = await fetch("/api/rooms/info?_=" + Date.now(), { method: "GET", cache: "no-store" });
+        if (res.ok) {
+          status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
+          status.classList.add("online");
+          status.classList.remove("offline");
+        } else {
+          throw new Error("无返回");
+        }
+      } catch (err) {
+        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
+        status.classList.add("offline");
+        status.classList.remove("online");
+      }
+    }
 
     // 更新用户显示区域
     function updateUserDisplay() {
