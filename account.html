@@ -2,10 +2,9 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="HyperSynapse Network 提供免费、稳定、低延迟的 Phira 多人音乐游戏服务器" />
+  <meta name="description" content="HyperSynapse Network 用户账号管理" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <meta name="screen-orientation" content="landscape">
-  <title>房间列表 - HyperSynapse Phira</title>
+  <title>账号管理 - HyperSynapse Phira</title>
   <style>
     /* 页面加载动画样式（五条竖条弹跳） */
     #page-loader {
@@ -70,68 +69,6 @@
         -webkit-transform: scaleY(1.0);
       }
     }
-    /* 文字悬停效果 */
-    /* 文字悬停效果（去下划线，发光晕） */
-    th:hover, td:hover, .status:hover, .modal-content h3:hover, .chart-name-btn:hover {
-      color: #61E8EA !important;
-      text-shadow: 0 0 8px #61E8EA88, 0 0 2px #61E8EA;
-      cursor: pointer;
-      transition: color 0.2s, text-shadow 0.2s;
-      text-decoration: none;
-    }
-
-    /* 卡片悬停效果 */
-    table:hover, .modal-content:hover, .glass-card:hover {
-      background: rgba(255,255,255,0.12);
-      box-shadow: 0 8px 32px rgba(97,232,234,0.25), 0 2px 8px rgba(0,0,0,0.18);
-      border: 1.5px solid #61E8EA;
-      transform: scale(1.03);
-      transition: all 0.25s cubic-bezier(.4,2,.3,1);
-      z-index: 2;
-    }
-
-    /* 用户协议链接样式 */
-    #agreement-container a {
-      color: #61E8EA !important;
-      text-decoration: none !important;
-      font-weight: bold;
-    }
-
-    /* 复选框容器修复 */
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      margin: 0.5rem 0;
-      justify-content: flex-start;
-    }
-    .glass-checkbox {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: 0;
-    }
-    .glass-checkbox input[type="checkbox"] {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 22px;
-      height: 22px;
-      border-radius: 8px;
-      background: #fff;
-      border: 2px solid #61E8EA;
-      box-shadow: 0 1px 4px rgba(97,232,234,0.08);
-      accent-color: #61E8EA;
-      margin: 0;
-    } /* 修复：添加闭合花括号 */
-    
     html, body {
       margin: 0;
       padding: 0;
@@ -291,209 +228,261 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-    }
-    .status {
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-      text-align: center;
-      padding: 0.5rem;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(6px);
-      width: 95%;
-      max-width: 800px;
-    }
-    .status.online { 
-      color: #0f0; 
-      border: 1px solid rgba(0, 255, 0, 0.2);
-    }
-    .status.offline { 
-      color: #f33; 
-      border: 1px solid rgba(255, 0, 0, 0.2);
+      padding-bottom: 50px;
     }
     
-    /* 3D卡片容器样式 */
-    #table-container {
-      perspective: 1000px;
-      width: 95%;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+  /* 仅保留CSS，JS交互移至<script> */
 
-    /* 3D毛玻璃卡片效果 */
-    table {
-      border-collapse: collapse;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      overflow: hidden;
-      backdrop-filter: blur(8px);
-      animation: fadeIn 1s ease-out, gentleSway 8s infinite ease-in-out;
-      width: 100%;
-      transform-style: preserve-3d;
-      transform: translateZ(20px);
-      transition: transform 0.3s cubic-bezier(.4,2,.3,1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    @keyframes gentleSway {
-      0%, 100% { transform: translateZ(20px) rotateX(0.5deg) rotateY(0.5deg); }
-      25% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(-1deg); }
-      50% { transform: translateZ(20px) rotateX(0.5deg) rotateY(1deg); }
-      75% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg); }
-    }
-
-    table.tilting {
+    .account-container.tilting {
       animation: none;
       transition: transform 0.1s linear;
     }
-    
-    table.hovering {
-      animation: gentleHover 2s infinite cubic-bezier(.4,2,.3,1);
+    /* 修正毛玻璃卡片默认偏转方向为右上（rotateX(-) rotateY(+)） */
+    .account-container {
+      transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg);
+      animation: gentleSway 8s infinite ease-in-out;
+      transition: transform 0.3s ease;
     }
     
-    @keyframes gentleHover {
-      0%, 100% { transform: translateZ(20px) translateY(0); }
-      50% { transform: translateZ(20px) translateY(-5px); }
+    .account-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    th, td {
-      padding: 0.8rem 1rem;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-    th {
-      background: rgba(255, 255, 255, 0.1);
-      font-weight: bold;
-      color: #a1e5ef;
-    }
-    tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.03);
-    }
-    .dl-btn, .chart-btn {
-      padding: 0.3rem 0.8rem;
-      font-size: 0.85rem;
-      background: rgba(255, 255, 255, 0.05);
+    .account-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-      cursor: pointer;
-      transition: 0.3s ease;
-      white-space: nowrap;
+      margin-right: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
     }
-    .dl-btn:hover, .chart-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: scale(1.05);
+    .account-info {
+      flex: 1;
+      min-width: 0;
     }
-    .chart-name-btn {
-      padding: 0.3rem 0.7rem;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(6px);
+    .account-name {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
       color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 999px;
-      font-size: 0.85rem;
-      text-decoration: none;
-      display: inline-block;
-      transition: 0.3s ease;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 150px;
     }
-    .chart-name-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
+    .account-subtitle {
+      color: #aaa;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    #lightbox {
+    .account-stats {
       display: flex;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(6px);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease;
+      margin-top: 1rem;
+      gap: 1.5rem;
+      flex-wrap: wrap;
     }
-    #lightbox.active {
-      opacity: 1;
-      visibility: visible;
+    .stat-item {
+      text-align: center;
+      min-width: 80px;
     }
-    #lightbox img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-      animation: zoomIn 0.3s ease;
+    .stat-value {
+      font-size: 1.5rem;
+      color: #a1e5ef;
+      font-weight: bold;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
+    .stat-label {
+      font-size: 0.9rem;
+      color: #aaa;
     }
-    @keyframes zoomIn {
-      from { transform: scale(0.7); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    .form-section {
+      margin-bottom: 2rem;
     }
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(6px);
-      z-index: 9999;
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      color: #a1e5ef;
+      position: relative;
+      padding-left: 1rem;
     }
-    .modal-content {
-      background: rgba(255,255,255,0.08);
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
+    .section-title::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 70%;
+      width: 4px;
+      background: #a1e5ef;
+      border-radius: 4px;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ddd;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
       color: #fff;
-      backdrop-filter: blur(12px);
-      max-width: 300px;
-      width: 90%;
-      animation: zoomIn 0.3s ease;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    .form-input:focus {
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+    .form-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-col {
+      flex: 1;
+      min-width: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-right: 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(6px);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    .modal-content h3 {
-      margin-top: 0;
+    .badge-admin {
+      background: rgba(255, 153, 0, 0.2);
+      color: #ff9900;
+    }
+    .badge-dev {
+      background: rgba(0, 204, 255, 0.2);
+      color: #00ccff;
+    }
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-sizing: border-box;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ddd;
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .btn-container {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .info-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(6px);
+      min-width: 0;
+      transition: all 0.25s cubic-bezier(.4,2,.3,1);
+    }
+    .info-card:hover {
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(97,232,234,0.25), 0 2px 8px rgba(0,0,0,0.18);
+      border: 1.5px solid #61E8EA;
+      transform: scale(1.04);
+      z-index: 2;
+    }
+    .info-title:hover, .info-value:hover {
+      color: #61E8EA;
+      text-shadow: 0 0 8px #61E8EA88, 0 0 2px #61E8EA;
+      cursor: pointer;
+      transition: color 0.2s, text-shadow 0.2s;
+      text-decoration: none;
+    }
+    .info-title {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .info-value {
       font-size: 1.1rem;
-      color: #a1e5ef;
+      color: #fff;
+      word-break: break-all;
     }
-    .modal-content ul {
-      list-style: none;
-      padding-left: 0;
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
     }
-    .modal-content li {
-      padding: 0.2rem 0;
+    .status-active {
+      background: #0f0;
+      box-shadow: 0 0 8px #0f0;
     }
-    .highlight-host {
-      font-weight: bold;
-      color: #ffd700;
+    .status-inactive {
+      background: #f33;
     }
-    .state-label {
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
+    .message {
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      text-align: center;
+      display: none;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .state-selecting {
-      background: rgba(255, 215, 0, 0.2);
-      color: #ffd700;
-    }
-    .state-ready {
-      background: rgba(0, 255, 0, 0.2);
+    .message-success {
+      background: rgba(0, 200, 0, 0.2);
       color: #0f0;
     }
-    .state-playing {
-      background: rgba(255, 0, 0, 0.2);
+    .message-error {
+      background: rgba(200, 0, 0, 0.2);
       color: #f33;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
     }
     @media (max-width: 768px) {
       header {
@@ -514,16 +503,36 @@
       .username {
         max-width: 80px;
       }
-      th, td {
-        padding: 0.6rem 0.8rem;
-        font-size: 0.8rem;
+      .account-header {
+        flex-direction: column;
+        text-align: center;
       }
-      table {
-        display: block;
-        overflow-x: auto;
+      .account-avatar {
+        margin-right: 0;
+        margin-bottom: 1rem;
+      }
+      .form-row {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .account-stats {
+        justify-content: center;
+      }
+      .btn-container {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .form-actions {
+        justify-content: center;
       }
     }
   </style>
+    /* 用户协议链接样式 */
+    #agreement-container a {
+      color: #61E8EA !important;
+      text-decoration: none !important;
+      font-weight: bold;
+    }
 </head>
 <body>
   <!-- 页面加载动画 -->
@@ -549,15 +558,11 @@
     </div>
     
     <div class="user-section">
-      <!-- 登录按钮（未登录时） -->
-      <div id="login-button" class="glass-button" onclick="openAuth()">
-        <a href="javascript:void(0)" class="login-btn">登录</a>
-      </div>
       <!-- 用户信息（登录后） -->
       <div id="avatar-container" style="display: none;" class="glass-button">
         <div class="user-info" onclick="toggleDropdown()">
           <span class="username" id="username-display"></span>
-          <img class="user-avatar" id="user-avatar" src="" alt="头像" />
+          <img class="user-avatar" id="user-avatar" src="" alt="用户头像">
         </div>
         <div class="dropdown-content" id="user-dropdown">
           <span id="dropdown-username"></span>
@@ -570,160 +575,173 @@
   </header>
   
   <main id="main-content" style="opacity:0;transition:opacity 0.6s;">
-    <div id="status" class="status">服务器状态：检测中...</div>
-    <div id="table-container">
-      <table id="rooms-table">
-        <thead>
-          <tr>
-            <th>房间名</th>
-            <th>房主</th>
-            <th>人数</th>
-            <th>状态</th>
-            <th>循环</th>
-            <th>谱面</th>
-            <th>曲绘</th>
-            <th>下载</th>
-            <th>人员</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="9">加载中...</td></tr>
-        </tbody>
-      </table>
+    <div class="account-container">
+      <div class="account-header">
+        <div class="account-avatar">
+          <img id="user-avatar-large" src="" alt="用户头像" class="account-avatar">
+        </div>
+        <div class="account-info">
+          <h1 class="account-name" id="account-name">加载中...</h1>
+          <p class="account-subtitle">用户ID: <span id="account-id">-</span></p>
+          <p class="account-subtitle">Phira ID: <span id="phira-id">-</span></p>
+          <div class="account-badges" id="account-badges"></div>
+        </div>
+        <div class="account-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="rks-value">0.00</div>
+            <div class="stat-label">RKS</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="join-date">-</div>
+            <div class="stat-label">注册日期</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">
+              <span class="status-indicator status-active"></span>
+              <span>在线</span>
+            </div>
+            <div class="stat-label">状态</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h2 class="section-title">账户信息</h2>
+        
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-title">用户名</div>
+            <div class="info-value" id="info-username">-</div>
+          </div>
+          <div class="info-card">
+            <div class="info-title">Phira 用户名</div>
+            <div class="info-value" id="phira-name">-</div>
+          </div>
+          <div class="info-card">
+            <div class="info-title">账户状态</div>
+            <div class="info-value">激活 <span class="status-indicator status-active"></span></div>
+          </div>
+          <div class="info-card">
+            <div class="info-title">最后登录</div>
+            <div class="info-value" id="last-login">-</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h2 class="section-title">修改用户名</h2>
+        
+        <div id="username-message" class="message"></div>
+        
+        <div class="form-group">
+          <label class="form-label">新用户名</label>
+          <input type="text" class="form-input" id="new-username" placeholder="输入新的用户名">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">当前密码</label>
+          <input type="password" class="form-input" id="username-password" placeholder="输入当前密码以确认">
+        </div>
+        
+        <div class="form-actions">
+          <button class="btn btn-outline" onclick="resetUsernameForm()">重置</button>
+          <button class="btn" onclick="updateUsername()">更新用户名</button>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h2 class="section-title">修改密码</h2>
+        
+        <div id="password-message" class="message"></div>
+        
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label">当前密码</label>
+              <input type="password" class="form-input" id="current-password" placeholder="输入当前密码">
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label">新密码</label>
+              <input type="password" class="form-input" id="new-password" placeholder="输入新密码">
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">确认新密码</label>
+          <input type="password" class="form-input" id="confirm-password" placeholder="再次输入新密码">
+        </div>
+        
+        <div class="form-actions">
+          <button class="btn btn-outline" onclick="resetPasswordForm()">重置</button>
+          <button class="btn" onclick="updatePassword()">更新密码</button>
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h2 class="section-title">权限信息</h2>
+        
+        <div class="info-grid" id="permissions-grid">
+          <div class="info-card">
+            <div class="info-title">系统管理员</div>
+            <div class="info-value">
+              <span id="admin-status">否</span>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-title">用户管理权限</div>
+            <div class="info-value">
+              <span id="user-management-status">否</span>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-title">用户组管理权限</div>
+            <div class="info-value">
+              <span id="group-management-status">否</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <p style="color: #aaa; margin-top: 1.5rem;">
+            注意：权限状态由系统管理员设置，普通用户无法自行修改。
+            如需权限变更，请联系系统管理员。
+          </p>
+        </div>
+      </div>
     </div>
   </main>
 
-  <div id="lightbox" onclick="hideLightbox()">
-    <img id="lightbox-img" src="" alt="曲绘" />
-  </div>
-
-  <div id="user-modal" class="modal">
-    <div class="modal-content">
-      <h3>房间内用户</h3>
-      <ul id="user-list"></ul>
-      <button class="dl-btn" onclick="closeModal()">关闭</button>
-    </div>
-  </div>
-  
   <!-- 登录注册弹窗 -->
-  <div id="auth-modal" class="modal" style="z-index: 99999">
+  <div id="auth-modal" class="modal" style="z-index: 99999; display: none;">
     <div class="modal-content glass-card" id="auth-box">
       <h3 id="auth-title">用户登录</h3>
       <input id="auth-name" placeholder="用户名" />
       <input id="auth-password" type="password" placeholder="密码" />
       <input id="auth-phiraid" class="collapsed" placeholder="Phira ID (仅注册)"/>
-      
-      <!-- 记住我复选框 -->
+      <input id="auth-password-confirm" type="password" placeholder="确认密码" style="display:none;" />
       <div class="checkbox-container">
-        <div class="glass-checkbox">
-          <input type="checkbox" id="remember-me">
-        </div>
+        <input type="checkbox" id="remember-me">
         <label for="remember-me" style="margin-left:8px;">记住我</label>
       </div>
-      
-      <!-- 用户协议复选框（仅注册时显示） -->
       <div id="agreement-container" class="checkbox-container" style="display: none;">
-        <div class="glass-checkbox">
-          <input type="checkbox" id="agree-terms" required>
-        </div>
+        <input type="checkbox" id="agree-terms" required>
         <label for="agree-terms" style="margin-left:8px;">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
       </div>
-      
       <button onclick="submitAuth()">确认</button>
       <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
       <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
-      <button class="dl-btn" onclick="closeAuth()">关闭</button>
+      <button class="btn btn-outline" onclick="closeAuth()">关闭</button>
     </div>
   </div>
 
-  <style>
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      margin: 0.5rem 0;
-    }
-    .checkbox-container input[type="checkbox"] {
-      margin-right: 0.5rem;
-    }
-    #auth-modal input {
-      box-sizing: border-box;
-      display: block;
-      margin: 0.5rem 0;
-      padding: 0.8rem;
-      width: 100%;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      backdrop-filter: blur(8px);
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-    #auth-modal input:focus {
-      box-shadow: 0 0 0.5rem rgba(255, 255, 255, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-    }
-    #auth-modal input.collapsed {
-      display: none;
-      margin: 0;
-      height: 0;
-      padding: 0;
-    }
-    #auth-modal button {
-      width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.8rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      backdrop-filter: blur(12px);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    #auth-modal button:hover {
-      background: rgba(255,255,255,0.15);
-      transform: translateY(-2px);
-    }
-    .glass-card {
-      position: relative;
-      background: rgba(255,255,255,0.08);
-      padding: 1.5rem;
-      border-radius: 16px;
-      color: #fff;
-      backdrop-filter: blur(20px);
-      width: 320px;
-      max-width: 90%;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-  </style>
-
   <script>
-    // 默认头像URL
-    const DEFAULT_AVATAR = 'https://phira.moe/assets/user-6212ee95.png';
-    const USER_CACHE = new Map();
-    const CHART_CACHE = new Map();
-    const STATE_MAP = {
-      'SELECTING_CHART': { text: '选谱中', class: 'state-selecting' },
-      'WAITING_FOR_READY': { text: '准备中', class: 'state-ready' },
-      'PLAYING': { text: '游戏中', class: 'state-playing' }
-    };
-    
-    let currentUser = null;
-    let authMode = 'login';
-    let autoRefreshInterval;
-    let isHoveringTable = false;
-    let lastMousePosition = { x: 0, y: 0 };
-
-    // 页面加载时检查登录状态
-    document.addEventListener('DOMContentLoaded', async () => {
-      // 扩大表格倾斜范围，越靠边倾斜越小，回正过程平滑
-      const roomsTable = document.getElementById('rooms-table');
-      if (roomsTable) {
+    // 扩大卡片倾斜范围，越靠边倾斜越小，回正过程平滑
+    document.addEventListener('DOMContentLoaded', () => {
+      const accountContainer = document.querySelector('.account-container');
+      if (accountContainer) {
         document.addEventListener('mousemove', (e) => {
           const winW = window.innerWidth;
           const winH = window.innerHeight;
@@ -734,66 +752,142 @@
           const maxAngle = 6;
           const rotateY = relX * maxAngle * (1 - Math.abs(relX) * 0.7);
           const rotateX = -relY * maxAngle * (1 - Math.abs(relY) * 0.7);
-          roomsTable.style.transition = 'transform 0.5s cubic-bezier(.4,2,.3,1)';
-          roomsTable.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+          accountContainer.style.transition = 'transform 0.5s cubic-bezier(.4,2,.3,1)';
+          accountContainer.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
         document.addEventListener('mouseleave', () => {
-          roomsTable.style.transition = 'transform 1.2s cubic-bezier(.4,2,.3,1)';
-          roomsTable.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
+          accountContainer.style.transition = 'transform 1.2s cubic-bezier(.4,2,.3,1)';
+          accountContainer.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
         });
       }
-
+    });
+    // 默认头像URL
+    const DEFAULT_AVATAR = 'https://phira.moe/assets/user-6212ee95.png';
+    let currentUser = null;
+    let authMode = 'login';
+    
+    // 页面加载时检查登录状态
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 添加3D卡片交互效果
+      const accountContainer = document.querySelector('.account-container');
+      
+      if (accountContainer) {
+        accountContainer.addEventListener('mousemove', (e) => {
+          if (!accountContainer.classList.contains('tilting')) {
+            accountContainer.classList.add('tilting');
+          }
+          
+          const rect = accountContainer.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          
+          const rotateY = (x - centerX) / centerX * 8;
+          const rotateX = (centerY - y) / centerY * 8;
+          
+          accountContainer.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+         
+        accountContainer.addEventListener('mouseleave', () => {
+          accountContainer.classList.remove('tilting');
+          accountContainer.style.transform = 'translateZ(20px) rotateX(0) rotateY(0)';
+          
+          // 重新启用轻微晃动动画
+          setTimeout(() => {
+            accountContainer.style.animation = 'gentleSway 8s infinite ease-in-out';
+          }, 300);
+        });
+      }
+      
       // 检查会话状态
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           currentUser = await response.json();
           updateUserDisplay();
+          await loadAccountDetails();
+        } else {
+          document.getElementById('login-button').style.display = 'flex';
         }
       } catch (error) {
         console.error('检查会话失败:', error);
+        document.getElementById('login-button').style.display = 'flex';
       }
-
-      // 检测服务器状态（ping phira.htadiy.cc）
-      await checkServerStatus();
-
-      // 加载房间数据
-      await loadRooms();
-
-      // 所有控件和数据加载完成后，淡出加载动画，主内容淡入
+      // 所有控件和数据加载完成后，淡出加载动画，淡入主内容
       setTimeout(() => {
         const loader = document.getElementById('page-loader');
         const mainContent = document.getElementById('main-content');
         if (loader) loader.classList.add('hide');
         if (mainContent) mainContent.style.opacity = 1;
       }, 600);
-
-      // 设置每3秒自动刷新
-      autoRefreshInterval = setInterval(async () => {
-        await checkServerStatus();
-        await loadRooms();
-      }, 3000);
     });
-
-    // 检查 /api/rooms/info 是否有返回
-    async function checkServerStatus() {
-      const status = document.getElementById("status");
-      try {
-        const res = await fetch("/api/rooms/info?_=" + Date.now(), { method: "GET", cache: "no-store" });
-        if (res.ok) {
-          status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
-          status.classList.add("online");
-          status.classList.remove("offline");
-        } else {
-          throw new Error("无返回");
-        }
-      } catch (err) {
-        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
-        status.classList.add("offline");
-        status.classList.remove("online");
+    
+    // 加载账户详细信息
+  async function loadAccountDetails() {
+      if (!currentUser) return;
+      
+      // 设置用户数据
+      document.getElementById('account-name').textContent = currentUser.username;
+      document.getElementById('username-display').textContent = currentUser.username;
+      document.getElementById('dropdown-username').textContent = currentUser.username;
+      document.getElementById('account-id').textContent = currentUser.id;
+      document.getElementById('phira-id').textContent = currentUser.phira_id;
+      document.getElementById('phira-name').textContent = currentUser.phira_username;
+      document.getElementById('info-username').textContent = currentUser.username;
+      document.getElementById('rks-value').textContent = currentUser.phira_rks ? parseFloat(currentUser.phira_rks).toFixed(2) : '0.00';
+      
+      // 设置头像
+      const avatarUrl = currentUser.phira_avatar || DEFAULT_AVATAR;
+      document.getElementById('user-avatar').src = avatarUrl;
+      document.getElementById('user-avatar-large').src = avatarUrl;
+      
+      // 设置注册日期
+      document.getElementById('join-date').textContent = formatDate(currentUser.register_time);
+      
+      // 设置最后登录时间
+      document.getElementById('last-login').textContent = formatDate(currentUser.last_login_time);
+      
+      // 设置权限信息
+      document.getElementById('admin-status').textContent = (currentUser.permissions & 0xFFFFFFFF) === 0xFFFFFFFF ? "是" : "否";
+      document.getElementById('user-management-status').textContent = (currentUser.permissions & 0x00000002) ? "是" : "否";
+      document.getElementById('group-management-status').textContent = (currentUser.permissions & 0x00000004) ? "是" : "否";
+      
+      // 更新权限徽章
+      const badgesContainer = document.getElementById('account-badges');
+      badgesContainer.innerHTML = '';
+      
+      if ((currentUser.permissions & 0xFFFFFFFF) === 0xFFFFFFFF) {
+        const adminBadge = document.createElement('span');
+        adminBadge.className = 'badge badge-admin';
+        adminBadge.textContent = '管理员';
+        badgesContainer.appendChild(adminBadge);
+      }
+      
+      if (currentUser.permissions & 0x00000002) {
+        const userMgmtBadge = document.createElement('span');
+        userMgmtBadge.className = 'badge badge-admin';
+        userMgmtBadge.textContent = '用户管理';
+        badgesContainer.appendChild(userMgmtBadge);
+      }
+      
+      if (currentUser.permissions & 0x00000004) {
+        const groupMgmtBadge = document.createElement('span');
+        groupMgmtBadge.className = 'badge badge-dev';
+        groupMgmtBadge.textContent = '用户组管理';
+        badgesContainer.appendChild(groupMgmtBadge);
       }
     }
-
+    
+    // 格式化日期
+    function formatDate(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  // 转换为北京时间（UTC+8）
+  const beijingDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return beijingDate.toLocaleString('zh-CN', { hour12: false });
+    }
+    
     // 更新用户显示区域
     function updateUserDisplay() {
       const loginButton = document.getElementById('login-button');
@@ -801,226 +895,158 @@
       
       if (currentUser) {
         // 隐藏登录按钮
-        loginButton.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'none';
         
         // 显示头像容器
-        avatarContainer.style.display = 'flex';
+        if (avatarContainer) avatarContainer.style.display = 'flex';
         
         // 更新用户名和头像
-        document.getElementById('username-display').textContent = currentUser.username;
-        document.getElementById('user-avatar').src = currentUser.phira_avatar || DEFAULT_AVATAR;
-        document.getElementById('dropdown-username').textContent = currentUser.username;
-        
-        // 更新Phira账户链接
-        const phiraLink = document.getElementById('phira-profile-link');
-        if (phiraLink && currentUser.phira_id) {
-          phiraLink.href = `https://phira.moe/user/${currentUser.phira_id}`;
+        if (document.getElementById('username-display')) {
+          document.getElementById('username-display').textContent = currentUser.username;
+        }
+        if (document.getElementById('user-avatar')) {
+          document.getElementById('user-avatar').src = currentUser.phira_avatar || DEFAULT_AVATAR;
+        }
+        if (document.getElementById('dropdown-username')) {
+          document.getElementById('dropdown-username').textContent = currentUser.username;
         }
       } else {
         // 显示登录按钮
-        loginButton.style.display = 'flex';
+        if (loginButton) loginButton.style.display = 'flex';
         
         // 隐藏头像容器
-        avatarContainer.style.display = 'none';
-      }
-    }
-
-    // 切换下拉菜单显示状态
-    function toggleDropdown() {
-      const dropdown = document.getElementById('user-dropdown');
-      if (dropdown) {
-        dropdown.classList.toggle('show');
-      }
-    }
-
-    // 点击其他地方关闭下拉菜单
-    document.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('user-dropdown');
-      const userInfo = document.querySelector('.user-info');
-      if (dropdown && dropdown.classList.contains('show') && 
-          !e.target.closest('.user-info') && 
-          !e.target.closest('.dropdown-content')) {
-        dropdown.classList.remove('show');
-      }
-    });
-
-    // 退出登录
-    async function logout() {
-      try {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        currentUser = null;
-        updateUserDisplay();
-        // 关闭下拉菜单
-        const dropdown = document.getElementById('user-dropdown');
-        if (dropdown) dropdown.classList.remove('show');
-      } catch (err) {
-        console.error('登出失败:', err);
-      }
-    }
-
-    // 获取用户信息
-    async function getUserInfo(userId) {
-      if (USER_CACHE.has(userId)) {
-        return USER_CACHE.get(userId);
-      }
-      
-      try {
-        const res = await fetch(`https://phira.5wyxi.com/user/${userId}`);
-        if (!res.ok) return null;
-        const userData = await res.json();
-        USER_CACHE.set(userId, userData);
-        return userData;
-      } catch (err) {
-        console.error('获取用户信息错误:', err);
-        return null;
+        if (avatarContainer) avatarContainer.style.display = 'none';
       }
     }
     
-    // 获取谱面信息
-    async function getChartInfo(chartId) {
-      if (CHART_CACHE.has(chartId)) {
-        return CHART_CACHE.get(chartId);
+    // 重置用户名表单
+    function resetUsernameForm() {
+      document.getElementById('new-username').value = '';
+      document.getElementById('username-password').value = '';
+      hideMessage('username-message');
+    }
+    
+    // 重置密码表单
+    function resetPasswordForm() {
+      document.getElementById('current-password').value = '';
+      document.getElementById('new-password').value = '';
+      document.getElementById('confirm-password').value = '';
+      hideMessage('password-message');
+    }
+    
+    // 显示消息
+    function showMessage(elementId, message, isSuccess) {
+      const messageElement = document.getElementById(elementId);
+      messageElement.textContent = message;
+      messageElement.className = 'message ' + (isSuccess ? 'message-success' : 'message-error');
+      messageElement.style.display = 'block';
+      
+      // 5秒后隐藏消息
+      setTimeout(() => {
+        hideMessage(elementId);
+      }, 5000);
+    }
+    
+    // 隐藏消息
+    function hideMessage(elementId) {
+      const messageElement = document.getElementById(elementId);
+      messageElement.style.display = 'none';
+    }
+    
+    // 更新用户名
+    async function updateUsername() {
+      const newUsername = document.getElementById('new-username').value;
+      const password = document.getElementById('username-password').value;
+      
+      if (!newUsername) {
+        showMessage('username-message', '请输入新的用户名', false);
+        return;
+      }
+      
+      if (!password) {
+        showMessage('username-message', '请输入当前密码', false);
+        return;
       }
       
       try {
-        const res = await fetch(`https://phira.5wyxi.com/chart/${chartId}`);
-        if (!res.ok) return null;
-        const chartData = await res.json();
-        CHART_CACHE.set(chartId, chartData);
-        return chartData;
-      } catch (err) {
-        console.error('获取谱面信息错误:', err);
-        return null;
-      }
-    }
-    
-    // 加载房间数据
-    async function loadRooms() {
-      try {
-        const res = await fetch('/api/rooms/info');
-        if (!res.ok) throw new Error('获取房间信息失败');
+        const response = await fetch(`/api/auth/users/${currentUser.id}`, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            username: newUsername,
+            password: password
+          })
+        });
         
-        const rooms = await res.json();
-        console.log('房间数据调试:', rooms); // 调试输出
-        const tbody = document.querySelector("#rooms-table tbody");
-        
-        if (!Array.isArray(rooms) || rooms.length === 0) {
-          tbody.innerHTML = "<tr><td colspan='9'>暂无房间 加入我们的QQ群：1049578201</td></tr>";
+        if (!response.ok) {
+          const errorData = await response.json();
+          showMessage('username-message', errorData.message || '更新失败', false);
           return;
         }
         
-        // 清除现有内容
-        tbody.innerHTML = "";
+        // 更新本地显示
+        currentUser.username = newUsername;
+        document.getElementById('account-name').textContent = newUsername;
+        document.getElementById('info-username').textContent = newUsername;
+        document.getElementById('username-display').textContent = newUsername;
+        document.getElementById('dropdown-username').textContent = newUsername;
         
-        // 处理每个房间
-        for (const room of rooms) {
-          if (!room || !room.host) {
-            console.warn('跳过无效房间:', room);
-            continue;
-          }
-          // 获取房主信息
-          const hostInfo = await getUserInfo(room.host);
-          const hostName = hostInfo ? hostInfo.name : `用户${room.host}`;
-          // 获取谱面信息（如果有）
-          let chartText = "暂未选择";
-          let chartImg = "暂未选择";
-          let downloadBtn = "暂未选择";
-          if (room.chart) {
-            const chartInfo = await getChartInfo(room.chart);
-            if (chartInfo) {
-              chartText = chartInfo.name
-                ? `<a href="https://phira.moe/chart/${room.chart}" target="_blank" class="chart-name-btn">${chartInfo.name}</a>`
-                : `ID: ${room.chart}`;
-              chartImg = chartInfo.illustration
-                ? `<button class="chart-btn" onclick="showLightbox('${chartInfo.illustration}')">查看</button>`
-                : "无封面";
-              downloadBtn = chartInfo.file
-                ? `<a href="${chartInfo.file}" download="chart_${room.chart}.zip"><button class="dl-btn">下载</button></a>`
-                : "无文件";
-            }
-          }
-          // 状态显示
-          const stateInfo = STATE_MAP[room.state] || { text: room.state, class: '' };
-          const stateDisplay = `<span class="state-label ${stateInfo.class}">${stateInfo.text}</span>`;
-          const hostBtn = `<a href="https://phira.moe/user/${room.host}" target="_blank"><button class="chart-btn">${hostName}</button></a>`;
-          const usersBtn = `<button class="chart-btn" onclick='showRoomUsers(${JSON.stringify(room.users)}, ${room.host})'>查看</button>`;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${room.name}</td>
-            <td>${hostBtn}</td>
-            <td>${room.users.length}/100 || room.users.length}</td>
-            <td>${stateDisplay}</td>
-            <td>${room.cycle ? "是" : "否"}</td>
-            <td>${chartText}</td>
-            <td>${chartImg}</td>
-            <td>${downloadBtn}</td>
-            <td>${usersBtn}</td>
-          `;
-          tbody.appendChild(tr);
-        }
-        
-        // 更新服务器状态
-        const status = document.getElementById("status");
-        status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
-        status.classList.add("online");
-        status.classList.remove("offline");
-      } catch (err) {
-        console.error('加载房间信息错误:', err);
-        const status = document.getElementById("status");
-        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
-        status.classList.add("offline");
-        status.classList.remove("online");
+        showMessage('username-message', '用户名更新成功！', true);
+        resetUsernameForm();
+      } catch (error) {
+        showMessage('username-message', '网络错误，请重试', false);
       }
     }
     
-    // 显示房间用户
-    async function showRoomUsers(userIds, hostId) {
-      const modal = document.getElementById("user-modal");
-      const list = document.getElementById("user-list");
+    // 更新密码
+    async function updatePassword() {
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
       
-      // 显示加载中
-      list.innerHTML = '<li>加载中...</li>';
-      modal.style.display = "flex";
-      
-      // 获取所有用户详细信息
-      const users = [];
-      for (const userId of userIds) {
-        const userInfo = await getUserInfo(userId);
-        if (userInfo) {
-          users.push({
-            id: userId,
-            name: userInfo.name,
-            isHost: userId === hostId
-          });
-        }
+      if (!currentPassword) {
+        showMessage('password-message', '请输入当前密码', false);
+        return;
       }
       
-      // 更新用户列表
-      list.innerHTML = users.map(user => 
-        `<li class="${user.isHost ? 'highlight-host' : ''}">${user.name || `用户${user.id}`}</li>`
-      ).join("");
+      if (!newPassword) {
+        showMessage('password-message', '请输入新密码', false);
+        return;
+      }
+      
+      if (newPassword.length < 6) {
+        showMessage('password-message', '密码长度至少为6个字符', false);
+        return;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        showMessage('password-message', '新密码与确认密码不匹配', false);
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/auth/users/${currentUser.id}`, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            password: newPassword
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          showMessage('password-message', errorData.message || '更新失败', false);
+          return;
+        }
+        
+        showMessage('password-message', '密码更新成功！', true);
+        resetPasswordForm();
+      } catch (error) {
+        showMessage('password-message', '网络错误，请重试', false);
+      }
     }
     
-    function showLightbox(src) {
-      const lb = document.getElementById("lightbox");
-      document.getElementById("lightbox-img").src = src;
-      lb.style.display = "flex";
-      requestAnimationFrame(() => lb.classList.add("active"));
-    }
-    
-    function hideLightbox() {
-      const lb = document.getElementById("lightbox");
-      lb.classList.remove("active");
-      setTimeout(() => {
-        lb.style.display = "none";
-        document.getElementById("lightbox-img").src = "";
-      }, 300);
-    }
-    
-    function closeModal() {
-      document.getElementById("user-modal").style.display = "none";
-    }
-    
+    // 以下是登录/注册相关功能
     function openAuth() {
       document.getElementById('auth-modal').style.display = 'flex';
       document.getElementById('auth-msg').textContent = '';
@@ -1043,13 +1069,16 @@
     function updateAuthUI() {
       var title = document.getElementById('auth-title');
       var phiraid = document.getElementById('auth-phiraid');
+      var passwordConfirm = document.getElementById('auth-password-confirm');
       if (authMode === 'login') {
         title.textContent = '用户登录';
         phiraid.classList.add('collapsed');
+        passwordConfirm.style.display = 'none';
       }
       else {
         title.textContent = '用户注册';
         phiraid.classList.remove('collapsed');
+        passwordConfirm.style.display = 'block';
       }
     }
     
@@ -1098,6 +1127,7 @@
           }
           currentUser = await userRes.json();
           updateUserDisplay();
+          loadAccountDetails();
         }
         
         msg.textContent = authMode === 'login' ? '登录成功！' : '注册成功！';
@@ -1114,6 +1144,36 @@
         console.error('认证错误:', e);
       }
     }
+    
+    // 退出登录
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        currentUser = null;
+        window.location.reload();
+      } catch (error) {
+        console.error('登出失败:', error);
+      }
+    }
+    
+    // 切换下拉菜单显示状态
+    function toggleDropdown() {
+      const dropdown = document.getElementById('user-dropdown');
+      if (dropdown) {
+        dropdown.classList.toggle('show');
+      }
+    }
+    
+    // 点击其他地方关闭下拉菜单
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('user-dropdown');
+      const userInfo = document.querySelector('.user-info');
+      if (dropdown && dropdown.classList.contains('show') && 
+          !e.target.closest('.user-info') && 
+          !e.target.closest('.dropdown-content')) {
+        dropdown.classList.remove('show');
+      }
+    });
   </script>
 </body>
 </html>
