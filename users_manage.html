@@ -205,7 +205,7 @@
       display: block;
       padding: 0.3rem 0.5rem;
       font-weight: bold;
-      color: #ffd700;
+      color: #61E8EA;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       margin-bottom: 0.5rem;
     }
@@ -300,7 +300,7 @@
     }
     .stat-value {
       font-size: 1.5rem;
-      color: #ffd700;
+      color: #61E8EA;
       font-weight: bold;
     }
     .stat-label {
@@ -313,7 +313,7 @@
     .section-title {
       font-size: 1.3rem;
       margin-bottom: 1.2rem;
-      color: #ffd700;
+      color: #61E8EA;
       position: relative;
       padding-left: 1rem;
     }
@@ -325,7 +325,7 @@
       transform: translateY(-50%);
       height: 70%;
       width: 4px;
-      background: #ffd700;
+      background: #61E8EA;
       border-radius: 4px;
     }
     .form-group {
@@ -534,12 +534,12 @@
     
     .admin-title {
       font-size: 2rem;
-      color: #ffd700;
+      color: #61E8EA;
     }
     
     .user-count {
       background: rgba(255, 215, 0, 0.2);
-      color: #ffd700;
+      color: #61E8EA;
       padding: 0.5rem 1rem;
       border-radius: 999px;
       font-weight: bold;
@@ -579,7 +579,7 @@
       text-align: left;
       padding: 1rem;
       background: rgba(255, 215, 0, 0.1);
-      color: #ffd700;
+      color: #61E8EA;
       font-weight: 500;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -735,7 +735,7 @@
     
     .modal-title {
       font-size: 1.5rem;
-      color: #ffd700;
+      color: #61E8EA;
       margin: 0;
     }
     
@@ -773,7 +773,7 @@
     
     .reveal-btn {
       background: rgba(255, 215, 0, 0.2);
-      color: #ffd700;
+      color: #61E8EA;
       border: none;
       padding: 0.3rem 0.8rem;
       border-radius: 4px;
@@ -801,7 +801,7 @@
         <a href="index.html">主页</a>
         <a href="rooms.html">房间列表</a>
         <a href="account.html">账号管理</a>
-        <a href="admin.html" style="color: #ffd700;">管理员控制台</a>
+        <a href="admin.html" style="color: #61E8EA;">管理员控制台</a>
       </div>
     </div>
     
@@ -1002,10 +1002,32 @@
     let currentUser = null;
     // 用户组管理相关
     let allGroups = [];
+  // 管理员密码（用于批量接口验证），在 verifyAdminPassword() 验证后设置
+  let adminPassword = '';
 
-    // 页面加载时检查登录状态和权限
+    // 等待页面关键内容与资源就绪（用户/用户组渲染 & 图片加载）
+    async function waitForAppReady(maxWait = 5000) {
+      const start = Date.now();
+      const usersBody = () => document.getElementById('users-table-body');
+      const groupsList = () => document.getElementById('groups-list');
+
+      function imagesLoaded() {
+        const imgs = Array.from(document.images || []);
+        return imgs.length === 0 || imgs.every(i => i.complete);
+      }
+
+      while (Date.now() - start < maxWait) {
+        const usersReady = usersBody() && usersBody().children.length > 0;
+        const groupsReady = groupsList() && groupsList().children.length > 0;
+        if ((usersReady || groupsReady) && imagesLoaded()) return;
+        // small delay and retry
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(r => setTimeout(r, 80));
+      }
+    }
+
+    // 页面初始化：确保数据加载并在资源就绪后再隐藏加载器
     document.addEventListener('DOMContentLoaded', async () => {
-      // 加载动画显示
       const loader = document.getElementById('page-loader');
       loader.classList.remove('hide');
 
@@ -1021,15 +1043,13 @@
         return;
       }
 
-      // 加载用户列表
-      await loadAllUsers();
-      // 加载用户组列表
-      await loadAllGroups();
+      // 加载用户列表与用户组列表
+      await Promise.all([loadAllUsers(), loadAllGroups()]);
 
-      // 动画淡出
-      setTimeout(() => {
-        loader.classList.add('hide');
-      }, 600);
+      // 等待页面主要内容与图片渲染完成再淡出加载器
+      await waitForAppReady(5000);
+      // 给 CSS 过渡一点时间
+      setTimeout(() => loader.classList.add('hide'), 80);
     });
 
     // 加载所有用户数据
@@ -1209,11 +1229,25 @@
           break;
       }
       
+      // 如果尚未输入管理员密码，弹出管理员密码模态框要求验证
+      if (!adminPassword) {
+        // 打开管理员密码模态框，验证后回调继续操作
+        document.getElementById('admin-password-modal').style.display = 'flex';
+        document.getElementById('admin-password-message').style.display = 'none';
+        // 绑定一次性验证通过后继续提交的回调
+        window._afterAdminVerified = () => {
+          // 重新调用 applyBatchAction 并保留 adminPassword
+          applyBatchAction();
+          delete window._afterAdminVerified;
+        };
+        return;
+      }
+
       fetch('/admin/batch-update', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          password: adminPassword,
+          current_password: adminPassword,
           user_ids: selectedUserIds,
           changes
         })
@@ -1405,6 +1439,67 @@
       const dropdown = document.getElementById('user-dropdown');
       if (dropdown) {
         dropdown.classList.toggle('show');
+      }
+    }
+
+    // 关闭管理员密码模态框并清理状态
+    function closeAdminPasswordModal() {
+      const modal = document.getElementById('admin-password-modal');
+      const input = document.getElementById('admin-password-input');
+      const msg = document.getElementById('admin-password-message');
+      if (modal) modal.style.display = 'none';
+      if (input) input.value = '';
+      if (msg) {
+        msg.style.display = 'none';
+        msg.textContent = '';
+      }
+    }
+
+    // 验证管理员密码：使用当前用户用户名调用登录接口进行密码校验，校验成功后保存 adminPassword 并触发后续回调
+    async function verifyAdminPassword() {
+      const input = document.getElementById('admin-password-input');
+      const msg = document.getElementById('admin-password-message');
+      if (!input || !msg) return;
+      msg.style.display = 'none';
+      const password = input.value || '';
+      if (!password) {
+        msg.textContent = '请输入管理员密码';
+        msg.className = 'message message-error';
+        msg.style.display = 'block';
+        return;
+      }
+      if (!currentUser || !currentUser.username) {
+        msg.textContent = '未检测到当前用户，请先登录';
+        msg.className = 'message message-error';
+        msg.style.display = 'block';
+        return;
+      }
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username: currentUser.username, password, remember: false })
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          throw new Error((data && data.message) || '验证失败');
+        }
+        // 验证成功，保存密码并关闭模态框，然后触发一轮回调（如果有）
+        adminPassword = password;
+        msg.textContent = '验证成功';
+        msg.className = 'message message-success';
+        msg.style.display = 'block';
+        setTimeout(() => {
+          closeAdminPasswordModal();
+          if (window._afterAdminVerified) {
+            try { window._afterAdminVerified(); } catch (e) { /* ignore */ }
+            delete window._afterAdminVerified;
+          }
+        }, 600);
+      } catch (e) {
+        msg.textContent = e.message || '验证失败';
+        msg.className = 'message message-error';
+        msg.style.display = 'block';
       }
     }
     
