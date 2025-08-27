@@ -237,6 +237,45 @@
       animation: none;
       transition: transform 0.1s linear;
     }
+  /* 已移除：全局 document-level 的鼠标监听，使用 overlay 驱动更稳定且可控的倾斜交互 */
+    
+    
+    .account-container.tilting {
+      animation: none;
+      transition: transform 0.12s linear;
+    }
+    /* 更大的玻璃面板，包裹账户信息与权限卡片 */
+    .glass-panel {
+      width: 95%;
+      max-width: 1100px;
+      margin: 1rem auto;
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg);
+      animation: gentleSway 8s infinite ease-in-out;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease;
+    }
+    /* 自定义复选框的视觉勾选标记 */
+    .glass-checkbox.checked::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 6px;
+      border: 2px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+      left: 50%;
+      top: 50%;
+      margin-left: -6px;
+      margin-top: -6px;
+      box-shadow: 0 0 6px rgba(255,255,255,0.08);
+      pointer-events: none;
+    }
     /* 修正毛玻璃卡片默认偏转方向为右上（rotateX(-) rotateY(+)） */
     .account-container {
       transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg);
@@ -575,7 +614,7 @@
   </header>
   
   <main id="main-content" style="opacity:0;transition:opacity 0.6s;">
-    <div class="account-container">
+    <div class="account-container glass-panel">
       <div class="account-header">
         <div class="account-avatar">
           <img id="user-avatar-large" src="" alt="用户头像" class="account-avatar">
@@ -800,13 +839,18 @@
         });
       }
       
-      // 检查会话状态
+  // 检查会话状态
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           currentUser = await response.json();
           updateUserDisplay();
           await loadAccountDetails();
+          // 等待主内容准备并安装 overlay，避免毛玻璃闪烁
+          await waitForAppReady(3000);
+          installAccountTiltOverlay();
+          // 窗口滚动时重新计算 overlay 位置
+          window.addEventListener('scroll', () => installAccountTiltOverlay());
         } else {
           document.getElementById('login-button').style.display = 'flex';
         }
@@ -814,13 +858,34 @@
         console.error('检查会话失败:', error);
         document.getElementById('login-button').style.display = 'flex';
       }
-      // 所有控件和数据加载完成后，淡出加载动画，淡入主内容
-      setTimeout(() => {
-        const loader = document.getElementById('page-loader');
-        const mainContent = document.getElementById('main-content');
-        if (loader) loader.classList.add('hide');
-        if (mainContent) mainContent.style.opacity = 1;
-      }, 600);
+      // 等待资源渲染并执行一次回流，然后短延迟隐藏 loader，避免毛玻璃闪烁
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) {
+        void mainContent.offsetHeight; // 强制回流
+        mainContent.style.opacity = 1;
+      }
+      const loader = document.getElementById('page-loader');
+  if (loader) setTimeout(() => loader.classList.add('hide'), 120);
+
+      // 兼容性修复：如果 .glass-checkbox 无法响应点击，使用事件委托切换 checkbox
+      document.addEventListener('click', (e) => {
+        const box = e.target.closest && e.target.closest('.glass-checkbox');
+        if (!box) return;
+        const input = box.querySelector('input[type="checkbox"]');
+        if (!input) return;
+        if (e.target === input) return;
+        input.checked = !input.checked;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      // 视觉同步：当 checkbox 的 checked 状态改变时，切换容器上的 .checked class
+      document.addEventListener('change', (e) => {
+        const input = e.target;
+        if (!input || input.type !== 'checkbox') return;
+        const box = input.closest && input.closest('.glass-checkbox');
+        if (!box) return;
+        if (input.checked) box.classList.add('checked'); else box.classList.remove('checked');
+      });
     });
     
     // 加载账户详细信息
@@ -886,6 +951,22 @@
   // 转换为北京时间（UTC+8）
   const beijingDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
   return beijingDate.toLocaleString('zh-CN', { hour12: false });
+    }
+
+    // 等待页面主要内容与图片就绪后再隐藏加载器，避免毛玻璃闪烁
+    async function waitForAppReady(maxWait = 3000) {
+      const start = Date.now();
+      const nameEl = document.getElementById('account-name');
+      function imagesLoaded() {
+        const imgs = Array.from(document.images || []);
+        return imgs.length === 0 || imgs.every(i => i.complete);
+      }
+      while (Date.now() - start < maxWait) {
+        const nameReady = nameEl && nameEl.textContent && !nameEl.textContent.includes('加载中');
+        if (nameReady && imagesLoaded()) return;
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise(r => setTimeout(r, 80));
+      }
     }
     
     // 更新用户显示区域
@@ -974,7 +1055,7 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             username: newUsername,
-            password: password
+            current_password: password
           })
         });
         
@@ -1029,6 +1110,7 @@
           method: 'PATCH',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
+            current_password: currentPassword,
             password: newPassword
           })
         });
@@ -1174,6 +1256,75 @@
         dropdown.classList.remove('show');
       }
     });
+
+    // 安装 account 的倾斜 overlay：扩大触发区域并降低最大倾斜角度以获得更平滑的过渡
+    function installAccountTiltOverlay() {
+      const container = document.querySelector('.account-container');
+      if (!container) return;
+      const existing = document.getElementById('account-tilt-overlay');
+      if (existing) existing.remove();
+      const rect = container.getBoundingClientRect();
+      const overlay = document.createElement('div');
+      overlay.id = 'account-tilt-overlay';
+      const scale = 1.6; // 略大于 sqrt(2)，扩大触发范围
+      const w = rect.width * scale;
+      const h = rect.height * scale;
+      overlay.style.width = w + 'px';
+      overlay.style.height = h + 'px';
+      overlay.style.left = (rect.left + (rect.width - w) / 2) + 'px';
+      overlay.style.top = (rect.top + (rect.height - h) / 2) + 'px';
+      overlay.style.position = 'fixed';
+      overlay.style.background = 'transparent';
+      // 允许点击穿透：overlay 不阻塞指针事件，使用全局 mousemove 计算倾斜
+      overlay.style.pointerEvents = 'none';
+      overlay.style.zIndex = 1002;
+      document.body.appendChild(overlay);
+      // 使用 window mousemove 允许点击穿透并在离开 overlay 区域时回正
+      if (existing && existing._handler) {
+        window.removeEventListener('mousemove', existing._handler);
+      }
+      let isHovering = false;
+      function onGlobalMouseMove(e) {
+        const orect = overlay.getBoundingClientRect();
+        const inside = e.clientX >= orect.left && e.clientX <= orect.right && e.clientY >= orect.top && e.clientY <= orect.bottom;
+        if (!inside) {
+          if (isHovering) {
+            isHovering = false;
+            container.classList.remove('tilting');
+            container.style.transition = 'transform 0.6s cubic-bezier(.4,2,.3,1)';
+            container.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
+          }
+          return;
+        }
+        isHovering = true;
+        const r = container.getBoundingClientRect();
+        const centerX = r.left + r.width / 2;
+        const centerY = r.top + r.height / 2;
+        const dx = e.clientX - centerX;
+        const dy = e.clientY - centerY;
+        const maxDist = Math.hypot(r.width/2, r.height/2);
+        const dist = Math.hypot(dx, dy);
+        const ratio = Math.min(1, dist / maxDist);
+        const maxAngle = 6; // 更小的最大角度
+        const angle = ratio * maxAngle;
+        const rotateY = (dx / maxDist) * angle;
+        const rotateX = -(dy / maxDist) * angle;
+        container.classList.add('tilting');
+        container.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      }
+      window.addEventListener('mousemove', onGlobalMouseMove);
+      overlay._handler = onGlobalMouseMove;
+
+      window.addEventListener('resize', () => {
+        const r = container.getBoundingClientRect();
+        const w2 = r.width * scale;
+        const h2 = r.height * scale;
+        overlay.style.width = w2 + 'px';
+        overlay.style.height = h2 + 'px';
+        overlay.style.left = (r.left + (r.width - w2) / 2) + 'px';
+        overlay.style.top = (r.top + (r.height - h2) / 2) + 'px';
+      });
+    }
   </script>
 </body>
 </html>
