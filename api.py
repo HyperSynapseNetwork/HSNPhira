@@ -354,4 +354,4 @@ if __name__ == '__main__':
     logging.info("Room monitor service started")
     
     # 启动Flask应用
-    app.run(port=5001, debug=False)
+    app.run(host="0.0.0.0", port=5001, debug=False)
