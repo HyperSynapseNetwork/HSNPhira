@@ -36,7 +36,7 @@ class RoomData:
 	host: int
 	users: set[int]
 	lock: bool = False
-	cycle: bool = True
+	cycle: bool = False
 	chart: int = None
 	state: State = State.SELECTING_CHART
 	playing_users: set[int] = field(default_factory=set)
