@@ -123,7 +123,7 @@ class RoomsService:
 				self.broadcast("update_room", {"room": name, "data": {"host": user}})
 
 	def get_rooms(self) -> list[RoomData]:
-		return [{"name": name, **dataclasses.asdict(room)} for name, room in self._rooms.items()]
+		return [{"name": name, "data": dataclasses.asdict(room)} for name, room in self._rooms.items()]
 
 	def get_room(self, name: str) -> RoomData|None:
 		room = self._rooms.get(name)
