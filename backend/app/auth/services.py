@@ -17,6 +17,20 @@ import requests
 class AuthService:
 	def __init__(self, app):
 		self.app = app
+	
+	def search_user(self, username: str) -> int|None:
+		url = f"https://phira.5wyxi.com/user/?pageNum=1&page=1&search={username}"
+		resp = requests.get(url, timeout=10)
+		data = resp.json()
+		if resp.status_code != 200:
+			resp.raise_for_status()
+
+		if data["count"] != 1:
+			return None
+		info = data["results"][0]
+		if info["name"] != username:
+			return None
+		return info["id"]
 
 	def sync_phira_profile(self, user: User, force: bool = False) -> None:
 		if user.phira_id and (force or user.check_sync_time()):
@@ -39,8 +53,11 @@ class AuthService:
 
 	@database_guard
 	def create_user(self, data: dict[str, Any]) -> dict[str, Any]:
+		s = data.pop("phira_id_or_username")
+		data["phira_id"] = int(s) if s.isdigit() else self.search_user(s)
+
 		user = User(**data)
-		if User.query.filter_by(username=user.id).first():
+		if User.query.filter_by(username=user.username).first():
 			raise ClientError("username already exists")
 		if User.query.filter_by(phira_id=user.phira_id).first():
 			raise ClientError("phira id already bound")

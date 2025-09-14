@@ -8,7 +8,7 @@ class CreateUserSchema(ma.SQLAlchemySchema):
 	class Meta:
 		model = User
 	username = ma.auto_field(required=True)
-	phira_id = ma.auto_field(required=True)
+	phira_id_or_username = ma.String(required=True)
 	group_id = ma.auto_field(required=False, load_default=3)
 	password = ma.String(required=True)
 

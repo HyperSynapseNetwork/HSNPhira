@@ -108,7 +108,7 @@ uv run flask run --debug --host=0.0.0.0 --port=5000
 {
   "group_id": /*整数，可选，用户所在组 ID，默认值为 3（user 组）*/,
   "username": /*字符串，用户名*/,
-  "phira_id": /*整数，用户的绑定的 Phira 账号 ID*/,
+  "phira_id_or_username": /*字符串，用户试图绑定的 Phira 账号 ID（字符串形式）或者 Phira 用户名*/,
   "password": /*字符串，用户密码*/
 }
 ```
