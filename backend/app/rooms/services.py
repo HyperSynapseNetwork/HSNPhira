@@ -9,6 +9,7 @@ from queue import Queue
 import dataclasses, json
 import os, time, select
 import logging
+from typing import Callable, Any
 
 class RoomsService:
 	def __init__(self, app):
@@ -16,8 +17,13 @@ class RoomsService:
 		self._rooms: dict[str, RoomData] = {}
 		self._users_room: dict[int, str] = {}
 		self._queues: set[Queue] = set()
+		self._event_hooks: dict[str, list[Callable]] = {}
 
+	def setup(self):
 		self.app.register_task(self.listening_thread)
+
+	def register_event_hook(self, event_type, func: Callable[[dict[str, Any]], Any]):
+		self._event_hooks.setdefault(event_type, []).append(func)
 
 	def listening_thread(self, exit_event):
 		self.app.logger.info("listening events from logprocessor")
@@ -48,7 +54,7 @@ class RoomsService:
 						event = json.loads(line)
 						self.process_event(event)
 					except Exception as e:
-						self.app.logger.error(f"failed to process event: {e}")
+						self.app.logger.error(f"failed to process event: {repr(e)}")
 		finally:
 			if file_obj:
 				file_obj.close()
@@ -66,9 +72,9 @@ class RoomsService:
 				self._users_room[user] = name
 				self.broadcast("create_room", {
 					"room": name,
+					"user": user,
 					"data": dataclasses.asdict(room)
 				})
-				self.try_update_visited(user)
 
 			case "UpdateRoom":
 				data = event["data"]
@@ -141,6 +147,8 @@ class RoomsService:
 			db.session.add(new)
 
 	def broadcast(self, event: str, data):
+		for f in self._event_hooks.get(event, []):
+			f(data)
 		for q in self._queues:
 			q.put((event, data))
 

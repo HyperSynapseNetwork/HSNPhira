@@ -4,15 +4,21 @@ from .schemas import (
 	CreateUserSchema, GetUserSchema, UpdateUserSchema, LoginSchema,
 	CreateGroupSchema, GetGroupSchema, UpdateGroupSchema, VisitedSchema
 )
-
-from flask import Flask, Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 
 
 class AuthAPI:
-	def __init__(self, app: Flask) -> None:
+	def __init__(self, app) -> None:
 		self.app = app
 		self._bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 		self._service = AuthService(app)
+
+	@property
+	def service(self):
+		return self._service
+
+	def setup(self):
+		self._service.setup()
 
 		self._bp.add_url_rule("/login", methods=["POST"], view_func=self.login)
 		self._bp.add_url_rule("/logout", methods=["POST"], view_func=self.logout)
@@ -35,9 +41,12 @@ class AuthAPI:
 	def get_current_user_info(self):
 		return jsonify(self._service.get_current_user_info())
 
+	# def create_user(self):
+	# 	data = CreateUserSchema().load(request.json)
+	# 	return jsonify(self._service.create_user(data))
 	def create_user(self):
 		data = CreateUserSchema().load(request.json)
-		return jsonify(self._service.create_user(data))
+		return Response(self._service.create_user(data), mimetype="text/event-stream")
 
 	def login(self):
 		data = LoginSchema().load(request.json)

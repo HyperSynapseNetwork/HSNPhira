@@ -11,12 +11,23 @@ from . import Permission, ensure_perm, ensure_root
 
 from flask_login import login_user, logout_user, login_required, current_user
 from typing import Any
+from threading import Event
 import requests
+import secrets
+import json
 
 
 class AuthService:
 	def __init__(self, app):
 		self.app = app
+		self._val_listeners: dict[int, tuple[str, Event]] = {}
+	
+	def setup(self):
+		def check_validation(data: dict[str, Any]):
+			if (listener := self._val_listeners.get(data["user"])):
+				if listener[0] == data["room"]:
+					listener[1].set()
+		self.app.rooms_api.service.register_event_hook("create_room", check_validation)
 	
 	def search_user(self, username: str) -> int|None:
 		url = f"https://phira.5wyxi.com/user/?pageNum=1&page=1&search={username}"
@@ -51,25 +62,50 @@ class AuthService:
 	def get_current_user_info(self):
 		return GetUserSchema().dump(current_user)
 
-	@database_guard
 	def create_user(self, data: dict[str, Any]) -> dict[str, Any]:
 		s = data.pop("phira_id_or_username")
 		data["phira_id"] = int(s) if s.isdigit() else self.search_user(s)
 
 		user = User(**data)
+		if user.group_id != 3:
+			ensure_perm(Permission.GROUP_MANAGEMENT)
 		if User.query.filter_by(username=user.username).first():
 			raise ClientError("username already exists")
 		if User.query.filter_by(phira_id=user.phira_id).first():
 			raise ClientError("phira id already bound")
-		if Config.STRICT_REGISTRATION and not Visited.query.filter_by(phira_id=user.phira_id).first():
-			raise ClientError("must have been played in server at least once")
-		if user.group_id != 3:
-			ensure_perm(Permission.GROUP_MANAGEMENT)
+		if self._val_listeners.get(user.phira_id):
+			raise ClientError("phira id is in another validating process")
+		else:
+			self._val_listeners[user.phira_id] = ()
 
-		# TODO: phira account validation
-		self.sync_phira_profile(user)
-		db.session.add(user)
-		return GetUserSchema().dump(user)
+		def generator():
+			with self.app.app_context():
+				try:
+					token = secrets.token_hex(4)
+					while self.app.rooms_api.service.get_room(token):
+						token = secrets.token_hex(4)
+					e = Event()
+					self._val_listeners[user.phira_id] = (token, e)
+					yield f"event: validating\ndata: {token}\n\n"
+
+					for _ in range(300):
+						if e.wait(1):
+							self.sync_phira_profile(user)
+							db.session.add(user)
+							yield f"event: success\ndata: {json.dumps(GetUserSchema().dump(user))}\n\n"
+							return
+						yield ": heartbeat\n\n"
+					yield f"event: timeout\n\n"
+
+				except Exception as e:
+					db.session.rollback()
+					yield f"event: error\ndata: {repr(e)}\n\n"
+
+				finally:
+					self._val_listeners.pop(user.phira_id)
+					db.session.commit()
+
+		return generator()
 
 	@database_guard
 	def login(self, data: dict[str, Any]) -> dict[str, Any]:

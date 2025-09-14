@@ -52,6 +52,8 @@ class HSNApplication(Flask):
 		# blueprints
 		self.auth_api = AuthAPI(self)
 		self.rooms_api = RoomsAPI(self)
+		self.auth_api.setup()
+		self.rooms_api.setup()
 
 	def register_task(self, func, *args, **kwargs):
 		@wraps(func)
