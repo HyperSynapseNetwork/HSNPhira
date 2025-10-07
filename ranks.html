@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="HyperSynapse Network 提供免费、稳定、低延迟的 Phira 多人音乐游戏服务器" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="screen-orientation" content="landscape">
+    <title>游玩时间排行榜 - HyperSynapse Phira</title>
+    <style>
+         /* 页面加载动画样式（五条竖条弹跳） */
+         #page-loader {
+              position: fixed;
+              top: 0; left: 0; right: 0; bottom: 0;
+              width: 100vw; height: 100vh;
+              background: rgba(0,0,0,0.95);
+              z-index: 999999;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: opacity 0.6s;
+              opacity: 1;
+              pointer-events: auto;
+         }
+         #page-loader.hide {
+              opacity: 0;
+              pointer-events: none;
+         }
+         .load_11 {
+              width: 50px;
+              height: 40px;
+              display: inline-block;
+              text-align: center;
+              font-size: 10px;
+         }
+         .load_11 > div {
+              background-color: #61E8EA;
+              height: 100%;
+              width: 6px;
+              display: inline-block;
+              -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+              animation: sk-stretchdelay 1.2s infinite ease-in-out;
+         }
+         .load_11 .rect2 {
+              -webkit-animation-delay: -1.1s;
+              animation-delay: -1.1s;
+         }
+         .load_11 .rect3 {
+              -webkit-animation-delay: -1.0s;
+              animation-delay: -1.0s;
+         }
+         .load_11 .rect4 {
+              -webkit-animation-delay: -0.9s;
+              animation-delay: -0.9s;
+         }
+         .load_11 .rect5 {
+              -webkit-animation-delay: -0.8s;
+              animation-delay: -0.8s;
+         }
+         @-webkit-keyframes sk-stretchdelay {
+              0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+              20% { -webkit-transform: scaleY(1.0) }
+         }
+         @keyframes sk-stretchdelay {
+              0%, 40%, 100% {
+                   transform: scaleY(0.4);
+                   -webkit-transform: scaleY(0.4);
+              }
+              20% {
+                   transform: scaleY(1.0);
+                   -webkit-transform: scaleY(1.0);
+              }
+         }
+         /* 文字悬停效果 */
+         /* 文字悬停效果（去下划线，发光晕） */
+         th:hover, td:hover, .status:hover, .modal-content h3:hover, .chart-name-btn:hover {
+              color: #61E8EA !important;
+              text-shadow: 0 0 8px #61E8EA88, 0 0 2px #61E8EA;
+              cursor: pointer;
+              transition: color 0.2s, text-shadow 0.2s;
+              text-decoration: none;
+         }
+
+         /* 卡片悬停效果 */
+         table:hover, .modal-content:hover, .glass-card:hover {
+              background: rgba(255,255,255,0.12);
+              box-shadow: 0 8px 32px rgba(97,232,234,0.25), 0 2px 8px rgba(0,0,0,0.18);
+              border: 1.5px solid #61E8EA;
+              transform: scale(1.03);
+              transition: all 0.25s cubic-bezier(.4,2,.3,1);
+              z-index: 2;
+         }
+
+         /* 用户协议链接样式 */
+         #agreement-container a {
+              color: #61E8EA !important;
+              text-decoration: none !important;
+              font-weight: bold;
+         }
+
+         /* 复选框容器修复 */
+         .checkbox-container {
+              display: flex;
+              align-items: center;
+              margin: 0.5rem 0;
+              justify-content: flex-start;
+         }
+         .glass-checkbox {
+              position: relative;
+              width: 32px;
+              height: 32px;
+              border-radius: 10px;
+              background: rgba(255,255,255,0.15);
+              backdrop-filter: blur(8px);
+              box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-left: 0;
+         }
+         /* 使用自定义样式替代浏览器默认 checkbox，保证在容器中居中显示 */
+         .glass-checkbox input[type="checkbox"] {
+              -webkit-appearance: none;
+              appearance: none;
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+              width: 20px;
+              height: 20px;
+              border-radius: 6px;
+              background: #fff;
+              border: 2px solid #61E8EA;
+              box-shadow: 0 1px 4px rgba(97,232,234,0.08);
+              margin: 0;
+              cursor: pointer;
+         }
+         .glass-checkbox input[type="checkbox"]:checked {
+              background: #61E8EA;
+         }
+         /* 视觉勾选标记：在容器上显示对勾 */
+         .glass-checkbox.checked::after {
+              content: '';
+              position: absolute;
+              width: 10px;
+              height: 6px;
+              border: 2px solid white;
+              border-top: none;
+              border-left: none;
+              transform: rotate(45deg);
+              left: 50%;
+              top: 50%;
+              margin-left: -6px;
+              margin-top: -6px;
+              box-shadow: 0 0 6px rgba(255,255,255,0.08);
+              pointer-events: none;
+         }
+
+         /* 倾斜触发 overlay（动态创建） */
+         #table-tilt-overlay {
+              position: fixed;
+              pointer-events: auto;
+              background: transparent;
+              z-index: 1002; /* 保证覆盖在主要内容之上以接收鼠标事件 */
+              cursor: default;
+         }
+         
+         html, body {
+              margin: 0;
+              padding: 0;
+              font-family: 'Segoe UI', sans-serif;
+              background: #000;
+              color: #eee;
+              overflow-x: hidden;
+              scroll-behavior: smooth;
+         }
+         .parallax-bg {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              background-image: url('https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg');
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+              z-index: 0;
+         }
+         header {
+              position: fixed;
+              top: 0;
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 1.5rem;
+              backdrop-filter: blur(12px);
+              background: rgba(0, 0, 0, 0.4);
+              z-index: 1000;
+              box-sizing: border-box;
+         }
+         .logo-nav-container {
+              display: flex;
+              align-items: center;
+              flex: 1;
+         }
+         #logo-img {
+              height: 32px;
+              margin-right: 1.2rem;
+         }
+         .nav-links {
+              display: flex;
+         }
+         .nav-links a {
+              color: #eee;
+              margin-right: 1.2rem;
+              text-decoration: none;
+              transition: 0.3s;
+              font-size: 0.95rem;
+         }
+         .nav-links a:hover {
+              color: #fff;
+              text-shadow: 0 0 4px #fff;
+         }
+         .user-section {
+              display: flex;
+              justify-content: flex-end;
+              flex: 1;
+         }
+         .glass-button {
+              display: flex;
+              align-items: center;
+              padding: 0.4rem 1rem;
+              background: rgba(255, 255, 255, 0.1);
+              backdrop-filter: blur(10px);
+              border-radius: 999px;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              cursor: pointer;
+              transition: all 0.3s ease;
+              min-width: 100px;
+         }
+         .glass-button:hover {
+              background: rgba(255, 255, 255, 0.15);
+              transform: scale(1.05);
+         }
+         .login-btn {
+              color: #eee;
+              text-decoration: none;
+              font-size: 0.95rem;
+              white-space: nowrap;
+              width: 100%;
+              text-align: center;
+         }
+         .user-info {
+              display: flex;
+              align-items: center;
+              position: relative;
+              cursor: pointer;
+              width: 100%;
+         }
+         .username {
+              margin-right: 0.8rem;
+              font-size: 0.95rem;
+              color: #eee;
+              max-width: 120px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+         }
+         .user-avatar {
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              object-fit: cover;
+              border: 1px solid rgba(255, 255, 255, 0.3);
+         }
+         .dropdown-content {
+              position: absolute;
+              top: 100%;
+              right: 0;
+              background: rgba(0, 0, 0, 0.7);
+              backdrop-filter: blur(12px);
+              border-radius: 8px;
+              padding: 0.8rem;
+              min-width: 160px;
+              box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+              z-index: 1001;
+              opacity: 0;
+              visibility: hidden;
+              transform: translateY(10px);
+              transition: all 0.3s ease;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+         }
+         .dropdown-content.show {
+              opacity: 1;
+              visibility: visible;
+              transform: translateY(0);
+         }
+         .dropdown-content span {
+              display: block;
+              padding: 0.3rem 0.5rem;
+              font-weight: bold;
+              color: #a1e5ef;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              margin-bottom: 0.5rem;
+         }
+         .dropdown-content a {
+              display: block;
+              padding: 0.5rem;
+              color: #eee;
+              text-decoration: none;
+              border-radius: 4px;
+              transition: all 0.3s ease;
+         }
+         .dropdown-content a:hover {
+              background: rgba(255, 255, 255, 0.1);
+              color: #fff;
+         }
+         main {
+              position: relative;
+              z-index: 2;
+              padding-top: 100px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              min-height: 100vh;
+         }
+         .status {
+              margin-bottom: 1rem;
+              font-size: 1.2rem;
+              text-align: center;
+              padding: 0.5rem;
+              border-radius: 8px;
+              background: rgba(255, 255, 255, 0.05);
+              backdrop-filter: blur(6px);
+              width: 95%;
+              max-width: 800px;
+         }
+         .status.online {
+              color: #0f0;
+              border: 1px solid rgba(0, 255, 0, 0.2);
+         }
+         .status.offline {
+              color: #f33;
+              border: 1px solid rgba(255, 0, 0, 0.2);
+         }
+         
+         /* 3D卡片容器样式 */
+         #table-container {
+              perspective: 1000px;
+              width: 95%;
+              max-width: 1200px;
+              margin: 0 auto;
+         }
+
+         /* 3D毛玻璃卡片效果 */
+         table {
+              border-collapse: collapse;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+              overflow: hidden;
+              backdrop-filter: blur(8px);
+              animation: fadeIn 1s ease-out, gentleSway 8s infinite ease-in-out;
+              width: 100%;
+              transform-style: preserve-3d;
+              transform: translateZ(20px);
+              transition: transform 0.3s cubic-bezier(.4,2,.3,1);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+         }
+
+         @keyframes gentleSway {
+              0%, 100% { transform: translateZ(20px) rotateX(0.5deg) rotateY(0.5deg); }
+              25% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(-1deg); }
+              50% { transform: translateZ(20px) rotateX(0.5deg) rotateY(1deg); }
+              75% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg); }
+         }
+
+         table.tilting {
+              animation: none;
+              transition: transform 0.1s linear;
+         }
+         
+         table.hovering {
+              animation: gentleHover 2s infinite cubic-bezier(.4,2,.3,1);
+         }
+         
+         @keyframes gentleHover {
+              0%, 100% { transform: translateZ(20px) translateY(0); }
+              50% { transform: translateZ(20px) translateY(-5px); }
+         }
+         
+         th, td {
+              padding: 0.8rem 1rem;
+              text-align: left;
+              font-size: 0.9rem;
+         }
+         th {
+              background: rgba(255, 255, 255, 0.1);
+              font-weight: bold;
+              color: #a1e5ef;
+         }
+         tr:nth-child(even) {
+              background: rgba(255, 255, 255, 0.03);
+         }
+         .dl-btn, .chart-btn {
+              padding: 0.3rem 0.8rem;
+              font-size: 0.85rem;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              color: #fff;
+              border-radius: 999px;
+              backdrop-filter: blur(6px);
+              cursor: pointer;
+              transition: 0.3s ease;
+              white-space: nowrap;
+         }
+         .dl-btn:hover, .chart-btn:hover {
+              background: rgba(255, 255, 255, 0.15);
+              transform: scale(1.05);
+         }
+         .chart-name-btn {
+              padding: 0.3rem 0.7rem;
+              background: rgba(255, 255, 255, 0.1);
+              backdrop-filter: blur(6px);
+              color: #fff;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              border-radius: 999px;
+              font-size: 0.85rem;
+              text-decoration: none;
+              display: inline-block;
+              transition: 0.3s ease;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              max-width: 150px;
+         }
+         .chart-name-btn:hover {
+              background: rgba(255, 255, 255, 0.2);
+              transform: scale(1.05);
+         }
+         #lightbox {
+              display: flex;
+              position: fixed;
+              top: 0; left: 0;
+              width: 100vw;
+              height: 100vh;
+              background: rgba(0, 0, 0, 0.6);
+              backdrop-filter: blur(6px);
+              justify-content: center;
+              align-items: center;
+              z-index: 9999;
+              opacity: 0;
+              visibility: hidden;
+              transition: opacity 0.3s ease;
+         }
+         #lightbox.active {
+              opacity: 1;
+              visibility: visible;
+         }
+         #lightbox img {
+              max-width: 90%;
+              max-height: 90%;
+              border-radius: 12px;
+              box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+              animation: zoomIn 0.3s ease;
+         }
+         @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(40px); }
+              to { opacity: 1; transform: translateY(0); }
+         }
+         @keyframes zoomIn {
+              from { transform: scale(0.7); opacity: 0; }
+              to { transform: scale(1); opacity: 1; }
+         }
+         .modal {
+              position: fixed;
+              top: 0; left: 0;
+              width: 100vw; height: 100vh;
+              display: none;
+              justify-content: center;
+              align-items: center;
+              background: rgba(0,0,0,0.5);
+              backdrop-filter: blur(6px);
+              z-index: 9999;
+         }
+         .modal-content {
+              background: rgba(255,255,255,0.08);
+              padding: 1rem 1.5rem;
+              border-radius: 12px;
+              color: #fff;
+              backdrop-filter: blur(12px);
+              max-width: 300px;
+              width: 90%;
+              animation: zoomIn 0.3s ease;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+         }
+         .modal-content h3 {
+              margin-top: 0;
+              font-size: 1.1rem;
+              color: #a1e5ef;
+         }
+         .modal-content ul {
+              list-style: none;
+              padding-left: 0;
+         }
+         .modal-content li {
+              padding: 0.2rem 0;
+         }
+         .highlight-host {
+              font-weight: bold;
+              color: #61E8EA;
+         }
+         .state-label {
+              padding: 0.2rem 0.5rem;
+              border-radius: 4px;
+              font-size: 0.8rem;
+         }
+         .state-selecting {
+              background: rgba(255, 215, 0, 0.2);
+              color: #61E8EA;
+         }
+         .state-ready {
+              background: rgba(0, 255, 0, 0.2);
+              color: #0f0;
+         }
+         .state-playing {
+              background: rgba(255, 0, 0, 0.2);
+              color: #f33;
+         }
+         .pagination {
+              display: flex;
+              justify-content: center;
+              margin-top: 20px;
+              gap: 10px;
+         }
+         .pagination button {
+              padding: 8px 16px;
+              background: rgba(255, 255, 255, 0.1);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              color: #fff;
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+         }
+         .pagination button:hover:not(:disabled) {
+              background: rgba(255, 255, 255, 0.2);
+         }
+         .pagination button:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+         }
+         .pagination span {
+              padding: 8px 16px;
+              color: #fff;
+         }
+         /* 搜索框样式 */
+         .search-container {
+              width: 95%;
+              max-width: 800px;
+              margin-bottom: 1rem;
+         }
+         .search-box {
+              background: rgba(255, 255, 255, 0.05);
+              backdrop-filter: blur(8px);
+              border-radius: 12px;
+              padding: 0.8rem 1rem;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              display: flex;
+              align-items: center;
+              transition: all 0.3s ease;
+         }
+         .search-box:focus-within {
+              background: rgba(255, 255, 255, 0.08);
+              border: 1px solid #61E8EA;
+              box-shadow: 0 0 15px rgba(97, 232, 234, 0.2);
+         }
+         .search-box input {
+              flex: 1;
+              background: transparent;
+              border: none;
+              color: #fff;
+              font-size: 1rem;
+              outline: none;
+              padding: 0.5rem;
+         }
+         .search-box input::placeholder {
+              color: rgba(255, 255, 255, 0.6);
+         }
+         .search-icon {
+              color: rgba(255, 255, 255, 0.6);
+              margin-right: 0.5rem;
+         }
+         .search-hint {
+              font-size: 0.8rem;
+              color: rgba(255, 255, 255, 0.6);
+              margin-top: 0.5rem;
+              text-align: center;
+         }
+         @media (max-width: 768px) {
+              header {
+                   padding: 0.5rem 1rem;
+                   flex-wrap: wrap;
+              }
+              .logo-nav-container {
+                   flex: 0 0 100%;
+                   margin-bottom: 0.5rem;
+              }
+              .user-section {
+                   flex: 0 0 100%;
+                   justify-content: flex-end;
+              }
+              .nav-links a {
+                   margin-right: 1rem;
+              }
+              .username {
+                   max-width: 80px;
+              }
+              th, td {
+                   padding: 0.6rem 0.8rem;
+                   font-size: 0.8rem;
+              }
+              table {
+                   display: block;
+                   overflow-x: auto;
+              }
+              .search-container {
+                   width: 90%;
+              }
+         }
+    </style>
+</head>
+<body>
+    <!-- 页面加载动画 -->
+    <div id="page-loader">
+         <div class="load_11">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+         </div>
+    </div>
+    <div class="parallax-bg"></div>
+    
+    <header>
+         <div class="logo-nav-container">
+              <img id="logo-img" src="https://phira.htadiy.cc/logo.png" alt="HyperSynapse Logo">
+              <div class="nav-links">
+                   <a href="index.html">主页</a>
+                   <a href="rooms.html">房间列表</a>
+                   <a href="account.html" class="active">账号管理</a>
+                   <a href="ranks.html">排行榜</a>
+              </div>
+         </div>
+         
+         <div class="user-section">
+              <!-- 登录按钮（未登录时） -->
+              <div id="login-button" class="glass-button" onclick="openAuth()">
+                   <a href="javascript:void(0)" class="login-btn">登录</a>
+              </div>
+              <!-- 用户信息（登录后） -->
+              <div id="avatar-container" style="display: none;" class="glass-button">
+                   <div class="user-info" onclick="toggleDropdown()">
+                        <span class="username" id="username-display"></span>
+                        <img class="user-avatar" id="user-avatar" src="" alt="头像" />
+                   </div>
+                   <div class="dropdown-content" id="user-dropdown">
+                        <span id="dropdown-username"></span>
+                        <a id="phira-profile-link" target="_blank">我的Phira账户</a>
+                        <a href="account.html">账号管理</a>
+                        <a href="javascript:void(0)" onclick="logout()">退出登录</a>
+                   </div>
+              </div>
+         </div>
+    </header>
+    
+    <main id="main-content" style="opacity:0;transition:opacity 0.6s;">
+         <div id="status" class="status">服务器状态：检测中...</div>
+         <div id="total-playtime" class="status">总游玩时间：加载中...</div>
+         
+         <!-- 搜索框 -->
+         <div class="search-container">
+              <div class="search-box">
+                   <span class="search-icon"> </span>
+                   <input type="text" id="search-input" placeholder="搜索用户ID或用户名..." />
+              </div>
+              <div class="search-hint">支持ID精确搜索和用户名模糊搜索</div>
+         </div>
+         
+         <div id="table-container">
+              <table id="leaderboard-table">
+                   <thead>
+                        <tr>
+                             <th>名次</th>
+                             <th>用户名</th>
+                             <th>游玩时间</th>
+                        </tr>
+                   </thead>
+                   <tbody>
+                        <tr><td colspan="3">加载中...</td></tr>
+                   </tbody>
+              </table>
+         </div>
+         <div class="pagination">
+              <button id="prev-page" disabled>上一页</button>
+              <span id="page-info">第 1 页</span>
+              <button id="next-page" disabled>下一页</button>
+         </div>
+    </main>
+
+    <div id="lightbox" onclick="hideLightbox()">
+         <img id="lightbox-img" src="" alt="曲绘" />
+    </div>
+
+    <div id="user-modal" class="modal">
+         <div class="modal-content">
+              <h3>房间内用户</h3>
+              <ul id="user-list"></ul>
+              <button class="dl-btn" onclick="closeModal()">关闭</button>
+         </div>
+    </div>
+    
+    <!-- 登录注册弹窗 -->
+    <div id="auth-modal" class="modal" style="z-index: 99999">
+         <div class="modal-content glass-card" id="auth-box">
+              <h3 id="auth-title">用户登录</h3>
+              <input id="auth-name" placeholder="用户名" />
+              <input id="auth-password" type="password" placeholder="密码" />
+              <input id="auth-phiraid" class="collapsed" placeholder="Phira ID (仅注册)"/>
+              
+              <!-- 记住我复选框 -->
+              <div class="checkbox-container">
+                   <div class="glass-checkbox">
+                        <input type="checkbox" id="remember-me">
+                   </div>
+                   <label for="remember-me" style="margin-left:8px;">记住我</label>
+              </div>
+              
+              <!-- 用户协议复选框（仅注册时显示） -->
+              <div id="agreement-container" class="checkbox-container" style="display: none;">
+                   <div class="glass-checkbox">
+                        <input type="checkbox" id="agree-terms" required>
+                   </div>
+                   <label for="agree-terms" style="margin-left:8px;">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></label>
+              </div>
+              
+              <button onclick="submitAuth()">确认</button>
+              <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
+              <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
+              <button class="dl-btn" onclick="closeAuth()">关闭</button>
+         </div>
+    </div>
+
+    <style>
+         .checkbox-container {
+              display: flex;
+              align-items: center;
+              margin: 0.5rem 0;
+         }
+         .checkbox-container input[type="checkbox"] {
+              margin-right: 0.5rem;
+         }
+         #auth-modal input {
+              box-sizing: border-box;
+              display: block;
+              margin: 0.5rem 0;
+              padding: 0.8rem;
+              width: 100%;
+              border: none;
+              border-radius: 8px;
+              background: rgba(255,255,255,0.1);
+              color: #fff;
+              backdrop-filter: blur(8px);
+              font-size: 0.95rem;
+              outline: none;
+              transition: all 0.3s ease;
+         }
+         #auth-modal input:focus {
+              box-shadow: 0 0 0.5rem rgba(255, 255, 255, 0.3);
+              border: 1px solid rgba(255, 255, 255, 0.4);
+         }
+         #auth-modal input.collapsed {
+              display: none;
+              margin: 0;
+              height: 0;
+              padding: 0;
+         }
+         #auth-modal button {
+              width: 100%;
+              margin: 0.5rem 0;
+              padding: 0.8rem;
+              font-size: 1rem;
+              border-radius: 8px;
+              border: none;
+              background: rgba(255,255,255,0.1);
+              color: #fff;
+              backdrop-filter: blur(12px);
+              cursor: pointer;
+              transition: all 0.3s ease;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+         }
+         #auth-modal button:hover {
+              background: rgba(255,255,255,0.15);
+              transform: translateY(-2px);
+         }
+         .glass-card {
+              position: relative;
+              background: rgba(255,255,255,0.08);
+              padding: 1.5rem;
+              border-radius: 16px;
+              color: #fff;
+              backdrop-filter: blur(20px);
+              width: 320px;
+              max-width: 90%;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+         }
+    </style>
+
+    <script>
+         // 默认头像URL
+         const DEFAULT_AVATAR = 'https://phira.moe/assets/user-6212ee95.png';
+         const USER_CACHE = new Map();
+         
+         let currentUser = null;
+         let authMode = 'login';
+         let autoRefreshInterval;
+         let isHoveringTable = false;
+         let lastMousePosition = { x: 0, y: 0 };
+
+         // 排行榜相关变量
+         let currentPage = 1;
+         const pageSize = 10;
+         let totalUsers = 0;
+         let totalPlaytime = 0;
+         let fullLeaderboardData = [];
+         let filteredLeaderboardData = [];
+         let isSearching = false;
+         let lastSearchQuery = ''; // 保存上次搜索条件
+
+         // 页面加载时检查登录状态并初始化
+         document.addEventListener('DOMContentLoaded', async () => {
+              // 扩大表格倾斜范围：全局鼠标不再驱动整个页面，而使用 overlay 驱动表格倾斜
+              const leaderboardTable = document.getElementById('leaderboard-table');
+              if (leaderboardTable) {
+                   // 保持表格初始微倾斜
+                   leaderboardTable.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
+              }
+
+              // 尝试获取当前会话
+              try {
+                   const response = await fetch('/api/auth/me');
+                   if (response.ok) {
+                        currentUser = await response.json();
+                        updateUserDisplay();
+                   }
+              } catch (error) {
+                   console.error('检查会话失败:', error);
+              }
+
+              // 首次检查服务器状态并加载排行榜数据
+              await checkServerStatus();
+              await loadLeaderboard();
+
+              // 等待资源完全准备好后再隐藏加载器
+              await waitForAppReady();
+
+              // 安装倾斜 overlay（基于表格的实时几何中心，面积为两倍）
+              installTableTiltOverlay();
+
+              // 设置每秒自动刷新
+              autoRefreshInterval = setInterval(async () => {
+                   // 如果正在搜索，不自动刷新
+                   if (isSearching) return;
+                   
+                   await checkServerStatus();
+                   await loadLeaderboard();
+              }, 1000);
+
+              // 翻页按钮事件监听
+              document.getElementById('prev-page').addEventListener('click', () => {
+                   if (currentPage > 1) {
+                        currentPage--;
+                        renderLeaderboardPage();
+                   }
+              });
+
+              document.getElementById('next-page').addEventListener('click', () => {
+                   const maxPage = Math.ceil(totalUsers / pageSize);
+                   if (currentPage < maxPage) {
+                        currentPage++;
+                        renderLeaderboardPage();
+                   }
+              });
+
+              // 搜索框输入事件监听
+              const searchInput = document.getElementById('search-input');
+              searchInput.addEventListener('input', debounce(() => {
+                   const query = searchInput.value.trim();
+                   lastSearchQuery = query;
+                   performSearch(query);
+              }, 300));
+
+              // 兼容性：如果自定义的 .glass-checkbox 无法响应 click，使用事件委托做一次切换
+              document.addEventListener('click', (e) => {
+                   const box = e.target.closest && e.target.closest('.glass-checkbox');
+                   if (!box) return;
+                   const input = box.querySelector('input[type="checkbox"]');
+                   if (!input) return;
+                   // 如果点击目标就是 input ，让浏览器正常处理；否则手动切换并派发 change
+                   if (e.target === input) return;
+                   input.checked = !input.checked;
+                   input.dispatchEvent(new Event('change', { bubbles: true }));
+              });
+
+              // 当 checkbox 状态变化时，给容器添加/移除 .checked 以显示视觉打勾
+              document.addEventListener('change', (e) => {
+                   const input = e.target;
+                   if (!input || input.type !== 'checkbox') return;
+                   const box = input.closest && input.closest('.glass-checkbox');
+                   if (!box) return;
+                   if (input.checked) box.classList.add('checked'); else box.classList.remove('checked');
+              });
+         });
+
+         // 防抖函数
+         function debounce(func, wait) {
+              let timeout;
+              return function executedFunction(...args) {
+                   const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                   };
+                   clearTimeout(timeout);
+                   timeout = setTimeout(later, wait);
+              };
+         }
+
+         // 执行搜索
+         function performSearch(query) {
+              if (!query) {
+                   isSearching = false;
+                   currentPage = 1;
+                   renderLeaderboardPage();
+                   return;
+              }
+              
+              isSearching = true;
+              
+              // 同时搜索ID和用户名
+              filteredLeaderboardData = fullLeaderboardData.filter(user => {
+                   // ID精确匹配
+                   if (user.user_id.toString() === query) {
+                        return true;
+                   }
+                   
+                   // 用户名模糊匹配（如果用户名已缓存）
+                   if (USER_CACHE.has(user.user_id)) {
+                        const userInfo = USER_CACHE.get(user.user_id);
+                        if (userInfo && userInfo.name && userInfo.name.toLowerCase().includes(query.toLowerCase())) {
+                             return true;
+                        }
+                   }
+                   
+                   return false;
+              });
+              
+              currentPage = 1;
+              renderLeaderboardPage();
+         }
+
+         // 检查服务器状态
+         async function checkServerStatus() {
+              const status = document.getElementById("status");
+              try {
+                   const res = await fetch("/rankapi/playtime_leaderboard?_=" + Date.now(), { method: "GET", cache: "no-store" });
+                   if (res.ok) {
+                        status.textContent = "服务器状态：在线 :)     加入我们的QQ群：1049578201";
+                        status.classList.add("online");
+                        status.classList.remove("offline");
+                   } else {
+                        throw new Error("无返回");
+                   }
+              } catch (err) {
+                   status.textContent = "服务器状态：离线 :(     加入我们的QQ群：1049578201";
+                   status.classList.add("offline");
+                   status.classList.remove("online");
+              }
+         }
+
+         // 更新用户显示区域
+         function updateUserDisplay() {
+              const loginButton = document.getElementById('login-button');
+              const avatarContainer = document.getElementById('avatar-container');
+              
+              if (currentUser) {
+                   // 隐藏登录按钮
+                   loginButton.style.display = 'none';
+                   
+                   // 显示头像容器
+                   avatarContainer.style.display = 'flex';
+                   
+                   // 更新用户名和头像
+                   document.getElementById('username-display').textContent = currentUser.username;
+                   document.getElementById('user-avatar').src = currentUser.phira_avatar || DEFAULT_AVATAR;
+                   document.getElementById('dropdown-username').textContent = currentUser.username;
+                   
+                   // 更新Phira账户链接
+                   const phiraLink = document.getElementById('phira-profile-link');
+                   if (phiraLink && currentUser.phira_id) {
+                        phiraLink.href = `https://phira.moe/user/${currentUser.phira_id}`;
+                   }
+              } else {
+                   // 显示登录按钮
+                   loginButton.style.display = 'flex';
+                   
+                   // 隐藏头像容器
+                   avatarContainer.style.display = 'none';
+              }
+         }
+
+         // 切换下拉菜单显示状态
+         function toggleDropdown() {
+              const dropdown = document.getElementById('user-dropdown');
+              if (dropdown) {
+                   dropdown.classList.toggle('show');
+              }
+         }
+
+         // 点击其他地方关闭下拉菜单
+         document.addEventListener('click', (e) => {
+              const dropdown = document.getElementById('user-dropdown');
+              const userInfo = document.querySelector('.user-info');
+              if (dropdown && dropdown.classList.contains('show') &&
+                        !e.target.closest('.user-info') &&
+                        !e.target.closest('.dropdown-content')) {
+                   dropdown.classList.remove('show');
+              }
+         });
+
+         // 退出登录
+         async function logout() {
+              try {
+                   await fetch('/api/auth/logout', { method: 'POST' });
+                   currentUser = null;
+                   updateUserDisplay();
+                   // 关闭下拉菜单
+                   const dropdown = document.getElementById('user-dropdown');
+                   if (dropdown) dropdown.classList.remove('show');
+              } catch (err) {
+                   console.error('登出失败:', err);
+              }
+         }
+
+         // 获取用户信息
+         async function getUserInfo(userId) {
+              if (USER_CACHE.has(userId)) {
+                   return USER_CACHE.get(userId);
+              }
+              
+              try {
+                   const res = await fetch(`https://phira.5wyxi.com/user/${userId}`);
+                   if (!res.ok) return null;
+                   const userData = await res.json();
+                   USER_CACHE.set(userId, userData);
+                   return userData;
+              } catch (err) {
+                   console.error('获取用户信息错误:', err);
+                   return null;
+              }
+         }
+         
+         // 加载排行榜数据
+         async function loadLeaderboard() {
+              try {
+                   const res = await fetch('/rankapi/playtime_leaderboard');
+                   if (!res.ok) throw new Error('获取排行榜信息失败');
+                   const data = await res.json();
+                   
+                   if (data.success) {
+                        fullLeaderboardData = data.data;
+                        totalUsers = data.total_users;
+                        
+                        // 计算总游玩时间
+                        totalPlaytime = fullLeaderboardData.reduce((sum, user) => sum + user.total_playtime, 0);
+                        
+                        // 更新总游玩时间显示
+                        document.getElementById('total-playtime').textContent = `总游玩时间：${formatPlaytime(totalPlaytime)}`;
+                        
+                        // 获取所有用户的用户名（如果缓存中没有）
+                        await cacheAllUsernames();
+                        
+                        // 如果有搜索条件，重新执行搜索
+                        const searchInput = document.getElementById('search-input');
+                        if (searchInput.value.trim()) {
+                             performSearch(searchInput.value.trim());
+                        } else {
+                             // 渲染当前页
+                             renderLeaderboardPage();
+                        }
+                        
+                        // 更新服务器状态
+                        const status = document.getElementById("status");
+                        status.textContent = "服务器状态：在线 :)     加入我们的QQ群：1049578201";
+                        status.classList.add("online");
+                        status.classList.remove("offline");
+                   } else {
+                        throw new Error('API返回失败');
+                   }
+              } catch (err) {
+                   console.error('加载排行榜信息错误:', err);
+                   const status = document.getElementById("status");
+                   status.textContent = "服务器状态：离线 :(     加入我们的QQ群：1049578201";
+                   status.classList.add("offline");
+                   status.classList.remove("online");
+                   
+                   const tbody = document.querySelector("#leaderboard-table tbody");
+                   tbody.innerHTML = "<tr><td colspan='3'>加载失败，请刷新页面重试</td></tr>";
+              }
+         }
+         
+         // 缓存所有用户名
+         async function cacheAllUsernames() {
+              // 找出缓存中没有的用户ID
+              const uncachedUserIds = fullLeaderboardData
+                   .filter(user => !USER_CACHE.has(user.user_id))
+                   .map(user => user.user_id);
+              
+              // 批量获取未缓存的用户信息
+              if (uncachedUserIds.length > 0) {
+                   console.log(`正在获取 ${uncachedUserIds.length} 个用户信息...`);
+                   
+                   // 使用Promise.all并发获取，但限制并发数量以避免过多请求
+                   const batchSize = 5;
+                   for (let i = 0; i < uncachedUserIds.length; i += batchSize) {
+                        const batch = uncachedUserIds.slice(i, i + batchSize);
+                        await Promise.allSettled(
+                             batch.map(userId => getUserInfo(userId))
+                        );
+                        
+                        // 稍微延迟一下，避免请求过于频繁
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                   }
+              }
+         }
+         
+         // 渲染排行榜当前页
+         async function renderLeaderboardPage() {
+              const tbody = document.querySelector("#leaderboard-table tbody");
+              
+              // 确定要显示的数据
+              const displayData = isSearching ? filteredLeaderboardData : fullLeaderboardData;
+              
+              if (!Array.isArray(displayData) || displayData.length === 0) {
+                   if (isSearching) {
+                        tbody.innerHTML = "<tr><td colspan='3'>没有找到匹配的用户</td></tr>";
+                   } else {
+                        tbody.innerHTML = "<tr><td colspan='3'>暂无数据</td></tr>";
+                   }
+                   updatePaginationControls(0);
+                   return;
+              }
+              
+              // 显示加载中
+              tbody.innerHTML = "<tr><td colspan='3'>加载中...</td></tr>";
+              
+              // 计算当前页数据范围
+              const startIndex = (currentPage - 1) * pageSize;
+              const endIndex = Math.min(startIndex + pageSize, displayData.length);
+              const pageData = displayData.slice(startIndex, endIndex);
+              
+              // 清空现有内容
+              tbody.innerHTML = "";
+              
+              // 处理当前页的每个用户
+              for (let i = 0; i < pageData.length; i++) {
+                   const user = pageData[i];
+                   const rank = isSearching ?
+                        fullLeaderboardData.findIndex(u => u.user_id === user.user_id) + 1 :
+                        startIndex + i + 1;
+                   
+                   // 获取用户信息
+                   const userInfo = await getUserInfo(user.user_id);
+                   const userName = userInfo ? userInfo.name : `用户${user.user_id}`;
+                   
+                   const tr = document.createElement("tr");
+                   tr.innerHTML = `
+                        <td>${rank}</td>
+                        <td><a href="https://phira.moe/user/${user.user_id}" target="_blank"><button class="chart-btn">${userName}</button></a></td>
+                        <td>${formatPlaytime(user.total_playtime)}</td>
+                   `;
+                   tbody.appendChild(tr);
+              }
+              
+              // 更新翻页控件状态
+              updatePaginationControls(displayData.length);
+         }
+         
+         // 更新翻页控件状态
+         function updatePaginationControls(dataLength) {
+              const maxPage = Math.ceil(dataLength / pageSize);
+              document.getElementById('page-info').textContent = `第 ${currentPage} 页 / 共 ${maxPage} 页`;
+              document.getElementById('prev-page').disabled = currentPage <= 1;
+              document.getElementById('next-page').disabled = currentPage >= maxPage;
+         }
+         
+         // 格式化游玩时间
+         function formatPlaytime(seconds) {
+              const days = Math.floor(seconds / (3600 * 24));
+              const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+              const minutes = Math.floor((seconds % 3600) / 60);
+              const secs = seconds % 60;
+              
+              let result = '';
+              if (days > 0) result += `${days}天 `;
+              if (hours > 0) result += `${hours}小时 `;
+              if (minutes > 0) result += `${minutes}分 `;
+              result += `${secs}秒`;
+              
+              return result;
+         }
+
+         // 等待页面资源加载完成的通用函数
+         async function waitForAppReady() {
+              // 等待排行榜加载完成（确保 tbody 不再显示加载中）并等待文档内图片加载
+              const maxWait = 3000; // 最长等待时间
+              const start = Date.now();
+              const tbody = document.querySelector('#leaderboard-table tbody');
+              while (Date.now() - start < maxWait) {
+                   if (tbody && tbody.innerHTML && !tbody.innerHTML.includes('加载中') && !tbody.innerHTML.includes('加')) break;
+                   await new Promise(r => setTimeout(r, 80));
+              }
+
+              // 等待页面内图片加载完
+              const imgs = Array.from(document.images);
+              await Promise.all(imgs.map(img => {
+                   if (img.complete) return Promise.resolve();
+                   return new Promise(res => { img.addEventListener('load', res); img.addEventListener('error', res); });
+              }).slice(0));
+
+              // 隐藏加载器并显示主内容
+              const loader = document.getElementById('page-loader');
+              const mainContent = document.getElementById('main-content');
+              // 强制一次重绘并短延迟，避免毛玻璃效果在样式应用前闪烁
+              if (mainContent) {
+                   // 触发回流
+                   void mainContent.offsetHeight;
+                   mainContent.style.opacity = 1;
+              }
+              if (loader) {
+                   // 给主内容一点时间应用 backdrop-filter 等样式
+                   setTimeout(() => loader.classList.add('hide'), 120);
+              }
+         }
+
+         // 安装表格倾斜触发 overlay：面积为表格面积两倍，中心一致
+         function installTableTiltOverlay() {
+              const table = document.getElementById('leaderboard-table');
+              if (!table) return;
+              // remove existing if any
+              const existing = document.getElementById('table-tilt-overlay');
+              if (existing) existing.remove();
+
+              const rect = table.getBoundingClientRect();
+              const overlay = document.createElement('div');
+              overlay.id = 'table-tilt-overlay';
+              // 计算面积扩大时的边长扩展（保留中心）——稍微放大 overlay 以便更容易触发，scale ~1.6
+              const scale = 1.6;
+              const w = rect.width * scale;
+              const h = rect.height * scale;
+              overlay.style.width = w + 'px';
+              overlay.style.height = h + 'px';
+              overlay.style.left = (rect.left + (rect.width - w) / 2) + 'px';
+              overlay.style.top = (rect.top + (rect.height - h) / 2) + 'px';
+              overlay.style.position = 'fixed';
+              // 不阻塞下面元素的点击：让 overlay 对指针事件透明，使用 window 的 mousemove 代替
+              overlay.style.pointerEvents = 'none';
+              overlay.style.background = 'transparent';
+              document.body.appendChild(overlay);
+
+              // 鼠标在 overlay 上时，表格倾斜，角度与鼠标到几何中心距离成正比
+              // 使用 window mousemove 以允许点击穿透 overlay。
+              // 若之前已安装 overlay，移除旧的全局监听
+              if (existing && existing._handler) {
+                   window.removeEventListener('mousemove', existing._handler);
+              }
+
+              let isHovering = false;
+              function onGlobalMouseMove(e) {
+                   // 当前位置是否在 overlay 的几何范围内
+                   const orect = overlay.getBoundingClientRect();
+                   const inside = e.clientX >= orect.left && e.clientX <= orect.right && e.clientY >= orect.top && e.clientY <= orect.bottom;
+                   if (!inside) {
+                        if (isHovering) {
+                             isHovering = false;
+                             table.classList.remove('tilting');
+                             table.style.transition = 'transform 0.6s cubic-bezier(.4,2,.3,1)';
+                             table.style.transform = 'translateZ(20px) rotateX(0deg) rotateY(0deg)';
+                        }
+                        return;
+                   }
+                   isHovering = true;
+                   const currentRect = table.getBoundingClientRect();
+                   const centerX = currentRect.left + currentRect.width / 2;
+                   const centerY = currentRect.top + currentRect.height / 2;
+                   const dx = e.clientX - centerX;
+                   const dy = e.clientY - centerY;
+                   const maxDist = Math.hypot(currentRect.width/2, currentRect.height/2);
+                   const dist = Math.hypot(dx, dy);
+                   const ratio = Math.min(1, dist / maxDist);
+                   const maxAngle = 8;
+                   const angle = ratio * maxAngle;
+                   const rotateY = (dx / maxDist) * angle;
+                   const rotateX = -(dy / maxDist) * angle;
+                   table.classList.add('tilting');
+                   table.style.transform = `translateZ(20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+              }
+              window.addEventListener('mousemove', onGlobalMouseMove);
+              // 保存 handler 以便重新安装前移除
+              overlay._handler = onGlobalMouseMove;
+
+              // 若窗口变化，重新计算 overlay
+              window.addEventListener('resize', () => {
+                   const r = table.getBoundingClientRect();
+                   const w2 = r.width * scale;
+                   const h2 = r.height * scale;
+                   overlay.style.width = w2 + 'px';
+                   overlay.style.height = h2 + 'px';
+                   overlay.style.left = (r.left + (r.width - w2) / 2) + 'px';
+                   overlay.style.top = (r.top + (r.height - h2) / 2) + 'px';
+              });
+              // 页面滚动时也需要重新计算 overlay 位置
+              window.addEventListener('scroll', () => {
+                   const r = table.getBoundingClientRect();
+                   const w2 = r.width * scale;
+                   const h2 = r.height * scale;
+                   overlay.style.width = w2 + 'px';
+                   overlay.style.height = h2 + 'px';
+                   overlay.style.left = (r.left + (r.width - w2) / 2) + 'px';
+                   overlay.style.top = (r.top + (r.height - h2) / 2) + 'px';
+              }, { passive: true });
+         }
+         
+         function showLightbox(src) {
+              const lb = document.getElementById("lightbox");
+              document.getElementById("lightbox-img").src = src;
+              lb.style.display = "flex";
+              requestAnimationFrame(() => lb.classList.add("active"));
+         }
+         
+         function hideLightbox() {
+              const lb = document.getElementById("lightbox");
+              lb.classList.remove("active");
+              setTimeout(() => {
+                   lb.style.display = "none";
+                   document.getElementById("lightbox-img").src = "";
+              }, 300);
+         }
+         
+         function closeModal() {
+              document.getElementById("user-modal").style.display = "none";
+         }
+         
+         function openAuth() {
+              document.getElementById('auth-modal').style.display = 'flex';
+              document.getElementById('auth-msg').textContent = '';
+              updateAuthUI();
+         }
+         
+         function closeAuth() {
+              document.getElementById('auth-modal').style.display = 'none';
+         }
+         
+         function toggleAuthMode() {
+              authMode = authMode === 'login' ? 'register' : 'login';
+              updateAuthUI();
+              
+              // 显示/隐藏用户协议复选框
+              const agreementContainer = document.getElementById('agreement-container');
+              agreementContainer.style.display = authMode === 'register' ? 'block' : 'none';
+         }
+         
+         function updateAuthUI() {
+              var title = document.getElementById('auth-title');
+              var phiraid = document.getElementById('auth-phiraid');
+              if (authMode === 'login') {
+                   title.textContent = '用户登录';
+                   phiraid.classList.add('collapsed');
+              }
+              else {
+                   title.textContent = '用户注册';
+                   phiraid.classList.remove('collapsed');
+              }
+         }
+         
+         async function submitAuth() {
+              const username = document.getElementById('auth-name').value;
+              const password = document.getElementById('auth-password').value;
+              const phira_id = document.getElementById('auth-phiraid').value;
+              const remember = document.getElementById('remember-me').checked;
+              const agreeTerms = authMode === 'register' ? document.getElementById('agree-terms').checked : true;
+              const msg = document.getElementById('auth-msg');
+              msg.textContent = '处理中...';
+         
+              try {
+                   // 注册时需要确认用户协议
+                   if (authMode === 'register' && !agreeTerms) {
+                        msg.textContent = '请同意用户协议';
+                        return;
+                   }
+                   
+                   const endpoint = authMode === 'login'
+                        ? '/api/auth/login'
+                        : '/api/auth/users';
+                        
+                   const payload = authMode === 'login'
+                        ? { username, password, remember: remember }
+                        : { username, password, phira_id };
+                   
+                   const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                   });
+                   
+                   if (!res.ok) {
+                        const errorData = await res.json();
+                        msg.textContent = errorData.message || '操作失败';
+                        return;
+                   }
+                   
+                   // 登录成功后获取用户信息
+                   if (authMode === 'login') {
+                        const userRes = await fetch('/api/auth/me');
+                        if (!userRes.ok) {
+                             msg.textContent = '获取用户信息失败';
+                             return;
+                        }
+                        currentUser = await userRes.json();
+                        updateUserDisplay();
+                   }
+                   
+                   msg.textContent = authMode === 'login' ? '登录成功！' : '注册成功！';
+                   setTimeout(() => {
+                        closeAuth();
+                        if (authMode === 'register') {
+                             authMode = 'login';
+                             updateAuthUI();
+                        }
+                        msg.textContent = '';
+                   }, 1000);
+              } catch (e) {
+                   msg.textContent = '网络错误';
+                   console.error('认证错误:', e);
+              }
+         }
+    </script>
+</body>
+</html>
