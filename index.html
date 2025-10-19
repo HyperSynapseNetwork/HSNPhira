@@ -150,8 +150,11 @@
   <header>
     <img src="logo.png" alt="logo" />
     <div class="nav-links">
-      <a href="index.html">主页</a>
-      <a href="rooms.html">房间列表</a>
+        <a href="index.html">主页</a>
+        <a href="rooms.html">房间列表</a>
+        <a href="account.html">账号管理</a>
+        <a href="ranks.html">排行榜</a>
+        <a href="top.html" class="active">热门谱面</a>
     </div>
   </header>
 
@@ -186,10 +189,10 @@
     });
 
     // 获取 total_users 数字并展示
-    fetch("/usertotal")
+    fetch("/api/auth/visited/count")
       .then(res => res.json())
       .then(data => {
-        const count = data.total_users;
+        const count = data;
         document.getElementById("user-count").innerText = `已有 ${count} 位用户使用过我们的服务器`;
       })
       .catch(() => {
