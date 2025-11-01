@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "name_cn": "毛玻璃效果配置",
+    "owner_type": "loader",
+    "owner_id": "frosted",
+    "description_cn": "全局毛玻璃效果配置：模糊程度与阴影强度",
+    "version": "1.0"
+  },
+  "config": [
+    {"key":"blur_px","type":"string","name_cn":"模糊程度(px)","description_cn":"毛玻璃的模糊像素值","default":"10"},
+    {"key":"shadow_alpha","type":"string","name_cn":"阴影透明度","description_cn":"毛玻璃阴影透明度","default":"0.12"}
+  ]
+}

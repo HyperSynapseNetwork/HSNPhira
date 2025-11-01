@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["meta","config"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["name_cn","owner_type","owner_id","description_cn","version"],
+      "properties": {
+        "name_cn": {"type":"string"},
+        "owner_type": {"type":"string","enum":["plugin","page","loader"]},
+        "owner_id": {"type":"string"},
+        "description_cn": {"type":"string"},
+        "version": {"type":"string"}
+      }
+    },
+    "config": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key","type","name_cn","description_cn","default"],
+        "properties": {
+          "key": {"type":"string"},
+          "type": {"type":"string","enum":["string","enum"]},
+          "name_cn": {"type":"string"},
+          "description_cn": {"type":"string"},
+          "default": {},
+          "options": {
+            "type": "array",
+            "items": {"type": "object", "required": ["value","name_cn"], "properties": {"value": {}, "name_cn": {"type":"string"}}}
+          }
+        }
+      }
+    }
+  }
+}

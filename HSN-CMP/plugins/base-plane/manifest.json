@@ -1,0 +1,11 @@
+{
+  "id": "base-plane",
+  "priority": 0,
+  "name_cn": "基础面板",
+  "description_cn": "基础组件，HSN 综合管理面板的基础，为面板前端提供支持。",
+  "version": "beta 0.01",
+  "need_dashboard_page": false,
+  "page_name_cn": "",
+  "page_filename": "",
+  "port": 20001
+}

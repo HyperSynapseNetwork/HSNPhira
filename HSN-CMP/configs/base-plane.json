@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "name_cn": "基础面板配置",
+    "owner_type": "plugin",
+    "owner_id": "base-plane",
+    "description_cn": "base-plane 插件的运行与行为配置",
+    "version": "0.01"
+  },
+  "config": [
+  {"key": "user_system_url", "type": "string", "name_cn": "用户系统地址", "description_cn": "HSN 用户系统的基础 URL，若留空则使用内置 mock。", "default": "https://phira.htadiy.cc"},
+    {"key": "loader_url", "type": "string", "name_cn": "加载器 URL", "description_cn": "加载器的基础地址，用于调用加载器 API。", "default": "http://127.0.0.1:19999"},
+    {"key": "token_expiry_seconds", "type": "string", "name_cn": "Token 有效期（秒）", "description_cn": "面板 token 的默认有效期（秒）。", "default": "3600"},
+    {"key": "sse_interval_seconds", "type": "string", "name_cn": "SSE 推送间隔（秒）", "description_cn": "SSE 发送系统监控数据的时间间隔（秒）。", "default": "1"}
+  ]
+}

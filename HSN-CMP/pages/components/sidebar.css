@@ -1,0 +1,17 @@
+/* 侧边栏基础样式 */
+.hsn-sidebar {
+  width:72px;
+  transition: width 0.2s ease;
+  /* make the whole sidebar frosted */
+  position: relative;
+  z-index: 5;
+  padding: 12px 8px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(var(--frosted-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--frosted-blur, 8px));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+.hsn-sidebar.expanded { width:220px }
+.hsn-sidebar .item { margin:8px; padding:10px; border-radius:8px; cursor:pointer; background: transparent }

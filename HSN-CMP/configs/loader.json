@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "name_cn": "加载器配置",
+    "owner_type": "loader",
+    "owner_id": "loader",
+    "description_cn": "插件加载器的全局配置",
+    "version": "1.0"
+  },
+  "config": [
+    {"key": "api_port_range", "type": "string", "name_cn": "API 端口区间", "description_cn": "用于插件动态分配的端口区间，格式为 JSON 数组 [start,end]。", "default": "[20000,20050]"},
+    {"key": "loader_api_port", "type": "string", "name_cn": "加载器 API 端口", "description_cn": "加载器自身监听的 API 端口。", "default": "19999"},
+    {"key": "plugin_default_install_method", "type": "enum", "name_cn": "插件默认安装方式", "description_cn": "插件依赖的默认安装方式。", "options": [{"value":"pip","name_cn":"pip"},{"value":"none","name_cn":"不自动安装"}], "default": "pip"}
+    ,{"key": "auto_start_plugins", "type": "boolean", "name_cn": "启动时自动启动插件", "description_cn": "如果为 true，loader 启动时会按 priority 自动启动插件。", "default": true}
+  ]
+}

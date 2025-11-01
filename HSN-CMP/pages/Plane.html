@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>HSN 面板 - 主页</title>
+  <link rel="stylesheet" href="components/topbar.css">
+  <link rel="stylesheet" href="components/sidebar.css">
+  <link rel="stylesheet" href="components/frosted.css">
+   <link rel="stylesheet" href="components/background.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; height:100vh; display:flex }
+    .left { width:72px }
+    /* make main transparent so global background shows through */
+    .main { flex:1; padding:16px; background: transparent }
+    .cards { display:flex; gap:12px; flex-wrap:wrap }
+    .card { width:320px; min-height:180px; padding:12px; box-sizing: border-box }
+    .chart-container { width:100%; height:120px; }
+  </style>
+</head>
+<body>
+  <div class="hsn-background" id="hsn-bg"><div class="overlay"></div></div>
+  <div class="left hsn-sidebar" id="sidebar">
+    <div class="item frosted" id="home-item">主页</div>
+    <div id="pages-list"></div>
+  </div>
+  <div class="main">
+    <div class="hsn-topbar frosted" id="topbar">
+      <div class="left"><img id="hsn-icon" src="https://phira.htadiy.cc/logo.png" style="width: 112px;height:auto;border-radius:0"></div>
+      <div class="center" id="user-info">未登录</div>
+      <div class="right"><button id="logout" class="frosted-button">登出</button></div>
+    </div>
+
+    <h3>系统资源</h3>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <script>
+    // check token
+    const token = localStorage.getItem('hsn_token')
+    if(!token){ location.href='Login.html' }
+
+    document.getElementById('user-info').textContent = '已登录'
+
+    const cards = document.getElementById('cards')
+    const charts = {}
+    function humanBytes(b){
+      if(b < 1024) return b + ' B/s'
+      if(b < 1024*1024) return (b/1024).toFixed(1) + ' KB/s'
+      return (b/1024/1024).toFixed(2) + ' MB/s'
+    }
+    function addCard(id,title){
+      const d = document.createElement('div'); d.className='card frosted'; d.id = id;
+  d.innerHTML = '<strong>'+title+'</strong><div class="chart-container"><canvas></canvas></div><div class="value">等待数据...</div>';
+      cards.appendChild(d)
+      // determine type
+      const t = (''+title).toLowerCase()
+      const isPercent = t.includes('cpu') || t.includes('内存') || t.includes('磁')
+      const isBytes = t.includes('网') || t.includes('network')
+      // init empty chart (taller)
+  const canvas = d.querySelector('canvas')
+  // set explicit pixel size to avoid Chart.js making it expand unexpectedly
+  canvas.width = d.clientWidth || 320
+  canvas.height = 120
+  canvas.style.display = 'block'
+  canvas.style.width = '100%'
+  canvas.style.height = '120px'
+  const ctx = canvas.getContext('2d')
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: title, data: [], borderColor: 'rgba(75,192,192,1)', backgroundColor: 'rgba(75,192,192,0.12)', fill: true }] },
+        options: {
+          animation: false, responsive: true, maintainAspectRatio: false,
+          scales: {
+            x: { display: false },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(v){
+                  if(isPercent) return v + '%'
+                  if(isBytes) return v >= 1024 ? (v/1024).toFixed(1)+' KB/s' : v + ' B/s'
+                  return v
+                }
+              },
+              suggestedMax: isPercent ? 100 : undefined
+            }
+          }
+        }
+      })
+      charts[id] = { chart, isPercent, isBytes }
+    }
+
+    // load page config and frosted
+    async function init(){
+      try{
+        const cfg = await fetch('http://127.0.0.1:19999/api/loader/config/pages/Plane.json').then(r=>r.json())
+        const fro = await fetch('http://127.0.0.1:19999/api/loader/config/frosted.json').then(r=>r.json())
+        const titles = JSON.parse(cfg.config.find(i=>i.key==='home_card_titles').default)
+        titles.forEach((t, idx)=> addCard('card'+idx,t))
+        // apply page-local background_image if configured (kept for backward compatibility)
+        const bg = cfg.config.find(i=>i.key==='background_image')?.default || ''
+        if(bg && bg.trim()!==''){
+          document.body.style.backgroundImage = `url(${bg})`
+          document.body.style.backgroundSize = 'cover'
+          document.body.style.backgroundRepeat = 'no-repeat'
+          document.body.style.backgroundPosition = 'center center'
+        }
+        const blur = fro.config.find(i=>i.key==='blur_px')?.default || '10'
+        document.documentElement.style.setProperty('--frosted-blur', blur + 'px')
+        // preferred: apply global background component from configs/background.json
+        try{
+          const bgcfg = await fetch('http://127.0.0.1:19999/api/loader/config/background.json').then(r=>r.json())
+          const url = bgcfg.config.find(i=>i.key==='background_image_url')?.default || ''
+          const overlay = bgcfg.config.find(i=>i.key==='background_overlay_color')?.default || 'rgba(0,0,0,0.12)'
+          if(url && url.trim()!==''){
+            const bgEl = document.getElementById('hsn-bg')
+            if(bgEl){ bgEl.style.backgroundImage = `url(${url})`; bgEl.style.backgroundSize = 'cover'; bgEl.style.backgroundPosition = 'center center'; }
+            const ov = document.querySelector('#hsn-bg .overlay')
+            if(ov) ov.style.background = overlay
+          }
+        }catch(err){ console.debug('no global background config', err) }
+
+        // build sidebar pages via loader plugin list
+        const plist = await fetch('http://127.0.0.1:19999/api/loader/plugins').then(r=>r.json())
+        const pagesList = document.getElementById('pages-list')
+        for(const p of plist.plugins){
+          if(p.id==='base-plane') continue
+          const item = document.createElement('div')
+          item.className = 'item frosted'
+          item.textContent = p.name_cn
+          item.onclick = ()=>{ window.open('/pages/'+(p.page_info?.page_filename||''), '_self') }
+          pagesList.appendChild(item)
+        }
+
+        // find base-plane port and connect SSE
+        const bp = plist.plugins.find(x=>x.id==='base-plane')
+        if(bp && bp.port){
+          const evt = new EventSource('http://127.0.0.1:'+bp.port+'/api/sse/stats')
+          // server emits event: stats, so listen specifically
+          let prevNet = null
+          let prevTime = null
+          evt.addEventListener('stats', function(e){
+            try{
+              const payload = JSON.parse(e.data)
+              // update basic texts
+              const cpu = payload.cpu_percent || 0
+              const mem = payload.memory?.percent || 0
+              if(document.querySelector('#card0 .value')) document.querySelector('#card0 .value').textContent = cpu + '%'
+              if(document.querySelector('#card1 .value')) document.querySelector('#card1 .value').textContent = mem + '%'
+              // push to charts
+              const push = (id, val)=>{
+                const entry = charts[id]
+                if(!entry) return
+                const c = entry.chart
+                c.data.labels.push('')
+                c.data.datasets[0].data.push(Math.round(val*100)/100)
+                if(c.data.labels.length>20){ c.data.labels.shift(); c.data.datasets[0].data.shift() }
+                c.update()
+              }
+              push('card0', cpu)
+              push('card1', mem)
+              // disk - use first partition percent
+              const diskPct = (payload.disks && payload.disks.length>0) ? (payload.disks[0].percent||0) : 0
+              if(document.querySelector('#card2 .value')) document.querySelector('#card2 .value').textContent = diskPct + '%'
+              push('card2', diskPct)
+              // network - compute rate from cumulative counters
+              const now = Date.now()/1000
+              const net = payload.net || {bytes_sent:0, bytes_recv:0}
+              if(prevNet && prevTime){
+                const dt = Math.max(0.001, now - prevTime)
+                const sentRate = (net.bytes_sent - prevNet.bytes_sent)/dt
+                const recvRate = (net.bytes_recv - prevNet.bytes_recv)/dt
+                // display sent rate in human form
+                if(document.querySelector('#card3 .value')) document.querySelector('#card3 .value').textContent = humanBytes(Math.max(0, sentRate))
+                // push KB/s numeric for chart
+                push('card3', Math.round(sentRate/1024*100)/100)
+              }
+              prevNet = net
+              prevTime = now
+            }catch(err){ console.error(err) }
+          })
+          // fallback for simple 'message' events
+          evt.onmessage = function(e){ try{ const payload = JSON.parse(e.data); /* simple fallback could reuse above logic */ }catch(e){} }
+        }
+      }catch(e){ console.warn('init error', e) }
+    }
+
+    init()
+
+    // sidebar expand on hover
+    const sidebar = document.getElementById('sidebar')
+    sidebar.addEventListener('mouseenter', ()=> sidebar.classList.add('expanded'))
+    sidebar.addEventListener('mouseleave', ()=> sidebar.classList.remove('expanded'))
+
+    // topbar resize on scroll
+    const topbar = document.getElementById('topbar')
+    let lastScroll = 0
+    window.addEventListener('scroll', ()=>{
+      const s = window.scrollY
+      if(s>lastScroll) topbar.style.height='40px' // shrink
+      else topbar.style.height='56px' // expand
+      lastScroll = s
+    })
+
+    document.getElementById('logout').addEventListener('click', ()=>{ localStorage.removeItem('hsn_token'); location.href='Login.html' })
+  </script>
+</body>
+</html>

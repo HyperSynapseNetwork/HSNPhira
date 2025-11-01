@@ -1,0 +1,13 @@
+/* 基础顶栏样式 */
+.hsn-topbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 16px;
+  height:56px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+}
+.hsn-topbar .center { flex: 1; text-align:center; font-weight:600 }
+.hsn-topbar .left { display:flex; gap:8px; align-items:center }
+.hsn-topbar .right { display:flex; gap:8px; align-items:center }

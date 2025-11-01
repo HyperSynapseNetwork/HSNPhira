@@ -1,0 +1,5 @@
+fastapi>=0.95.0
+uvicorn[standard]>=0.18.0
+httpx>=0.23.0
+pydantic>=1.10.0
+jsonschema>=4.0.0

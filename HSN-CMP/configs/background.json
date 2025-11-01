@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "name_cn": "全局背景配置",
+    "owner_type": "global",
+    "owner_id": "background",
+    "description_cn": "统一管理站点背景图的配置，供所有页面引用",
+    "version": "1.0"
+  },
+  "config": [
+    {"key": "background_image_url", "type": "string", "name_cn": "背景图片 URL", "description_cn": "统一站点背景图片 URL，留空表示不使用全局背景。", "default": "https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg"},
+    {"key": "background_overlay_color", "type": "string", "name_cn": "背景覆盖色", "description_cn": "背景上叠加的遮罩颜色（RGBA）。", "default": "rgba(0,0,0,0.12)"}
+  ]
+}

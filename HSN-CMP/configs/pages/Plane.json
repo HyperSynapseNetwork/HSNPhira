@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "name_cn": "主页配置",
+    "owner_type": "page",
+    "owner_id": "Plane.html",
+    "description_cn": "主页默认布局与文本配置",
+    "version": "1.0"
+  },
+  "config": [
+    {"key":"home_card_titles","type":"string","name_cn":"卡片标题","description_cn":"首页卡片的标题列表（JSON 数组字符串）","default":"[\"CPU\",\"内存\",\"磁盘\",\"网络\"]"},
+    {"key":"background_image","type":"string","name_cn":"背景图片","description_cn":"主页背景图片 URL","https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg":""}
+  ]
+}

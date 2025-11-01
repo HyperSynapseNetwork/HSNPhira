@@ -1,0 +1,17 @@
+C:\Users\HSNPhira\Desktop\HSNMM\loader.py:229: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @APP.on_event("startup")
+Starting loader API on 127.0.0.1:19999
+INFO:     Started server process [14660]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:19999 (Press CTRL+C to quit)
+INFO:     127.0.0.1:12187 - "GET /api/loader/config/pages/Login.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:12187 - "GET /api/loader/config/frosted.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1229 - "GET /api/loader/plugins HTTP/1.1" 200 OK
+INFO:     127.0.0.1:9882 - "POST /api/loader/scan?start=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:9882 - "GET /api/loader/plugins HTTP/1.1" 200 OK

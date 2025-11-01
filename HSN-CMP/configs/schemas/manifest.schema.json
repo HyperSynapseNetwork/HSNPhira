@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id","priority","name_cn","description_cn","version","need_dashboard_page","port"],
+  "properties": {
+    "id": {"type":"string"},
+    "priority": {"type":"integer","minimum":0,"maximum":9},
+    "name_cn": {"type":"string"},
+    "description_cn": {"type":"string"},
+    "version": {"type":"string"},
+    "need_dashboard_page": {"type":"boolean"},
+    "page_name_cn": {"type":"string"},
+    "page_filename": {"type":"string"},
+    "port": {"oneOf":[{"type":"integer"},{"type":"null"}]}
+  }
+}

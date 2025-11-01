@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "name_cn": "登录页面配置",
+    "owner_type": "page",
+    "owner_id": "Login.html",
+    "description_cn": "登录页面文本与样式配置",
+    "version": "1.0"
+  },
+  "config": [
+    {"key":"title","type":"string","name_cn":"标题","description_cn":"登录页面标题文本","default":"登录 HSN 面板"},
+    {"key":"gradient_colors","type":"string","name_cn":"背景渐变颜色","description_cn":"登录页面对角线渐变使用的颜色数组（JSON 字符串）。","default":"[\"#ee7752\",\"#e73c7e\",\"#23a6d5\",\"#23d5ab\"]"},
+    {"key":"gradient_duration_seconds","type":"string","name_cn":"渐变持续时间(秒)","description_cn":"动画从 0% 到 100% 所需秒数","default":"15"},
+    {"key":"show_icon","type":"enum","name_cn":"显示图标","description_cn":"是否在登录卡片显示 HSN 图标","options":[{"value":"yes","name_cn":"是"},{"value":"no","name_cn":"否"}],"default":"yes"}
+  ]
+}

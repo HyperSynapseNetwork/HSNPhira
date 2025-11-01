@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>HSN 面板 - 登录</title>
+  <link rel="stylesheet" href="components/frosted.css">
+  <link rel="stylesheet" href="components/background.css">
+  <style>
+    body { font-family: Arial, sans-serif; height:100vh; margin:0; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg,#87CEEB,#B0E0E6); }
+    .login-card { width:360px; padding:24px; }
+    .login-card h2 { margin:0 0 16px 0 }
+    input { width:100%; padding:8px; margin-bottom:12px; border-radius:6px; border:1px solid rgba(0,0,0,0.1) }
+    button { padding:8px 12px; border-radius:6px; width:100%; }
+  </style>
+</head>
+<body>
+  <div class="hsn-background" id="hsn-bg"><div class="overlay"></div></div>
+  <div class="login-card frosted-card" style="width:380px;">
+    <div class="card-inner" style="padding:20px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-height:380px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;width:100%">
+        <h2 id="title" style="margin:0;">登录 HSN 面板</h2>
+      </div>
+      <label style="width:100%;font-size:14px">账号</label>
+      <input id="username" class="frosted-input" placeholder="账号">
+      <label style="width:100%;font-size:14px">密码</label>
+      <input id="password" type="password" class="frosted-input" placeholder="密码">
+      <button id="login" class="frosted-button primary">登录</button>
+      <div style="width:100%;display:flex;justify-content:center;align-items:center;margin-top:6px">
+        <img id="hsn-logo-bottom" src="https://phira.htadiy.cc/logo.png" alt="HSN" style="width:160px;height:auto;border-radius:0">
+      </div>
+      <div id="msg" style="margin-top:6px;color:#f33;width:100%"></div>
+    </div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById('login')
+
+    // load page config and frosted config via loader
+    async function loadConfigs(){
+      try{
+        const cfg = await fetch('http://127.0.0.1:19999/api/loader/config/pages/Login.json').then(r=>r.json())
+        const fro = await fetch('http://127.0.0.1:19999/api/loader/config/frosted.json').then(r=>r.json())
+        // apply login title and show icon option
+        const titleItem = cfg.config.find(i=>i.key==='title')
+        if(titleItem) document.getElementById('title').textContent = titleItem.default
+        const showIcon = cfg.config.find(i=>i.key==='show_icon')?.default || 'yes'
+        if(showIcon==='yes'){
+          document.getElementById('hsn-icon-top').style.display = 'block'
+        }
+            // apply frosted blur
+            const blur = fro.config.find(i=>i.key==='blur_px')?.default || '10'
+            document.documentElement.style.setProperty('--frosted-blur', blur + 'px')
+
+            // apply background gradient from config (gradient_colors: JSON string array)
+            try{
+              const gradItem = cfg.config.find(i=>i.key==='gradient_colors')
+              const durItem = cfg.config.find(i=>i.key==='gradient_duration_seconds')
+              if(gradItem && gradItem.default){
+                let cols = []
+                try{ cols = JSON.parse(gradItem.default) }catch(e){ cols = [gradItem.default] }
+                const duration = (durItem && durItem.default) ? Number(durItem.default) : 15
+                const css = `body { background: linear-gradient(-45deg, ${cols.join(', ')}); background-size: 400% 400%; animation: gradient ${duration}s ease infinite; } @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }`
+                let s = document.getElementById('bg-dynamic')
+                if(!s){ s = document.createElement('style'); s.id = 'bg-dynamic'; document.head.appendChild(s) }
+                s.textContent = css
+              }
+            }catch(e){ console.warn('apply bg gradient failed', e) }
+            // apply global background component if available
+            try{
+              const bgcfg = await fetch('http://127.0.0.1:19999/api/loader/config/background.json').then(r=>r.json())
+              const url = bgcfg.config.find(i=>i.key==='background_image_url')?.default || ''
+              const overlay = bgcfg.config.find(i=>i.key==='background_overlay_color')?.default || 'rgba(0,0,0,0.12)'
+              if(url && url.trim()!==''){
+                const bgEl = document.getElementById('hsn-bg')
+                if(bgEl){ bgEl.style.backgroundImage = `url(${url})`; bgEl.style.backgroundSize = 'cover'; bgEl.style.backgroundPosition = 'center center' }
+                const ov = bgEl.querySelector('.overlay')
+                if(ov) ov.style.background = overlay
+              }
+            }catch(err){ console.debug('no global background config for login', err) }
+      }catch(e){ console.warn('failed to load configs', e) }
+    }
+
+    loadConfigs()
+
+    loginBtn.addEventListener('click', async ()=>{
+      const u = document.getElementById('username').value
+      const p = document.getElementById('password').value
+      try{
+        // discover base-plane port via loader
+        const plist = await fetch('http://127.0.0.1:19999/api/loader/plugins').then(r=>r.json())
+        const bp = plist.plugins.find(x=>x.id==='base-plane')
+        if(!bp) throw new Error('base-plane not found')
+        const baseUrl = 'http://127.0.0.1:' + bp.port
+        const res = await fetch(baseUrl + '/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p,remember:false})})
+        if(!res.ok){ const txt = await res.text(); throw new Error('登录失败: '+txt) }
+        const data = await res.json()
+        localStorage.setItem('hsn_token', data.token)
+        location.href = 'Plane.html'
+      }catch(e){ document.getElementById('msg').textContent = e.message }
+    })
+  </script>
+</body>
+</html>
