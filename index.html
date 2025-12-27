@@ -1,203 +1,395 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="description" content="HyperSynapse Network 提供免费、稳定、低延迟的 Phira 多人音乐游戏服务器" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HyperSynapse Network免费Phira多人游戏服务器</title>
+    <meta charset="UTF-8" />
+    <meta name="description" content="HyperSynapse Network 提供免费、稳定、低延迟的 Phira 多人音乐游戏服务器" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HyperSynapse Network免费Phira多人游戏服务器</title>
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+    <style>
+         *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
 
-    html, body {
-      width:100%;
-      height:100%;
-      font-family: 'Alibaba PuHuiTi', 'Segoe UI', sans-serif;
-      background: #000;
-      color:#eee;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-    }
+         html, body {
+              width:100%;
+              height:100%;
+              font-family: 'Alibaba PuHuiTi', 'Segoe UI', sans-serif;
+              background: #000;
+              color:#eee;
+              overflow-x: hidden;
+              scroll-behavior: smooth;
+         }
 
-    body {
-      position: relative;
-      font-size: 12px;
-    }
+         body {
+              position: relative;
+              font-size: 12px;
+         }
 
-    .parallax-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-image: url('https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      z-index: 0;
-    }
+         .parallax-bg {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              background-image: url('https://webstatic.cn-nb1.rains3.com/5712%C3%973360.jpeg');
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+              z-index: 0;
+         }
 
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 2rem;
-      backdrop-filter: blur(12px);
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 1000;
-    }
+         header {
+              position: fixed;
+              top: 0;
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 2rem;
+              backdrop-filter: blur(12px);
+              background: rgba(0, 0, 0, 0.4);
+              z-index: 1000;
+         }
 
-    header img {
-      height: 32px;
-    }
+         header img {
+              height: 32px;
+         }
 
-    .nav-links a {
-      color: #eee;
-      margin-left: 1rem;
-      text-decoration: none;
-      transition: 0.3s;
-      font-size: 0.9rem;
-    }
+         .nav-links a {
+              color: #eee;
+              margin-left: 1rem;
+              text-decoration: none;
+              transition: 0.3s;
+              font-size: 0.9rem;
+         }
 
-    .nav-links a:hover {
-      color: #fff;
-      text-shadow: 0 0 4px #fff;
-    }
+         .nav-links a:hover {
+              color: #fff;
+              text-shadow: 0 0 4px #fff;
+         }
 
-    section {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      opacity: 0;
-      transform: translateY(40px);
-      transition: all 1s ease-out;
-    }
+         section {
+              height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-direction: column;
+              opacity: 0;
+              transform: translateY(40px);
+              transition: all 1s ease-out;
+         }
 
-    section.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+         section.visible {
+              opacity: 1;
+              transform: translateY(0);
+         }
 
-    .hero-content {
-      z-index: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      padding-left: 10%;
-      width: 100%;
-    }
+         .hero-content {
+              z-index: 1;
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: center;
+              padding-left: 10%;
+              width: 100%;
+         }
 
-    .hero-content h1 {
-      font-size: 1.5rem;
-      color: #fff;
-      animation: fadeInLeft 1s ease-out forwards;
-    }
+         .hero-content h1 {
+              font-size: 1.5rem;
+              color: #fff;
+              animation: fadeInLeft 1s ease-out forwards;
+         }
 
-    .tagline {
-      margin-top: 0.5rem;
-      font-size: 0.75rem;
-      color: #fff; /* 修改为白色 */
-      animation: fadeInLeft 1.5s ease-out forwards;
-    }
+         .tagline {
+              margin-top: 0.5rem;
+              font-size: 0.75rem;
+              color: #fff;
+              animation: fadeInLeft 1.5s ease-out forwards;
+         }
 
-    .user-count {
-      margin-top: 0.3rem;
-      font-size: 0.7rem;
-      color: #fff; /* 修改为白色 */
-      animation: fadeInLeft 2s ease-out forwards;
-    }
+         .user-count {
+              margin-top: 0.3rem;
+              font-size: 0.7rem;
+              color: #fff;
+              animation: fadeInLeft 2s ease-out forwards;
+         }
 
-    .qq-section h2 {
-      font-size: 1.5rem;
-      color: #fff;
-      margin-bottom: 1rem;
-    }
+         .qq-section {
+              text-align: center;
+              z-index: 1;
+              padding: 0 20px;
+         }
 
-    .qq-section button {
-      margin-top: 1rem;
-      padding: 0.5rem 1.2rem;
-      font-size: 1rem;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 999px;
-      backdrop-filter: blur(8px);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+         .qq-section h2 {
+              font-size: 1.5rem;
+              color: #fff;
+              margin-bottom: 1.5rem;
+         }
 
-    .qq-section button:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: scale(1.05);
-    }
+         .info-box {
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              border-radius: 12px;
+              padding: 1.5rem;
+              margin-bottom: 1.5rem;
+              max-width: 500px;
+              width: 100%;
+              backdrop-filter: blur(8px);
+         }
 
-    @keyframes fadeInLeft {
-      from { opacity: 0; transform: translateX(-40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-  </style>
+         .info-item {
+              margin-bottom: 1rem;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.8rem;
+              background: rgba(0, 0, 0, 0.3);
+              border-radius: 8px;
+              transition: all 0.3s ease;
+         }
+
+         .info-item:hover {
+              background: rgba(0, 0, 0, 0.4);
+              transform: translateY(-2px);
+         }
+
+         .info-label {
+              font-weight: bold;
+              color: #aaa;
+              font-size: 0.9rem;
+         }
+
+         .info-value {
+              font-size: 1.1rem;
+              color: #fff;
+              font-weight: 500;
+         }
+
+         .buttons {
+              display: flex;
+              gap: 1rem;
+              justify-content: center;
+              width: 100%;
+              max-width: 500px;
+         }
+
+         .qq-section button {
+              flex: 1;
+              padding: 0.8rem;
+              font-size: 1rem;
+              color: #fff;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              border-radius: 999px;
+              backdrop-filter: blur(8px);
+              cursor: pointer;
+              transition: all 0.3s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.5rem;
+         }
+
+         .qq-section button.primary {
+              background: rgba(0, 119, 255, 0.25);
+              border-color: rgba(0, 119, 255, 0.5);
+         }
+
+         .qq-section button:hover {
+              background: rgba(255, 255, 255, 0.1);
+              transform: scale(1.05);
+         }
+
+         .qq-section button.primary:hover {
+              background: rgba(0, 119, 255, 0.35);
+         }
+
+         .toast {
+              position: fixed;
+              bottom: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: rgba(0, 0, 0, 0.7);
+              color: white;
+              padding: 0.8rem 1.5rem;
+              border-radius: 30px;
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              opacity: 0;
+              transition: opacity 0.3s;
+              z-index: 2000;
+              font-size: 0.9rem;
+         }
+
+         .toast.show {
+              opacity: 1;
+         }
+
+         @keyframes fadeInLeft {
+              from { opacity: 0; transform: translateX(-40px); }
+              to { opacity: 1; transform: translateX(0); }
+         }
+
+         @media (max-width: 600px) {
+              .buttons {
+                   flex-direction: column;
+              }
+              
+              .info-box {
+                   padding: 1rem;
+              }
+              
+              .qq-section h2 {
+                   font-size: 1.3rem;
+              }
+         }
+    </style>
 </head>
 <body>
-  <div class="parallax-bg"></div>
+    <div class="parallax-bg"></div>
+    <div class="toast" id="toast">操作成功！</div>
 
-  <header>
-    <img src="logo.png" alt="logo" />
-    <div class="nav-links">
-        <a href="index.html">主页</a>
-        <a href="rooms.html">房间列表</a>
-        <a href="account.html">账号管理</a>
-        <a href="ranks.html">排行榜</a>
-        <a href="top.html" class="active">热门谱面</a>
-    </div>
-  </header>
+    <header>
+         <img src="logo.png" alt="logo" />
+         <div class="nav-links">
+                   <a href="index.html">主页</a>
+                   <a href="rooms.html">房间列表</a>
+                   <a href="account.html">账号管理</a>
+                   <a href="ranks.html">排行榜</a>
+                   <a href="top.html" class="active">热门谱面</a>
+         </div>
+    </header>
 
-  <section class="hero hero-content">
-    <h1>HyperSynapse Network Phira多人游戏服务器</h1>
-    <p class="tagline">免费 · 稳定 · 低延迟</p>
-    <p class="user-count" id="user-count">加载中...</p>
-  </section>
+    <section class="hero hero-content">
+         <h1>HyperSynapse Network Phira多人游戏服务器</h1>
+         <p class="tagline">免费 · 稳定 · 低延迟</p>
+         <p class="user-count" id="user-count">加载中...</p>
+    </section>
 
-  <section class="qq-section">
-    <h2>加入我们的 QQ 群（群主是猫娘ヽ(≧Д≦)ノ））获取服务器地址</h2>
-    <p>QQ群号：1049578201</p>
-    <button onclick="copyQQ()">点击复制</button>
-  </section>
+    <section class="qq-section">
+         <h2>加入我们的 QQ 群（群主是猫娘🤔）</h2>
+         
+         <div class="info-box">
+              <div class="info-item">
+                   <span class="info-label">QQ群号</span>
+                   <span class="info-value">1049578201</span>
+              </div>
+              <div class="info-item">
+                   <span class="info-label">服务器地址</span>
+                   <span class="info-value">service.htadiy.cc:7865</span>
+              </div>
+         </div>
+         
+         <div class="buttons">
+              <button class="primary" onclick="copyQQ()">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 0C3.588 0 0 3.588 0 8s3.588 8 8 8 8-3.588 8-8-3.588-8-8-8zm.5 12h-1v-1h1v1zm0-2h-1V5h1v5z"/>
+                   </svg>
+                   复制QQ群号
+              </button>
+              <button onclick="copyServerAddress()">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                   </svg>
+                   复制服务器地址
+              </button>
+         </div>
+    </section>
 
-  <script>
-    function copyQQ() {
-      navigator.clipboard.writeText('1049578201')
-        .then(() => alert('QQ群号已复制！'));
-    }
+    <script>
+         // 复制QQ群号功能
+         function copyQQ() {
+              // 使用现代Clipboard API [6,7](@ref)
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                   navigator.clipboard.writeText('1049578201')
+                        .then(() => showToast('QQ群号已复制！'))
+                        .catch(() => {
+                             // 如果现代API失败，回退到传统方法 [1,4](@ref)
+                             fallbackCopyText('1049578201', 'QQ群号');
+                        });
+              } else {
+                   // 使用传统的execCommand方法作为备选方案 [1,2](@ref)
+                   fallbackCopyText('1049578201', 'QQ群号');
+              }
+         }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.3 });
+         // 复制服务器地址功能
+         function copyServerAddress() {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                   navigator.clipboard.writeText('service.htadiy.cc:7865')
+                        .then(() => showToast('服务器地址已复制！'))
+                        .catch(() => {
+                             fallbackCopyText('service.htadiy.cc:7865', '服务器地址');
+                        });
+              } else {
+                   fallbackCopyText('service.htadiy.cc:7865', '服务器地址');
+              }
+         }
 
-    document.querySelectorAll('section').forEach(section => {
-      observer.observe(section);
-    });
+         // 传统复制方法作为备选 [1,4,6](@ref)
+         function fallbackCopyText(text, type) {
+              // 创建临时的textarea元素 [4,7](@ref)
+              const textArea = document.createElement('textarea');
+              textArea.value = text;
+              textArea.style.position = 'fixed';
+              textArea.style.top = '0';
+              textArea.style.left = '0';
+              textArea.style.opacity = '0';
+              
+              document.body.appendChild(textArea);
+              textArea.focus();
+              textArea.select();
+              
+              try {
+                   // 执行复制命令 [1,6](@ref)
+                   const successful = document.execCommand('copy');
+                   document.body.removeChild(textArea);
+                   if (successful) {
+                        showToast(`${type}已复制！`);
+                   } else {
+                        showToast(`复制失败，请手动选择并复制`);
+                   }
+              } catch (err) {
+                   document.body.removeChild(textArea);
+                   showToast(`复制失败，请手动选择并复制`);
+              }
+         }
 
-    // 获取 total_users 数字并展示
-    fetch("/api/auth/visited/count")
-      .then(res => res.json())
-      .then(data => {
-        const count = data;
-        document.getElementById("user-count").innerText = `已有 ${count} 位用户使用过我们的服务器`;
-      })
-      .catch(() => {
-        document.getElementById("user-count").innerText = "无法加载用户数据";
-      });
-  </script>
+         // 显示操作提示
+         function showToast(message) {
+              const toast = document.getElementById('toast');
+              toast.textContent = message;
+              toast.classList.add('show');
+              
+              setTimeout(() => {
+                   toast.classList.remove('show');
+              }, 3000);
+         }
+
+         // 页面滚动动画
+         const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                   if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                   }
+              });
+         }, { threshold: 0.3 });
+
+         document.querySelectorAll('section').forEach(section => {
+              observer.observe(section);
+         });
+
+         // 获取用户数量
+         fetch("/api/auth/visited/count")
+              .then(res => res.json())
+              .then(data => {
+                   const count = data;
+                   document.getElementById("user-count").innerText = `已有 ${count} 位用户使用过我们的服务器`;
+              })
+              .catch(() => {
+                   document.getElementById("user-count").innerText = "无法加载用户数据";
+              });
+    </script>
 </body>
 </html>
