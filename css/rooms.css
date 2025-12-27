@@ -1,0 +1,7 @@
+    #table-tilt-overlay {
+      position: fixed;
+      pointer-events: auto;
+      background: transparent;
+      z-index: 1002;
+      cursor: default;
+    }

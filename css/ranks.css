@@ -1,0 +1,77 @@
+         /* 倾斜触发 overlay（动态创建） */
+         #table-tilt-overlay {
+              position: fixed;
+              pointer-events: auto;
+              background: transparent;
+              z-index: 1002; /* 保证覆盖在主要内容之上以接收鼠标事件 */
+              cursor: default;
+         }
+         .pagination {
+              display: flex;
+              justify-content: center;
+              margin-top: 20px;
+              gap: 10px;
+         }
+         .pagination button {
+              padding: 8px 16px;
+              background: rgba(255, 255, 255, 0.1);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              color: #fff;
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+         }
+         .pagination button:hover:not(:disabled) {
+              background: rgba(255, 255, 255, 0.2);
+         }
+         .pagination button:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+         }
+         .pagination span {
+              padding: 8px 16px;
+              color: #fff;
+         }
+         /* 搜索框样式 */
+         .search-container {
+              width: 95%;
+              max-width: 800px;
+              margin-bottom: 1rem;
+         }
+         .search-box {
+              background: rgba(255, 255, 255, 0.05);
+              backdrop-filter: blur(8px);
+              border-radius: 12px;
+              padding: 0.8rem 1rem;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              display: flex;
+              align-items: center;
+              transition: all 0.3s ease;
+         }
+         .search-box:focus-within {
+              background: rgba(255, 255, 255, 0.08);
+              border: 1px solid #61E8EA;
+              box-shadow: 0 0 15px rgba(97, 232, 234, 0.2);
+         }
+         .search-box input {
+              flex: 1;
+              background: transparent;
+              border: none;
+              color: #fff;
+              font-size: 1rem;
+              outline: none;
+              padding: 0.5rem;
+         }
+         .search-box input::placeholder {
+              color: rgba(255, 255, 255, 0.6);
+         }
+         .search-icon {
+              color: rgba(255, 255, 255, 0.6);
+              margin-right: 0.5rem;
+         }
+         .search-hint {
+              font-size: 0.8rem;
+              color: rgba(255, 255, 255, 0.6);
+              margin-top: 0.5rem;
+              text-align: center;
+         }
