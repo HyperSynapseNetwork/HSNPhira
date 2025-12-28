@@ -20,7 +20,10 @@
   <div id="header"></div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    $('#header').load('./component/header.html');
+    $('#header').load('./component/header.html', function() {
+      const loader = document.getElementById('page-loader');
+      if (loader) loader.style.pointerEvents = 'none';
+    });
   </script>
   
   <main id="main-content" style="opacity:0;transition:opacity 0.6s;">

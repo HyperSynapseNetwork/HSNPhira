@@ -303,7 +303,17 @@
         mainContent.style.opacity = 1;
       }
       if (loader) {
-        setTimeout(() => loader.classList.add('hide'), 120);
+        setTimeout(() => {
+          loader.classList.add('hide');
+          // 确保在淡出时不再阻挡指针事件
+          loader.style.pointerEvents = 'none';
+          // 在过渡结束后彻底移除（display:none）以避免长期覆盖其它元素
+          const onTransitionEnd = () => {
+            loader.style.display = 'none';
+            loader.removeEventListener('transitionend', onTransitionEnd);
+          };
+          loader.addEventListener('transitionend', onTransitionEnd);
+        }, 120);
       }
     }
 
