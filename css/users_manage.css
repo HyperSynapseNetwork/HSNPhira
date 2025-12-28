@@ -31,14 +31,6 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       margin: 1rem;
     }
-
-    @keyframes gentleSway {
-      0%, 100% { transform: translateZ(20px) rotateX(0.5deg) rotateY(0.5deg); }
-      25% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(-1deg); }
-      50% { transform: translateZ(20px) rotateX(0.5deg) rotateY(1deg); }
-      75% { transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg); }
-    }
-
     .account-container.tilting {
       animation: none;
       transition: transform 0.1s linear;
@@ -259,20 +251,6 @@
         padding: 0.5rem 1rem;
         flex-wrap: wrap;
       }
-      .logo-nav-container {
-        flex: 0 0 100%;
-        margin-bottom: 0.5rem;
-      }
-      .user-section {
-        flex: 0 0 100%;
-        justify-content: flex-end;
-      }
-      .nav-links a {
-        margin-right: 1rem;
-      }
-      .username {
-        max-width: 80px;
-      }
       .account-header {
         flex-direction: column;
         text-align: center;
@@ -289,7 +267,6 @@
         justify-content: center;
       }
     }
-    /* 添加管理员页面特有样式 */
     .admin-container {
       transform-style: preserve-3d;
       transform: translateZ(20px);

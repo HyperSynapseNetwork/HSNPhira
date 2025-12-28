@@ -90,7 +90,7 @@
       align-items: center;
       padding: 0.5rem 1.5rem;
       backdrop-filter: blur(12px);
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.1);
       z-index: 1000;
       box-sizing: border-box;
     }
@@ -460,38 +460,18 @@
         flex-direction: column;
         align-items: flex-start;
         }
+        th, td {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+        }
+        table {
+        display: block;
+        overflow-x: auto;
+        }
+        .search-container {
+        width: 90%;
+        }
     }
-     @media (max-width: 768px) {
-          header {
-           padding: 0.5rem 1rem;
-           flex-wrap: wrap;
-          }
-          .logo-nav-container {
-           flex: 0 0 100%;
-           margin-bottom: 0.5rem;
-          }
-          .user-section {
-           flex: 0 0 100%;
-           justify-content: flex-end;
-          }
-          .nav-links a {
-           margin-right: 1rem;
-          }
-          .username {
-           max-width: 80px;
-          }
-          th, td {
-           padding: 0.6rem 0.8rem;
-           font-size: 0.8rem;
-          }
-          table {
-           display: block;
-           overflow-x: auto;
-          }
-          .search-container {
-           width: 90%;
-          }
-     }
     #auth-modal input {
       box-sizing: border-box;
       display: block;

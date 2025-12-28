@@ -20,34 +20,11 @@
     </div>
   </div>
   <div class="parallax-bg"></div>
-  <header>
-    <div class="logo-nav-container">
-      <img id="logo-img" src="logo.png" alt="logo" />
-      <div class="nav-links">
-        <a href="index.html">主页</a>
-        <a href="rooms.html">房间列表</a>
-        <a href="account.html">账号管理</a>
-        <a href="admin.html" style="color: #61E8EA;">管理员控制台</a>
-        <a href="ranks.html">排行榜</a>
-        <a href="top.html" class="active">热门谱面</a>
-      </div>
-    </div>
-    
-    <div class="user-section">
-      <div id="avatar-container" class="glass-button">
-        <div class="user-info" onclick="toggleDropdown()">
-          <span class="username" id="username-display"></span>
-          <img id="user-avatar" src="" alt="用户头像" class="user-avatar" />
-        </div>
-        <div class="dropdown-content" id="user-dropdown">
-          <span id="dropdown-username"></span>
-          <a id="phira-profile-link" target="_blank">我的Phira账户</a>
-          <a href="account.html">账号管理</a>
-          <a href="javascript:void(0)" onclick="logout()">退出登录</a>
-        </div>
-      </div>
-    </div>
-  </header>
+  <div id="header"></div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $('#header').load('header.html');
+  </script>
   
   <main>
     <div class="admin-container">

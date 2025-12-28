@@ -22,7 +22,6 @@
       box-shadow: 0 12px 48px rgba(0,0,0,0.4);
       transition: transform 0.3s ease;
     }
-    /* 自定义复选框的视觉勾选标记 */
     .glass-checkbox.checked::after {
       content: '';
       position: absolute;
@@ -39,7 +38,6 @@
       box-shadow: 0 0 6px rgba(255,255,255,0.08);
       pointer-events: none;
     }
-    /* 修正毛玻璃卡片默认偏转方向为右上（rotateX(-) rotateY(+)） */
     .account-container {
       transform: translateZ(20px) rotateX(-0.5deg) rotateY(0.5deg);
       animation: gentleSway 8s infinite ease-in-out;
@@ -287,24 +285,6 @@
       flex-wrap: wrap;
     }
     @media (max-width: 768px) {
-      header {
-        padding: 0.5rem 1rem;
-        flex-wrap: wrap;
-      }
-      .logo-nav-container {
-        flex: 0 0 100%;
-        margin-bottom: 0.5rem;
-      }
-      .user-section {
-        flex: 0 0 100%;
-        justify-content: flex-end;
-      }
-      .nav-links a {
-        margin-right: 1rem;
-      }
-      .username {
-        max-width: 80px;
-      }
       .account-header {
         flex-direction: column;
         text-align: center;
