@@ -299,14 +299,10 @@
       // 隐藏加载器并显示主内容
       const loader = document.getElementById('page-loader');
       const mainContent = document.getElementById('main-content');
-      // 强制一次重绘并短延迟，避免毛玻璃效果在样式应用前闪烁
       if (mainContent) {
-        // 触发回流
-        void mainContent.offsetHeight;
         mainContent.style.opacity = 1;
       }
       if (loader) {
-        // 给主内容一点时间应用 backdrop-filter 等样式
         setTimeout(() => loader.classList.add('hide'), 120);
       }
     }

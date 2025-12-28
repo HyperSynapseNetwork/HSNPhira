@@ -18,6 +18,14 @@
          let isSearching = false;
          let lastSearchQuery = ''; // 保存上次搜索条件
 
+         // 分段加载与并发控制
+         let leaderboardChunkSize = 50; // 每次请求多少条排行榜条目
+         let leaderboardOffset = 0; // 下一次应该请求的偏移量
+         let hasMoreLeaderboardData = true; // 是否还有未加载的数据
+         let chunkFetchConcurrency = 3; // 同时发起多少个排行榜段请求
+         let userFetchConcurrency = 8; // 获取用户信息时并发数
+         let prefetching = false; // 后台预取进行中标志
+
          // 页面加载时检查登录状态并初始化
          document.addEventListener('DOMContentLoaded', async () => {
               // 扩大表格倾斜范围：全局鼠标不再驱动整个页面，而使用 overlay 驱动表格倾斜
@@ -250,43 +258,44 @@
               }
          }
          
-         // 加载排行榜数据
+         // 加载排行榜数据（分段：先加载首段并立即呈现，后台并发预取剩余）
          async function loadLeaderboard() {
               try {
-                   const res = await fetch('/rankapi/playtime_leaderboard');
-                   if (!res.ok) throw new Error('获取排行榜信息失败');
-                   const data = await res.json();
-                   
-                   if (data.success) {
-                        fullLeaderboardData = data.data;
-                        totalUsers = data.total_users;
-                        
-                        // 计算总游玩时间
-                        totalPlaytime = fullLeaderboardData.reduce((sum, user) => sum + user.total_playtime, 0);
-                        
-                        // 更新总游玩时间显示
-                        document.getElementById('total-playtime').textContent = `总游玩时间：${formatPlaytime(totalPlaytime)}`;
-                        
-                        // 获取所有用户的用户名（如果缓存中没有）
-                        await cacheAllUsernames();
-                        
-                        // 如果有搜索条件，重新执行搜索
-                        const searchInput = document.getElementById('search-input');
-                        if (searchInput.value.trim()) {
-                             performSearch(searchInput.value.trim());
-                        } else {
-                             // 渲染当前页
-                             renderLeaderboardPage();
-                        }
-                        
-                        // 更新服务器状态
-                        const status = document.getElementById("status");
-                        status.textContent = "服务器状态：在线 :)     加入我们的QQ群：1049578201";
-                        status.classList.add("online");
-                        status.classList.remove("offline");
+                   // 首次只请求首段数据以尽快展示界面
+                   const initialLimit = leaderboardChunkSize;
+                   const { chunk, total } = await fetchLeaderboardChunk(0, initialLimit);
+
+                   fullLeaderboardData = Array.isArray(chunk) ? chunk : [];
+                   totalUsers = total || fullLeaderboardData.length;
+                   leaderboardOffset = fullLeaderboardData.length;
+                   hasMoreLeaderboardData = fullLeaderboardData.length < totalUsers;
+
+                   // 计算已加载部分的总游玩时间，并展示
+                   totalPlaytime = fullLeaderboardData.reduce((sum, user) => sum + user.total_playtime, 0);
+                   updateTotalPlaytimeDisplay();
+
+                   // 立即缓存首段的用户名（并发）
+                   cacheAllUsernames(fullLeaderboardData.map(u => u.user_id)).catch(e => console.warn(e));
+
+                   // 如果有搜索条件，先在已加载数据中搜索（后台会继续加载更多）
+                   const searchInput = document.getElementById('search-input');
+                   if (searchInput.value.trim()) {
+                        performSearch(searchInput.value.trim());
                    } else {
-                        throw new Error('API返回失败');
+                        renderLeaderboardPage();
                    }
+
+                   // 更新加载进度显示
+                   updateLoadProgress();
+
+                   // 异步在后台预取剩余段，不阻塞主线程
+                   prefetchRemainingLeaderboard().catch(e => console.warn('预取失败', e));
+
+                   // 更新服务器状态
+                   const status = document.getElementById("status");
+                   status.textContent = "服务器状态：在线 :)     加入我们的QQ群：1049578201";
+                   status.classList.add("online");
+                   status.classList.remove("offline");
               } catch (err) {
                    console.error('加载排行榜信息错误:', err);
                    const status = document.getElementById("status");
@@ -299,38 +308,34 @@
               }
          }
          
-         // 缓存所有用户名
-         async function cacheAllUsernames() {
-              // 找出缓存中没有的用户ID
-              const uncachedUserIds = fullLeaderboardData
-                   .filter(user => !USER_CACHE.has(user.user_id))
-                   .map(user => user.user_id);
-              
-              // 批量获取未缓存的用户信息
-              if (uncachedUserIds.length > 0) {
-                   console.log(`正在获取 ${uncachedUserIds.length} 个用户信息...`);
-                   
-                   // 使用Promise.all并发获取，但限制并发数量以避免过多请求
-                   const batchSize = 5;
-                   for (let i = 0; i < uncachedUserIds.length; i += batchSize) {
-                        const batch = uncachedUserIds.slice(i, i + batchSize);
-                        await Promise.allSettled(
-                             batch.map(userId => getUserInfo(userId))
-                        );
-                        
-                        // 稍微延迟一下，避免请求过于频繁
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                   }
+// 缓存所有用户名（改进：支持传入部分ID并使用并发池）
+         async function cacheAllUsernames(userIds) {
+              // 如果没有传入 userIds，默认使用当前已知的排行榜数据
+              const idsToCheck = Array.isArray(userIds)
+                   ? userIds
+                   : fullLeaderboardData.map(u => u.user_id);
+
+              const uncachedUserIds = idsToCheck.filter(id => !USER_CACHE.has(id));
+              if (uncachedUserIds.length === 0) return;
+
+              console.log(`正在获取 ${uncachedUserIds.length} 个用户信息（并发 ${userFetchConcurrency}）...`);
+
+              const concurrency = userFetchConcurrency;
+              let index = 0;
+              while (index < uncachedUserIds.length) {
+                   const batch = uncachedUserIds.slice(index, index + concurrency);
+                   await Promise.allSettled(batch.map(uid => getUserInfo(uid)));
+                   index += concurrency;
+                   // 为了不对外部服务造成短时间内太多压力，短延迟一小段（可配置）
+                   await new Promise(resolve => setTimeout(resolve, 30));
               }
          }
          
-         // 渲染排行榜当前页
-         async function renderLeaderboardPage() {
+// 渲染排行榜当前页（快速首屏：立即渲染占位符，用户名异步填充）
+         function renderLeaderboardPage() {
               const tbody = document.querySelector("#leaderboard-table tbody");
-              
-              // 确定要显示的数据
               const displayData = isSearching ? filteredLeaderboardData : fullLeaderboardData;
-              
+
               if (!Array.isArray(displayData) || displayData.length === 0) {
                    if (isSearching) {
                         tbody.innerHTML = "<tr><td colspan='3'>没有找到匹配的用户</td></tr>";
@@ -340,40 +345,51 @@
                    updatePaginationControls(0);
                    return;
               }
-              
-              // 显示加载中
-              tbody.innerHTML = "<tr><td colspan='3'>加载中...</td></tr>";
-              
+
               // 计算当前页数据范围
               const startIndex = (currentPage - 1) * pageSize;
+              // 如果用户请求的页数据尚未加载完，则在后台尽量触发更多加载
               const endIndex = Math.min(startIndex + pageSize, displayData.length);
               const pageData = displayData.slice(startIndex, endIndex);
-              
-              // 清空现有内容
+
+              // 清空并渲染占位符（快速呈现）
               tbody.innerHTML = "";
-              
-              // 处理当前页的每个用户
               for (let i = 0; i < pageData.length; i++) {
                    const user = pageData[i];
                    const rank = isSearching ?
                         fullLeaderboardData.findIndex(u => u.user_id === user.user_id) + 1 :
                         startIndex + i + 1;
-                   
-                   // 获取用户信息
-                   const userInfo = await getUserInfo(user.user_id);
-                   const userName = userInfo ? userInfo.name : `用户${user.user_id}`;
-                   
+
                    const tr = document.createElement("tr");
+                   // 先渲染用户名占位符
                    tr.innerHTML = `
                         <td>${rank}</td>
-                        <td><a href="https://phira.moe/user/${user.user_id}" target="_blank"><button class="chart-btn">${userName}</button></a></td>
+                        <td><a href="https://phira.moe/user/${user.user_id}" target="_blank"><button class="chart-btn">加载中...</button></a></td>
                         <td>${formatPlaytime(user.total_playtime)}</td>
                    `;
                    tbody.appendChild(tr);
+
+                   // 异步获取用户名并替换占位符（不阻塞其它行渲染）
+                   (function(nameCell, uid){
+                        getUserInfo(uid).then(userInfo => {
+                             const name = userInfo && userInfo.name ? userInfo.name : `用户${uid}`;
+                             nameCell.innerHTML = `<a href=\"https://phira.moe/user/${uid}\" target=\"_blank\"><button class=\"chart-btn\">${escapeHtml(name)}</button></a>`;
+                        }).catch(() => {
+                             nameCell.innerHTML = `<a href=\"https://phira.moe/user/${uid}\" target=\"_blank\"><button class=\"chart-btn\">用户${uid}</button></a>`;
+                        });
+                   })(tr.cells[1], user.user_id);
               }
-              
+
+              // 若当前页超出了已加载数据范围，触发后台预取更多
+              const neededUntil = endIndex;
+              if (neededUntil > fullLeaderboardData.length - 3 && hasMoreLeaderboardData) {
+                   // 触发预取以保证用户翻页不会等待太久
+                   prefetchRemainingLeaderboard().catch(e => console.warn('prefetch during render failed', e));
+              }
+
               // 更新翻页控件状态
-              updatePaginationControls(displayData.length);
+              const knownLength = totalUsers || fullLeaderboardData.length;
+              updatePaginationControls(knownLength);
          }
          
          // 更新翻页控件状态
@@ -633,4 +649,101 @@
                    msg.textContent = '网络错误';
                    console.error('认证错误:', e);
               }
+         }
+
+         // 尝试按偏移量/长度请求排行榜段（若后端不支持 offset/limit，则会退回到全量返回）
+         async function fetchLeaderboardChunk(offset, limit) {
+              try {
+                   const res = await fetch(`/rankapi/playtime_leaderboard?offset=${offset}&limit=${limit}&_=${Date.now()}`, { method: 'GET', cache: 'no-store' });
+                   if (!res.ok) throw new Error('请求失败');
+                   const data = await res.json();
+                   if (!data.success) throw new Error('API返回失败');
+                   return { chunk: data.data || [], total: data.total_users };
+              } catch (err) {
+                   console.warn('分段请求失败，尝试退回全量请求', err);
+                   // 退回到全量请求以保证兼容性
+                   const res = await fetch('/rankapi/playtime_leaderboard');
+                   if (!res.ok) throw err;
+                   const data = await res.json();
+                   if (!data.success) throw new Error('API返回失败');
+                   return { chunk: data.data || [], total: data.total_users };
+              }
+         }
+
+         // 后台预取剩余的排行榜段，使用并发池
+         async function prefetchRemainingLeaderboard() {
+              if (prefetching) return;
+              if (!hasMoreLeaderboardData) return;
+              prefetching = true;
+              try {
+                   const total = totalUsers || 0;
+                   const limit = leaderboardChunkSize;
+                   let offset = leaderboardOffset;
+
+                   const workers = [];
+                   while (offset < total) {
+                        const thisOffset = offset;
+                        offset += limit;
+                        workers.push((async () => {
+                             try {
+                                  const { chunk } = await fetchLeaderboardChunk(thisOffset, limit);
+                                  if (Array.isArray(chunk) && chunk.length) {
+                                       // append
+                                       fullLeaderboardData = fullLeaderboardData.concat(chunk);
+                                       leaderboardOffset = fullLeaderboardData.length;
+                                       // 更新总游玩时间（增量）
+                                       totalPlaytime += chunk.reduce((s, u) => s + u.total_playtime, 0);
+                                       updateTotalPlaytimeDisplay();
+                                       // 并发缓存用户信息
+                                       cacheAllUsernames(chunk.map(u => u.user_id)).catch(e => console.warn(e));
+                                       // 更新加载进度
+                                       updateLoadProgress();
+                                       // 若用户当前页落在新数据内，尝试渲染最新
+                                       renderLeaderboardPage();
+                                  }
+                             } catch (e) {
+                                  console.warn('预取段失败', e);
+                             }
+                        })());
+
+                        // 当积累到并发上限时，等待已发起的请求完成后继续
+                        if (workers.length >= chunkFetchConcurrency) {
+                             await Promise.allSettled(workers.splice(0));
+                        }
+                   }
+
+                   // 等待剩余的工作完成
+                   if (workers.length) await Promise.allSettled(workers);
+
+                   hasMoreLeaderboardData = fullLeaderboardData.length >= total;
+              } finally {
+                   prefetching = false;
+              }
+         }
+
+         // 更新加载进度 UI（尽量不改动现有 DOM 结构，向 status 添加子项）
+         function updateLoadProgress() {
+              const status = document.getElementById('status');
+              if (!status) return;
+              let progress = status.querySelector('.load-progress');
+              if (!progress) {
+                   progress = document.createElement('span');
+                   progress.className = 'load-progress';
+                   progress.style.marginLeft = '10px';
+                   progress.style.fontSize = '0.9em';
+                   progress.style.opacity = '0.9';
+                   status.appendChild(progress);
+              }
+              progress.textContent = `已加载 ${fullLeaderboardData.length}/${totalUsers || '?'} 条`;
+         }
+
+         function updateTotalPlaytimeDisplay() {
+              const el = document.getElementById('total-playtime');
+              if (el) el.textContent = `总游玩时间：${formatPlaytime(totalPlaytime)}`;
+         }
+
+         // 简单的 HTML 转义（防止用户名包含特殊字符）
+         function escapeHtml(s) {
+              if (!s) return '';
+              return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
          }

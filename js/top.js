@@ -442,6 +442,10 @@
       }, 300);
     }
     
+    function closeModal() {
+      document.getElementById("user-modal").style.display = "none";
+    }
+    
     function openAuth() {
       document.getElementById('auth-modal').style.display = 'flex';
       document.getElementById('auth-msg').textContent = '';
@@ -458,7 +462,7 @@
       
       // 显示/隐藏用户协议复选框
       const agreementContainer = document.getElementById('agreement-container');
-      agreementContainer.style.display = authMode === 'register' ? 'block' : 'none';
+      agreementContainer.style.display = authMode === 'register' ? 'flex' : 'none';
     }
     
     function updateAuthUI() {
