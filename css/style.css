@@ -173,12 +173,12 @@
       position: absolute;
       top: 100%;
       right: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(12px);
       border-radius: 8px;
       padding: 0.8rem;
       min-width: 160px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 16px rgb(0,0,0);
       z-index: 1001;
       opacity: 0;
       visibility: hidden;
@@ -189,7 +189,6 @@
     .dropdown-content.show {
       opacity: 1;
       visibility: visible;
-      transform: translateY(0);
     }
     .dropdown-content span {
       display: block;
