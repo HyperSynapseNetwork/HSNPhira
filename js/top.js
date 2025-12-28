@@ -245,14 +245,14 @@
         
         // 更新状态显示为缓存数据
         const status = document.getElementById("status");
-        status.textContent = "服务器状态：离线，使用缓存数据";
+        status.textContent = "服务器状态：在线 :) 加入我们的QQ群：1049578201";
         status.classList.add("cached");
         status.classList.remove("online");
         status.classList.remove("offline");
         
         // 显示缓存提示
         const cacheInfo = document.getElementById('cache-info');
-        cacheInfo.textContent = `缓存时间：${cacheTime}（数据可能不是最新的）`;
+        cacheInfo.textContent = `数据更新时间：${cacheTime}`;
         cacheInfo.style.display = 'block';
         
         // 渲染缓存数据

@@ -24,7 +24,7 @@
       transition: background 0.3s ease;
     }
     .status.cached {
-      color: #ffcc00;
+      color: #0f0;
       border: 1px solid rgba(255, 204, 0, 0.2);
     }
     table {
@@ -40,9 +40,7 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .dl-btn, .chart-btn, .copy-btn {
-      border-radius: 4px;
-    }
+
     .dl-btn:hover, .chart-btn:hover, .copy-btn:hover {
       background: rgba(255, 255, 255, 0.15);
     }
