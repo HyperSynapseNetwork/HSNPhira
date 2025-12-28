@@ -322,7 +322,7 @@
         idSpan.style.color = "#61E8EA";
         
         const copyBtn = document.createElement("button");
-        copyBtn.className = "copy-btn";
+        copyBtn.className = "chart-btn";
         copyBtn.textContent = "复制";
         copyBtn.onclick = () => copyChartId(chart.chart_id);
         
