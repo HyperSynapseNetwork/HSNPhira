@@ -641,3 +641,55 @@
       text-decoration: none !important;
       font-weight: bold;
     }
+
+    /* ========== 统一按钮样式 ========== */
+    button, .pagination-btn, .time-range-btn, .dl-btn, .chart-btn, .glass-button, #auth-modal button, a.btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.95rem;
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+      backdrop-filter: blur(6px);
+      text-decoration: none;
+    }
+
+    button:hover, .pagination-btn:hover, .time-range-btn:hover, .dl-btn:hover, .chart-btn:hover, .glass-button:hover, a.btn:hover {
+      background: rgba(255,255,255,0.14);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(97,232,234,0.06);
+    }
+
+    .pagination-btn[disabled], .pagination-btn:disabled {
+      opacity: 0.5;
+      transform: none;
+      cursor: default;
+    }
+
+    .time-range-btn {
+      border-radius: 999px; /* 保持时间范围按钮为胶囊样式 */
+    }
+
+    .time-range-btn.active {
+      background: linear-gradient(90deg,#61E8EA,#4db6ff);
+      color:#000;
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 6px 18px rgba(97,232,234,0.12);
+    }
+
+    /* 微调已存在的专用按钮，确保与统一样式一致 */
+    .dl-btn, .chart-btn, .chart-name-btn {
+      border-radius: 12px;
+    }
+
+    /* 小尺寸按钮 */
+    .dl-btn, .chart-btn {
+      padding: 0.32rem 0.75rem;
+      font-size: 0.85rem;
+    }

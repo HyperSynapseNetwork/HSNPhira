@@ -18,7 +18,7 @@
     // 热门谱面相关状态
     let currentTimeRange = 'hour';
     let currentPage = 1;
-    let perPage = 20;
+    let perPage = 10;
     let totalResults = 0;
     let lastChartListUpdate = null;
     let lastRecordUpdate = null;
