@@ -6,7 +6,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: var(--app-font);
+            font-weight: var(--app-font-weight);
             color: #ffffff;
             background-color: #0d0d0d;
             min-height: 100vh;

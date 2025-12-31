@@ -60,14 +60,41 @@
     -webkit-transform: scaleY(1.0);
       }
     }
+    /* 使用项目根目录下的本地 woff2 字体文件（如不存在 Black 文件则回退到 Regular） */
+    @font-face {
+      font-family: 'HarmonyOS Sans SC';
+      src: url('../HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'HarmonyOS Sans SC';
+      src: url('../HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
+      font-weight: 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --app-font: 'HarmonyOS Sans SC', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+      --app-font-weight: 900;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: var(--app-font);
+      font-weight: var(--app-font-weight);
       background: #000;
       color: #eee;
       overflow-x: hidden;
       scroll-behavior: smooth;
+    }
+
+    h1, h2, h3, h4, h5, h6, strong, b {
+      font-weight: var(--app-font-weight);
     }
     .parallax-bg {
       position: fixed;
