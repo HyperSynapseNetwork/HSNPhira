@@ -4,18 +4,6 @@
               position: relative;
               font-size: 12px;
          }
-         header {
-              position: fixed;
-              top: 0;
-              width: 100%;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding: 0.5rem 2rem;
-              backdrop-filter: blur(12px);
-              background: rgba(0, 0, 0, 0.4);
-              z-index: 1000;
-         }
 
          header img {
               height: 32px;
