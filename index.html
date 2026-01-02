@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HyperSynapse Network免费Phira多人游戏服务器</title>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
-    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" type="text/css" href="./css/index.css">
+    <link rel="stylesheet" type="text/css" href="./css/footer.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="parallax-bg"></div>
-    <div class="toast" id="toast">操作成功！</div>
+    <div id="footer"></div>  
+    <script>
+        $('#footer').load('./component/footer.html');
+    </script>
     <header>
          <img src="logo.png" alt="logo" />
          <div class="nav-links">
@@ -21,6 +25,9 @@
          </div>
     </header>
 
+    <div class="parallax-bg"></div>
+    <div class="toast" id="toast">操作成功！</div>
+
     <section class="hero hero-content">
          <h1>HyperSynapse Network Phira多人游戏服务器</h1>
          <p class="tagline">免费 · 稳定 · 低延迟</p>
@@ -28,7 +35,7 @@
     </section>
 
     <section class="qq-section">
-         <h2>加入我们的 QQ 群（群主是猫娘🤔）</h2>
+         <h2>联系我们</h2>
          
          <div class="info-box">
               <div class="info-item">
@@ -57,7 +64,7 @@
               </button>
          </div>
     </section>
-
     <script src="js/index.js"></script>
+    <script src="js/window-links.js"></script>
 </body>
 </html>

@@ -54,16 +54,6 @@
       width: 95%;
       max-width: 800px;
     }
-    .time-range-btn {
-      padding: 0.6rem 1.2rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      color: #eee;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
     .time-range-btn:hover {
       background: rgba(255, 255, 255, 0.15);
     }
@@ -80,18 +70,6 @@
       align-items: center;
       margin-top: 1.5rem;
       gap: 0.8rem;
-    }
-    .pagination-btn {
-      padding: 0.5rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      color: #eee;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 36px;
-      text-align: center;
     }
     .pagination-btn:hover:not(:disabled) {
       background: rgba(255, 255, 255, 0.15);

@@ -157,25 +157,6 @@
               renderLeaderboardPage();
          }
 
-         // 检查服务器状态
-         async function checkServerStatus() {
-              const status = document.getElementById("status");
-              try {
-                   const res = await fetch("/rankapi/playtime_leaderboard?_=" + Date.now(), { method: "GET", cache: "no-store" });
-                   if (res.ok) {
-                        status.textContent = "服务器状态：在线 :)     加入我们的QQ群：1049578201";
-                        status.classList.add("online");
-                        status.classList.remove("offline");
-                   } else {
-                        throw new Error("无返回");
-                   }
-              } catch (err) {
-                   status.textContent = "服务器状态：离线 :(     加入我们的QQ群：1049578201";
-                   status.classList.add("offline");
-                   status.classList.remove("online");
-              }
-         }
-
          // 更新用户显示区域
          function updateUserDisplay() {
               const loginButton = document.getElementById('login-button');
@@ -293,13 +274,13 @@
 
                    // 更新服务器状态
                    const status = document.getElementById("status");
-                   status.textContent = "服务器状态：在线 :)     加入我们的QQ群：1049578201";
+                   status.textContent = "服务器状态：在线 :)   ";
                    status.classList.add("online");
                    status.classList.remove("offline");
               } catch (err) {
                    console.error('加载排行榜信息错误:', err);
                    const status = document.getElementById("status");
-                   status.textContent = "服务器状态：离线 :(     加入我们的QQ群：1049578201";
+                   status.textContent = "服务器状态：离线 :(   ";
                    status.classList.add("offline");
                    status.classList.remove("online");
                    
@@ -554,7 +535,8 @@
          }
          
          function closeModal() {
-              document.getElementById("user-modal").style.display = "none";
+              const w = document.getElementById('user-window');
+              if (w) w.close();
          }
          
          function openAuth() {

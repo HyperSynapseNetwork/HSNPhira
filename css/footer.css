@@ -1,0 +1,125 @@
+:root {
+    --theme-color: var(--theme-color-lime);
+    --theme-color-active: #61a600;
+    --theme-color-tint: rgba(112, 192, 0, .1);
+    --selection-color: rgba(112, 192, 0, .35);
+    --theme-color-blue: #5ca1ff;
+    --theme-color-indigo: #4cb6c2;
+    --theme-color-lime: #70c000;
+    --theme-color-rose: #ff4b68;
+    --theme-color-tint-rose: rgba(255, 75, 104, .1);
+    --theme-color-violet: #bb8cdd;
+    --black-alpha-5: rgba(0, 0, 0, .05);
+    --black-alpha-10: rgba(0, 0, 0, .1);
+    --black-alpha-15: rgba(0, 0, 0, .15);
+    --black-alpha-20: rgba(0, 0, 0, .2);
+    --black-alpha-30: rgba(0, 0, 0, .3);
+    --black-alpha-35: rgba(0, 0, 0, .35);
+    --black-alpha-50: rgba(0, 0, 0, .5);
+    --black-alpha-60: rgba(0, 0, 0, .6);
+    --black-alpha-70: rgba(0, 0, 0, .7);
+    --black-alpha-80: rgba(0, 0, 0, .8);
+    --black-alpha-90: rgba(0, 0, 0, .9);
+    --black-tip-text-color: rgba(0, 0, 0, .8);
+    --off-white-background-color: rgb(235, 235, 235);
+    --primary-background-color: white;
+    --primary-background-color-hover: rgb(250, 250, 250);
+    --pure-black-text-color: black;
+    --pure-white-background-color: white;
+    --pure-white-text-color: white;
+    --secondary-background-color: rgb(245, 245, 245);
+    --white-alpha-5: rgba(255, 255, 255, .05);
+    --white-alpha-10: rgba(255, 255, 255, .1);
+    --white-alpha-15: rgba(255, 255, 255, .15);
+    --white-alpha-20: rgba(255, 255, 255, .2);
+    --white-alpha-25: rgba(255, 255, 255, .25);
+    --white-alpha-30: rgba(255, 255, 255, .3);
+    --white-alpha-50: rgba(255, 255, 255, .5);
+    --white-alpha-60: rgba(255, 255, 255, .6);
+    --white-alpha-70: rgba(255, 255, 255, .7);
+    --white-alpha-80: rgba(255, 255, 255, .8);
+    --white-alpha-90: rgba(255, 255, 255, .9);
+    --white-background-color-active: rgb(215, 215, 215);
+    --white-background-color-hover: white;
+    --cubic-bezier: cubic-bezier(.65, .05, .1, 1);
+    --error-color: #ff655e;
+    --fonts: "PingFang SC", "Microsoft Yahei", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --universal-backdrop-filter: blur(30px) saturate(1.25);
+    --universal-border: none;
+    --universal-box-shadow: 0 15px 30px rgba(0, 0, 0, .25)
+}
+.rth13bb13c9 {
+    align-items: center;
+    animation-delay: .5s;
+    animation-duration: .5s;
+    animation-fill-mode: backwards;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background-color: #0000000f;
+    border-radius: 11px;
+    bottom: 10px;
+    color: #fff9;
+    display: flex;
+    font-size: 12px;
+    left: 50%;
+    line-height: 1;
+    padding: 3px 3px 3px 8px;
+    position: fixed;
+    transform: translateX(-50%);
+    white-space: nowrap
+}
+
+.rth56954d5e {
+    color: #ffffff4d
+}
+
+.rth56954d5e:after {
+    content: " ä¸¨ "
+}
+
+.rthe1492bf5 {
+    align-items: center;
+    background-color: #ffffff1a;
+    border: none;
+    border-radius: 50%;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font-size: inherit;
+    height: 15px;
+    margin-left: 5px;
+    justify-content: center;
+    padding: 0;
+    transition: .25s;
+    width: 15px
+}
+
+.rthe1492bf5:focus-visible,.rthe1492bf5:hover {
+    background-color: #fff3;
+    color: #fff
+}
+
+.rthe1492bf5:active {
+    opacity: .6
+}
+
+.rth78890bf1 {
+    color: inherit;
+    text-decoration: none;
+    transition: color .25s, text-shadow .25s;
+}
+
+.rth78890bf1:focus-visible,.rth78890bf1:hover {
+    color: #fff;
+    text-shadow: 0 0 4px #fff;
+}
+
+.rth78890bf1:active {
+    color: #fff9
+}
+
+.rth13bb13c9 .rth78890bf1:hover {
+    color: #fff !important;
+    text-shadow: 0 0 6px #fff !important;
+    transition: color .25s, text-shadow .25s !important;
+}

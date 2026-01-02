@@ -7,19 +7,24 @@
   <title>账号管理 - HyperSynapse Phira</title>
   <link rel="stylesheet" type="text/css" href="./css/style.css">
   <link rel="stylesheet" type="text/css" href="./css/account.css">
+    <link rel="stylesheet" type="text/css" href="./css/footer.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
   <div class="parallax-bg"></div>
-  <div id="page-loader"></div>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <div id="page-loader"></div>  
   <script>
     $('#page-loader').load('./component/page-loader.html');
   </script>
-  
-  <div id="header"></div>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <div id="header"></div> 
   <script>
     $('#header').load('./component/header.html');
+  </script>
+
+  <div id="footer"></div>  
+    <script>
+      $('#footer').load('./component/footer.html');
   </script>
   
   <main id="main-content" style="opacity:0;transition:opacity 0.6s;">
@@ -162,7 +167,7 @@
     </div>
   </main>
   </div>
-
   <script src="js/account.js"></script>
+  <script src="js/window-links.js"></script>
 </body>
 </html>

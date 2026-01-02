@@ -7,19 +7,23 @@
   <title>管理员控制台 - HyperSynapse Phira</title>
   <link rel="stylesheet" type="text/css" href="./css/style.css">
   <link rel="stylesheet" type="text/css" href="./css/admin.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
   <div class="parallax-bg"></div>
-  <div id="page-loader"></div>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <div id="page-loader"></div>  
   <script>
     $('#page-loader').load('./component/page-loader.html');
   </script>
-  
-  <div id="header"></div>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <div id="header"></div> 
   <script>
     $('#header').load('./component/header.html');
+  </script>
+
+  <div id="footer"></div>  
+    <script>
+      $('#footer').load('./component/footer.html');
   </script>
   
   <main>
@@ -198,5 +202,6 @@
   </div>
 
   <script src="js/users_manage.js"></script>
+  <script src="js/window-links.js"></script>
 </body>
 </html>

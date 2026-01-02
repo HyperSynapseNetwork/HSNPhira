@@ -131,7 +131,7 @@
           // 更新状态显示
           const updateTime = new Date(lastRecordUpdate)
             .toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai' });
-          status.textContent = `服务器状态：在线 :)  数据更新时间：${updateTime}  加入我们的QQ群：1049578201`;
+          status.textContent = `服务器状态：在线 :)  数据更新时间：${updateTime}`;
           status.classList.add("online");
           status.classList.remove("offline");
           status.classList.remove("cached");
@@ -177,7 +177,7 @@
       } else {
         // 没有缓存数据时显示错误
         const status = document.getElementById("status");
-        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
+        status.textContent = "服务器状态：离线 :(";
         status.classList.add("offline");
         status.classList.remove("online");
         status.classList.remove("cached");
@@ -359,7 +359,8 @@
     }
     
     function closeModal() {
-      document.getElementById("user-modal").style.display = "none";
+      const w = document.getElementById('user-window');
+      if (w) w.close();
     }
     
     function openAuth() {

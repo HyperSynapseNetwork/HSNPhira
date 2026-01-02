@@ -123,7 +123,7 @@
           tbody.innerHTML = "<tr><td colspan='9'>暂时无房间 加入我们的QQ群：1049578201</td></tr>";
           // 更新状态
           const status = document.getElementById("status");
-          status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
+          status.textContent = "服务器状态：在线 :)";
           status.classList.add("online");
           status.classList.remove("offline");
           return;
@@ -181,13 +181,13 @@
 
         // 更新服务器状态
         const status = document.getElementById("status");
-        status.textContent = "服务器状态：在线 :)  加入我们的QQ群：1049578201";
+        status.textContent = "服务器状态：在线 :)";
         status.classList.add("online");
         status.classList.remove("offline");
       } catch (err) {
         console.error('加载房间信息错误:', err);
         const status = document.getElementById("status");
-        status.textContent = "服务器状态：离线 :(  加入我们的QQ群：1049578201";
+        status.textContent = "服务器状态：离线 :(";
         status.classList.add("offline");
         status.classList.remove("online");
       }
@@ -320,30 +320,25 @@
     
     // 显示房间用户
     async function showRoomUsers(userIds, hostId) {
-      const modal = document.getElementById("user-modal");
-      const list = document.getElementById("user-list");
-      
-      // 显示加载中
+      const win = document.getElementById('user-window');
+      const list = document.getElementById('user-list');
+      if (!win || !list) return;
+
+      // 显示加载中并打开窗口
       list.innerHTML = '<li>加载中...</li>';
-      modal.style.display = "flex";
-      
+      win.open();
+
       // 获取所有用户详细信息
       const users = [];
       for (const userId of userIds) {
         const userInfo = await getUserInfo(userId);
         if (userInfo) {
-          users.push({
-            id: userId,
-            name: userInfo.name,
-            isHost: userId === hostId
-          });
+          users.push({ id: userId, name: userInfo.name, isHost: userId === hostId });
         }
       }
-      
+
       // 更新用户列表
-      list.innerHTML = users.map(user => 
-        `<li class="${user.isHost ? 'highlight-host' : ''}">${user.name || `用户${user.id}`}</li>`
-      ).join("");
+      list.innerHTML = users.map(user => `<li class="${user.isHost ? 'highlight-host' : ''}">${user.name || `用户${user.id}`}</li>`).join("");
     }
     
     function showLightbox(src) {
@@ -363,7 +358,8 @@
     }
     
     function closeModal() {
-      document.getElementById("user-modal").style.display = "none";
+      const w = document.getElementById('user-window');
+      if (w) w.close();
     }
     
     function openAuth() {
