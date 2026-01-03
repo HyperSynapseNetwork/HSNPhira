@@ -145,6 +145,13 @@ class MacWindow extends HTMLElement {
         }
         ::slotted(p) { color: rgba(255,255,255,0.85); margin: 0; }
 
+        @media (max-width: 720px) {
+          .stage { left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1); }
+          .window { border-radius: 10px; }
+          .close { width: 16px; height: 16px; right: 10px; top: 10px; }
+          .backdrop { background: rgba(0,0,0,0.6); }
+        }
+
       </style>
 
       <div class="backdrop"></div>
@@ -212,6 +219,12 @@ class MacWindow extends HTMLElement {
         this.focus();
         // allow pointer events on host while open
         this.style.pointerEvents = 'auto';
+        // responsive sizing for mobile
+        this._applyResponsiveSizing();
+        // install resize listener so size adapts when device rotates / viewport changes
+        this._resizeHandler = () => this._applyResponsiveSizing();
+        window.addEventListener('resize', this._resizeHandler);
+
         // try to focus any iframe inside
         const iframe = this.querySelector('iframe');
         if (iframe) {
@@ -223,6 +236,12 @@ class MacWindow extends HTMLElement {
         this.dispatchEvent(new CustomEvent('mac-window-close', { bubbles: true }));
         // restore pointer-events
         this.style.pointerEvents = '';
+        // clear responsive sizing and resize listener
+        this._clearResponsiveSizing();
+        if (this._resizeHandler) {
+          window.removeEventListener('resize', this._resizeHandler);
+          this._resizeHandler = null;
+        }
       }
     }
   }
@@ -254,6 +273,7 @@ class MacWindow extends HTMLElement {
       this._stage.style.transform = '';
       this._stage.style.opacity = '';
       this._stage.style.transition = '';
+      this._clearResponsiveSizing();
     }, 260);
   }
 
@@ -269,6 +289,40 @@ class MacWindow extends HTMLElement {
 
   _onPointerLeave() {
     this._inner.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+  }
+
+  _applyResponsiveSizing() {
+    // 移动端自适应
+    if (!this._stage) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const mobileBreakpoint = 720;
+    if (vw <= mobileBreakpoint) {
+      const horizontalMargin = 16;
+      const verticalMargin = 48;
+      const width = Math.max(280, vw - horizontalMargin * 2);
+      const height = Math.max(220, vh - verticalMargin * 2);
+      this._stage.style.width = width + 'px';
+      this._stage.style.height = height + 'px';
+      this._stage.style.left = '50%';
+      this._stage.style.top = '50%';
+      this._stage.style.transform = 'translate(-50%, -50%) scale(1)';
+    } else {
+      this._stage.style.width = '';
+      this._stage.style.height = '';
+      this._stage.style.left = '';
+      this._stage.style.top = '';
+      this._stage.style.transform = '';
+    }
+  }
+
+  _clearResponsiveSizing() {
+    if (!this._stage) return;
+    this._stage.style.width = '';
+    this._stage.style.height = '';
+    this._stage.style.left = '';
+    this._stage.style.top = '';
+    this._stage.style.transform = '';
   }
 
   _onKey(e) {
