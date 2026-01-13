@@ -47,18 +47,22 @@
          </div>
          
          <div id="table-container">
-              <table id="leaderboard-table">
-                   <thead>
-                        <tr>
-                             <th>名次</th>
-                             <th>用户名</th>
-                             <th>游玩时间</th>
-                        </tr>
-                   </thead>
-                   <tbody>
-                        <tr><td colspan="3">加载中...</td></tr>
-                   </tbody>
-              </table>
+              <div class="table-card">
+                <div class="table-scroll">
+                  <table id="leaderboard-table" class="responsive-table">
+                       <thead>
+                            <tr>
+                                 <th>名次</th>
+                                 <th>用户名</th>
+                                 <th>游玩时间</th>
+                            </tr>
+                       </thead>
+                       <tbody>
+                            <tr><td colspan="3">加载中...</td></tr>
+                       </tbody>
+                  </table>
+                </div>
+              </div>
          </div>
          <div class="pagination">
               <button id="prev-page" disabled>上一页</button>
@@ -71,7 +75,9 @@
          <img id="lightbox-img" src="" alt="曲绘" />
     </div>
 
-    <script src="./component/window.js"></script>    
+     <script src="./component/window.js"></script>    
+     <script src="js/auth-window.js"></script>
+     <script src="js/table-component.js"></script>
     <script src="js/checkserverstatus.js"></script>
     <script src="js/ranks.js"></script>
     <script src="js/window-links.js"></script>
