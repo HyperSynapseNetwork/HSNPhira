@@ -116,7 +116,7 @@ class MacWindow extends HTMLElement {
         /* default content styling */
         .content {
           padding: 12px;
-          height: calc(100% - 12px - 40px);
+          height: calc(100% - 12px);
           overflow: auto;
         }
 
@@ -125,27 +125,16 @@ class MacWindow extends HTMLElement {
           padding: 0;
           overflow: hidden; /* iframe handles its own scrolling */
         }
-          :host([embedded]) ::slotted(iframe) {
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: block;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-          }
-          /* try to hide iframe element scrollbars in webkit (note: doesn't change inner page scrollbars) */
-          :host([embedded]) ::slotted(iframe)::-webkit-scrollbar { display: none; }
-          /* loading overlay appended as a slotted element */
-          :host([embedded]) ::slotted(.window-loader) {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.28);
-            z-index: 5;
-            pointer-events: none;
-          }
+        :host([embedded]) ::slotted(iframe) {
+          width: 100%;
+          height: 100%;
+          border: 0;
+          display: block;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+        }
+        /* try to hide iframe element scrollbars in webkit (note: doesn't change inner page scrollbars) */
+        :host([embedded]) ::slotted(iframe)::-webkit-scrollbar { display: none; }
 
         /* small title style for demo */
         ::slotted(h2) {
@@ -155,25 +144,6 @@ class MacWindow extends HTMLElement {
           letter-spacing: -0.2px;
         }
         ::slotted(p) { color: rgba(255,255,255,0.85); margin: 0; }
-
-        .titlebar {
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 6px 10px;
-          gap: 8px;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-          background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.06));
-          z-index: 3;
-        }
-        .nav-left, .nav-right { display:flex; align-items:center; gap:6px; }
-        .nav-btn { background: rgba(255,255,255,0.04); border: none; color: #fff; padding:6px 8px; border-radius:6px; cursor:pointer }
-        .title-center { flex:1; display:flex; flex-direction:column; align-items:center; overflow:hidden }
-        .title-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600 }
-        .address-text { font-size:0.75rem; opacity:0.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70% }
-        .open-link { color: #aee; text-decoration:none; padding:4px 6px; border-radius:6px; background: rgba(255,255,255,0.02) }
-        .resizer { position: absolute; right: 6px; bottom: 6px; width: 18px; height: 18px; cursor: se-resize; z-index: 4; border-radius:4px; background: rgba(255,255,255,0.03) }
 
         @media (max-width: 720px) {
           .stage { left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1); }
@@ -187,24 +157,10 @@ class MacWindow extends HTMLElement {
       <div class="backdrop"></div>
       <div class="stage" role="dialog" aria-modal="true">
         <div class="window">
-          <div class="titlebar">
-            <div class="nav-left">
-              <button class="nav-btn back" title="后退">◀</button>
-              <button class="nav-btn forward" title="前进">▶</button>
-            </div>
-            <div class="title-center">
-              <div class="title-text" part="title">窗口</div>
-              <div class="address-text" part="address"></div>
-            </div>
-            <div class="nav-right">
-              <a class="open-link" target="_blank" rel="noopener" title="在新标签打开">↗</a>
-              <button class="close" aria-label="关闭" title="关闭"></button>
-            </div>
-          </div>
           <div class="inner">
+            <button class="close" aria-label="关闭" title="关闭"></button>
             <div class="content"><slot></slot></div>
           </div>
-          <div class="resizer" title="调整大小"></div>
         </div>
       </div>
     `;
@@ -224,9 +180,6 @@ class MacWindow extends HTMLElement {
       onKey: this._onKey.bind(this),
       onBackdropClick: this._onBackdropClick.bind(this)
     };
-    this._resizing = false;
-    this._currentIframe = null;
-    this._currentUrl = '';
   }
 
   connectedCallback() {
@@ -236,20 +189,7 @@ class MacWindow extends HTMLElement {
     this._stage.addEventListener('pointermove', this._bound.onMove);
     this._stage.addEventListener('pointerleave', this._bound.onLeave);
     this._closeBtn.addEventListener('click', this._bound.onClose);
-      // support pointerdown for quicker response on touch devices
-      this._closeBtn.addEventListener('pointerdown', this._bound.onClose);
     this._backdrop.addEventListener('click', this._bound.onBackdropClick);
-
-    // wire up titlebar controls
-    this._backBtn = this.shadowRoot.querySelector('.nav-btn.back');
-    this._forwardBtn = this.shadowRoot.querySelector('.nav-btn.forward');
-    this._openLinkAnchor = this.shadowRoot.querySelector('.open-link');
-    this._titleText = this.shadowRoot.querySelector('.title-text');
-    this._addressText = this.shadowRoot.querySelector('.address-text');
-    this._resizer = this.shadowRoot.querySelector('.resizer');
-    if (this._backBtn) this._backBtn.addEventListener('click', ()=> this._navigate(-1));
-    if (this._forwardBtn) this._forwardBtn.addEventListener('click', ()=> this._navigate(1));
-    if (this._resizer) this._resizer.addEventListener('pointerdown', this._onResizerDown.bind(this));
 
     // keyboard
     this.addEventListener('keydown', this._bound.onKey);
@@ -267,11 +207,7 @@ class MacWindow extends HTMLElement {
     this._stage.removeEventListener('pointermove', this._bound.onMove);
     this._stage.removeEventListener('pointerleave', this._bound.onLeave);
     this._closeBtn.removeEventListener('click', this._bound.onClose);
-      this._closeBtn.removeEventListener('pointerdown', this._bound.onClose);
     this._backdrop.removeEventListener('click', this._bound.onBackdropClick);
-    if (this._backBtn) this._backBtn.removeEventListener('click', ()=> this._navigate(-1));
-    if (this._forwardBtn) this._forwardBtn.removeEventListener('click', ()=> this._navigate(1));
-    if (this._resizer) this._resizer.removeEventListener('pointerdown', this._onResizerDown);
     this.removeEventListener('keydown', this._bound.onKey);
   }
 
@@ -353,69 +289,6 @@ class MacWindow extends HTMLElement {
 
   _onPointerLeave() {
     this._inner.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-  }
-
-  _onResizerDown(e){
-    e.preventDefault();
-    this._resizing = true;
-    const startX = e.clientX, startY = e.clientY;
-    const startRect = this._stage.getBoundingClientRect();
-    const startW = startRect.width;
-    const startH = startRect.height;
-    const onMove = (ev)=>{
-      const nw = Math.max(280, startW + (ev.clientX - startX));
-      const nh = Math.max(220, startH + (ev.clientY - startY));
-      this._stage.style.width = nw + 'px';
-      this._stage.style.height = nh + 'px';
-    };
-    const onUp = (ev)=>{
-      this._resizing = false;
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      // persist size
-      try{
-        if (this._currentUrl) {
-          window._macWindowSizeCache = window._macWindowSizeCache || {};
-          window._macWindowSizeCache[this._currentUrl] = window._macWindowSizeCache[this._currentUrl] || {};
-          const rect = this._stage.getBoundingClientRect();
-          window._macWindowSizeCache[this._currentUrl].w = Math.round(rect.width);
-          window._macWindowSizeCache[this._currentUrl].h = Math.round(rect.height);
-        }
-      }catch(e){}
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-  }
-
-  _navigate(delta){
-    if (!this._currentIframe) return;
-    try {
-      if (delta < 0) this._currentIframe.contentWindow.history.back(); else this._currentIframe.contentWindow.history.forward();
-    } catch(e) {
-      try { this._currentIframe.contentWindow.postMessage({ type: 'hsn-navigate', delta }, '*'); } catch(e){}
-    }
-  }
-
-  registerIframe(iframe, url){
-    this._currentIframe = iframe;
-    this._currentUrl = url || '';
-    if (this._openLinkAnchor) this._openLinkAnchor.href = url || '';
-    const update = ()=>{
-      try{
-        const doc = iframe.contentDocument;
-        const title = doc && (doc.title || (doc.querySelector && doc.querySelector('h1') && doc.querySelector('h1').textContent)) || iframe.getAttribute('title') || '';
-        if (this._titleText) this._titleText.textContent = title || '窗口';
-        if (this._addressText) this._addressText.textContent = (iframe.contentWindow && iframe.contentWindow.location && iframe.contentWindow.location.href) || url || '';
-      }catch(e){
-        if (this._titleText) this._titleText.textContent = url || '窗口';
-        if (this._addressText) this._addressText.textContent = url || '';
-      }
-      try{
-        if (this._backBtn) this._backBtn.disabled = !(iframe.contentWindow && iframe.contentWindow.history && iframe.contentWindow.history.length>1);
-      }catch(e){}
-    };
-    iframe.addEventListener('load', ()=>{ update(); setTimeout(update,120); });
-    setTimeout(update,120);
   }
 
   _applyResponsiveSizing() {

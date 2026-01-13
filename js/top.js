@@ -216,20 +216,12 @@
         
         // 谱面名称列
         const nameTd = document.createElement("td");
-          if (chartInfo && chartInfo.name) {
+        if (chartInfo && chartInfo.name) {
           const nameBtn = document.createElement("a");
           nameBtn.href = `https://phira.moe/chart/${chart.chart_id}`;
           nameBtn.target = "_blank";
-          nameBtn.className = "chart-name-btn scrolling-btn";
-          const innerSpan = document.createElement('span');
-          innerSpan.textContent = chartInfo.name;
-          nameBtn.appendChild(innerSpan);
-          // if text overflows, add marquee class to animate
-          setTimeout(()=>{
-            try{
-              if (innerSpan.scrollWidth > nameBtn.clientWidth) nameBtn.classList.add('marquee');
-            }catch(e){}
-          }, 120);
+          nameBtn.className = "chart-name-btn";
+          nameBtn.textContent = chartInfo.name;
           nameTd.appendChild(nameBtn);
         } else {
           nameTd.textContent = `ID: ${chart.chart_id}`;
@@ -275,12 +267,10 @@
         // 下载列
         const downloadTd = document.createElement("td");
         if (chartInfo && chartInfo.file) {
-          const downloadLink = document.createElement('a');
+          const downloadLink = document.createElement("a");
           downloadLink.href = chartInfo.file;
-          // use chart name if available, sanitize filename
-          const safeName = (chartInfo.name || `chart_${chart.chart_id}`).replace(/[^\w\-\u4e00-\u9fa5\. ]+/g, '').trim();
-          downloadLink.download = `${safeName || 'chart_' + chart.chart_id}.zip`;
-          const downloadBtn = document.createElement('button');
+          downloadLink.download = `chart_${chart.chart_id}.zip`;
+          const downloadBtn = document.createElement("button");
           downloadBtn.className = "dl-btn";
           downloadBtn.textContent = "下载";
           downloadLink.appendChild(downloadBtn);
@@ -297,27 +287,22 @@
       updatePaginationControls();
     }
     
-      // 复制谱面ID（前置#）
-      function copyChartId(chartId) {
-        const idText = '#' + String(chartId);
-        navigator.clipboard.writeText(idText)
-          .then(() => {
-            if (window.showMessage) {
-              window.showMessage('已复制', idText, '');
-            } else {
-              const notification = document.getElementById('copy-notification');
-              if (notification) {
-                notification.textContent = `谱面ID ${idText} 已复制到剪贴板！`;
-                notification.classList.add('show');
-                setTimeout(() => notification.classList.remove('show'), 2000);
-              }
-            }
-          })
-          .catch(err => {
-            console.error('复制失败:', err);
-            alert('复制失败，请手动复制谱面ID');
-          });
-      }
+    // 复制谱面ID
+    function copyChartId(chartId) {
+      navigator.clipboard.writeText(chartId)
+        .then(() => {
+          // 显示复制成功提示
+          const notification = document.getElementById('copy-notification');
+          notification.classList.add('show');
+          setTimeout(() => {
+            notification.classList.remove('show');
+          }, 2000);
+        })
+        .catch(err => {
+          console.error('复制失败:', err);
+          alert('复制失败，请手动复制谱面ID');
+        });
+    }
     
     // 更新分页控件状态
     function updatePaginationControls() {

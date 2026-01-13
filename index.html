@@ -11,14 +11,19 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-     <div id="footer"></div>
-     <script>
-          $('#footer').load('./component/footer.html');
-     </script>
-     <div id="header"></div>
-     <script>
-          $('#header').load('./component/header.html');
-     </script>
+    <div id="footer"></div>  
+    <script>
+        $('#footer').load('./component/footer.html');
+    </script>
+    <header>
+         <img src="logo.png" alt="logo" />
+         <div class="nav-links">
+                   <a href="index.html">主页</a>
+                   <a href="rooms.html">房间列表</a>
+                   <a href="ranks.html">排行榜</a>
+                   <a href="top.html" class="active">热门谱面</a>
+         </div>
+    </header>
 
     <div class="parallax-bg"></div>
     <div class="toast" id="toast">操作成功！</div>

@@ -149,13 +149,13 @@
             const chartInfo = await getChartInfo(room.chart);
             if (chartInfo) {
               chartText = chartInfo.name
-                ? `<a href="https://phira.moe/chart/${room.chart}" target="_blank" class="chart-name-btn scrolling-btn"><span>${chartInfo.name}</span></a>`
+                ? `<a href="https://phira.moe/chart/${room.chart}" target="_blank" class="chart-name-btn">${chartInfo.name}</a>`
                 : `ID: ${room.chart}`;
               chartImg = chartInfo.illustration
                 ? `<button class="chart-btn" onclick="showLightbox('${chartInfo.illustration}')">查看</button>`
                 : "无封面";
               downloadBtn = chartInfo.file
-                ? `<a href="${chartInfo.file}" download="${(chartInfo.name||('chart_'+room.chart)).replace(/[^\w\-\u4e00-\u9fa5\. ]+/g,'').trim()}.zip"><button class="dl-btn">下载</button></a>`
+                ? `<a href="${chartInfo.file}" download="chart_${room.chart}.zip"><button class="dl-btn">下载</button></a>`
                 : "无文件";
             }
           }
@@ -164,8 +164,6 @@
           const stateDisplay = `<span class="state-label ${stateInfo.class}">${stateInfo.text}</span>`;
           const hostBtn = `<a href="https://phira.moe/user/${room.host}" target="_blank"><button class="chart-btn">${hostName}</button></a>`;
           const usersBtn = `<button class="chart-btn" onclick='showRoomUsers(${JSON.stringify(room.users)}, ${room.host})'>查看</button>`;
-          const roomIdVal = (room.id || room.name || '').toString().replace(/'/g, "\\'");
-          const historyBtn = `<button class="chart-btn" onclick="openRoomHistory('${roomIdVal}')">历史</button>`;
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${room.name}</td>
@@ -177,7 +175,6 @@
             <td>${chartImg}</td>
             <td>${downloadBtn}</td>
             <td>${usersBtn}</td>
-            <td>${historyBtn}</td>
           `;
           tbody.appendChild(tr);
         }

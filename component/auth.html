@@ -1,5 +1,5 @@
-  <!-- 登录注册模板（由 js/auth-window.js 使用 mac-window 打开） -->
-  <template id="auth-template">
+  <!-- 登录注册弹窗 -->
+  <div id="auth-modal" class="modal" style="z-index: 99999">
     <div class="modal-content glass-card" id="auth-box">
       <h3 id="auth-title">用户登录</h3>
       <input id="auth-name" placeholder="用户名" />
@@ -20,13 +20,12 @@
         <span class="checkbox-text">我同意<a href="https://phira.htadiy.cc/privacy.html" target="_blank">用户协议</a></span>
       </label>
       
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.6rem">
-        <button id="auth-submit">确认</button>
-        <button id="auth-toggle">切换登录 / 注册</button>
-      </div>
+      <button onclick="submitAuth()">确认</button>
       <p id="auth-msg" style="margin-top:0.5rem;font-size:0.8rem;color:#ffccaa;"></p>
+      <button onclick="toggleAuthMode()" style="margin-top:1rem">切换登录 / 注册</button>
+      <button class="dl-btn" onclick="closeAuth()">关闭</button>
     </div>
-  </template>
+  </div>
   <style>
     .checkbox-container {
       display: flex;
