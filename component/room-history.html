@@ -1,0 +1,16 @@
+<template id="room-history-template">
+  <style>
+    .history-card{padding:16px;color:#fff;min-width:360px}
+    .history-list{width:100%;border-collapse:collapse}
+    .history-list th,.history-list td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:left}
+    .history-empty{color:#ccc;padding:12px}
+  </style>
+  <div class="history-card">
+    <h3>房间游玩历史</h3>
+    <div id="history-meta"></div>
+    <table class="history-list" id="history-table">
+      <thead><tr><th>玩家</th><th>谱面</th><th>得分</th><th>时间</th></tr></thead>
+      <tbody><tr><td colspan="4" class="history-empty">加载中...</td></tr></tbody>
+    </table>
+  </div>
+</template>

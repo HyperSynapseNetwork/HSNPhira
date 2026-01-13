@@ -684,3 +684,84 @@
       box-shadow: 0 6px 18px rgba(97,232,234,0.12);
       transform: none;
     }
+
+/* 统一表格组件样式（用于 rooms/ranks/top） */
+.table-card {
+  perspective: 1000px;
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.table-card .table-scroll {
+  position: relative;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 将滚动作用于 table 本身以满足视觉需求 */
+table.responsive-table {
+  display: block; /* allow native horizontal scrolling on table */
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255,255,255,0.14);
+}
+
+/* 固定列样式，避免在窄屏下表格列内换行导致宽度异常 */
+table.responsive-table th, table.responsive-table td {
+  white-space: nowrap;
+}
+
+/* 更合理的表格布局在小屏下取消 3D 位移并使用 fixed 布局 */
+@media (max-width: 768px) {
+  table.responsive-table {
+    transform: none !important;
+    animation: none !important;
+    table-layout: fixed;
+  }
+  table.responsive-table th, table.responsive-table td {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+/* 细窄的自定义滚动条（作用于 table 元素） */
+table.responsive-table::-webkit-scrollbar {
+  height: 8px;
+}
+table.responsive-table::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+table.responsive-table::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+/* Firefox */
+table.responsive-table { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) rgba(255,255,255,0.03); }
+
+/* 长文本滚动处理（用于谱面/长标题） */
+.scrolling-btn{ display:inline-block; max-width:150px; overflow:hidden; position:relative; vertical-align:middle; }
+.scrolling-btn > span{ display:inline-block; padding-right:24px; will-change:transform; }
+.scrolling-btn.marquee > span{ animation: scroll-left 8s linear infinite; }
+@keyframes scroll-left{
+  0%{ transform: translateX(0); }
+  100%{ transform: translateX(-100%); }
+}
+
+/* 当容器较窄时启用更温和的滚动 */
+@media (max-width: 768px){
+  .scrolling-btn{ max-width:120px; }
+  .scrolling-btn.marquee > span{ animation-duration:10s; }
+}
+

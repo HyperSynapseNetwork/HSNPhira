@@ -1,0 +1,29 @@
+<template id="contact-template">
+  <style>
+    .contact-card{padding:16px;min-width:320px;max-width:760px;color:#fff}
+    .contact-row{display:flex;gap:12px;align-items:center}
+    .contact-actions{margin-top:12px;display:flex;gap:8px}
+    .contact-img{width:120px;height:120px;object-fit:cover;border-radius:8px}
+    .contact-carousel{display:flex;gap:8px;overflow:hidden}
+    .contact-item{flex:0 0 auto;width:140px;height:80px;background:#222;border-radius:8px}
+  </style>
+  <div class="contact-card">
+    <h3>联系我们</h3>
+    <div class="contact-row">
+      <div style="flex:1">
+        <p>如果你有疑问、建议或需要帮助，请通过以下方式联系我们：</p>
+        <div class="contact-actions">
+          <button onclick="(function(){ navigator.clipboard && navigator.clipboard.writeText('1049578201'); showMessage && showMessage('已复制', 'QQ群号已复制：1049578201'); })()">复制 QQ 群</button>
+          <button onclick="(function(){ navigator.clipboard && navigator.clipboard.writeText('service.htadiy.cc:7865'); showMessage && showMessage('已复制', '服务器地址已复制'); })()">复制服务器地址</button>
+          <a href="mailto:contact@htadiy.cc" target="_blank"><button>发送邮件</button></a>
+        </div>
+      </div>
+      <img class="contact-img" src="https://phira.htadiy.cc/contact-sample.jpg" alt="联系图示"/>
+    </div>
+
+    <h4 style="margin-top:14px">公告</h4>
+    <div class="contact-carousel" id="contact-carousel">
+      <div class="contact-item">载入中...</div>
+    </div>
+  </div>
+</template>
