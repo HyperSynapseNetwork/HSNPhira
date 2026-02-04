@@ -33,7 +33,7 @@ class ChartTracker:
         self.record_query_url = "https://phira.5wyxi.com/record/query/{chart_id}?pageNum=20&includePlayer=true&best=true&page=1&std=false"
 
     def init_database(self):
-        """初始化SQLite数据库表结构[10,11](@ref)"""
+        """初始化SQLite数据库表结构"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             
@@ -76,7 +76,7 @@ class ChartTracker:
             conn.commit()
 
     def get_total_pages(self) -> int:
-        """获取总页数[1](@ref)"""
+        """获取总页数"""
         try:
             url = self.chart_list_url.format(page=1)
             response = requests.get(url, timeout=10)
@@ -89,7 +89,7 @@ class ChartTracker:
         return 0
 
     def fetch_chart_page(self, page: int) -> List[Dict]:
-        """获取单页谱面列表[1](@ref)"""
+        """获取单页谱面列表"""
         try:
             url = self.chart_list_url.format(page=page)
             response = requests.get(url, timeout=10)
@@ -101,7 +101,7 @@ class ChartTracker:
         return []
 
     def fetch_all_charts(self) -> List[Dict]:
-        """多线程获取所有谱面[1,5](@ref)"""
+        """多线程获取所有谱面"""
         total_pages = self.get_total_pages()
         if total_pages == 0:
             return []
@@ -122,7 +122,7 @@ class ChartTracker:
         return charts
 
     def fetch_chart_count(self, chart_id: int) -> Tuple[int, int]:
-        """获取单个谱面的记录数[1](@ref)"""
+        """获取单个谱面的记录数"""
         try:
             url = self.record_query_url.format(chart_id=chart_id)
             response = requests.get(url, timeout=10)
@@ -135,7 +135,7 @@ class ChartTracker:
         return chart_id, 0
 
     def update_all_chart_counts(self):
-        """多线程更新所有谱面的计数[1,4](@ref)"""
+        """多线程更新所有谱面的计数"""
         current_time = datetime.now().isoformat()
         charts = self.fetch_all_charts()
         chart_ids = [chart["id"] for chart in charts]
@@ -173,7 +173,7 @@ class ChartTracker:
         self.calculate_increments(current_time)
 
     def get_previous_count(self, chart_id: int, target_time: datetime) -> int:
-        """获取指定时间点的计数[10](@ref)"""
+        """获取指定时间点的计数"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
@@ -185,7 +185,7 @@ class ChartTracker:
             return result[0] if result else 0
 
     def calculate_increments(self, current_time_str: str):
-        """计算不同时间范围的增量并排名[10](@ref)"""
+        """计算不同时间范围的增量并排名"""
         current_time = datetime.fromisoformat(current_time_str)
         time_ranges = {
             "hour": current_time - timedelta(hours=1),
@@ -227,9 +227,14 @@ class ChartTracker:
                         skip_count = 1
                         last_increment = increment
                     
+                    # 修正：添加time_range参数，使总数达到6个
                     ranked_increments.append((
-                        chart_id, increment, current_rank, 
-                        start_time.isoformat(), current_time_str
+                        chart_id, 
+                        time_range,  # 添加time_range参数
+                        increment, 
+                        current_rank, 
+                        start_time.isoformat(), 
+                        current_time_str
                     ))
                 
                 # 保存排名数据
@@ -242,7 +247,7 @@ class ChartTracker:
             conn.commit()
 
     def start_scheduler(self):
-        """启动定时任务[6,7](@ref)"""
+        """启动定时任务"""
         schedule.every(self.update_interval).seconds.do(self.scheduled_update)
         
         def run_scheduler():
@@ -254,7 +259,7 @@ class ChartTracker:
         scheduler_thread.start()
 
     def scheduled_update(self):
-        """定时执行更新任务[6](@ref)"""
+        """定时执行更新任务"""
         print(f"开始定时更新任务: {datetime.now()}")
         self.last_chart_list_update = datetime.now().isoformat()
         self.update_all_chart_counts()
@@ -265,7 +270,7 @@ tracker.start_scheduler()
 
 @app.route('/status', methods=['GET'])
 def get_status():
-    """获取服务状态[12](@ref)"""
+    """获取服务状态"""
     return jsonify({
         "last_chart_list_update": tracker.last_chart_list_update,
         "last_record_update": tracker.last_record_update,
@@ -280,7 +285,7 @@ def get_status():
 
 @app.route('/hot_rank/<time_range>', methods=['GET'])
 def get_hot_rank(time_range: str):
-    """获取热门排行榜[12](@ref)"""
+    """获取热门排行榜"""
     if time_range not in ['hour', 'day', 'week', 'month']:
         return jsonify({"error": "Invalid time range"}), 400
     
@@ -332,7 +337,7 @@ def get_hot_rank(time_range: str):
 
 @app.route('/chart_rank/<int:chart_id>', methods=['GET'])
 def get_chart_rank(chart_id: int):
-    """获取指定谱面的各时间段排名和增量[12](@ref)"""
+    """获取指定谱面的各时间段排名和增量"""
     time_ranges = ['hour', 'day', 'week', 'month']
     result = {"chart_id": chart_id, "ranks": {}}
     
@@ -358,7 +363,11 @@ def get_chart_rank(chart_id: int):
 
 if __name__ == '__main__':
     # 立即执行一次更新
-    tracker.scheduled_update()
+    try:
+        tracker.scheduled_update()
+    except Exception as e:
+        print(f"初始化更新失败: {e}")
+        print("继续启动服务...")
     
-    # 启动Flask应用[12](@ref)
+    # 启动Flask应用
     app.run(host='0.0.0.0', port=5000, debug=False)
