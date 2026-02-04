@@ -14,7 +14,7 @@ app = Flask(__name__)
 class ChartTracker:
     def __init__(self, db_path: str = "chart_tracker.db"):
         self.db_path = db_path
-        self.db_lock = threading.Lock()  # 数据库访问锁
+        self.lock = threading.Lock()
         self.init_database()
         
         # 状态变量
@@ -34,7 +34,7 @@ class ChartTracker:
 
     def init_database(self):
         """初始化SQLite数据库表结构"""
-        with sqlite3.connect(self.db_path, timeout=10) as conn:  # 增加超时设置
+        with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             
             # 创建谱面计数表（存储每个谱面每个小时的count值）
@@ -134,18 +134,6 @@ class ChartTracker:
             print(f"获取谱面{chart_id}记录数失败: {e}")
         return chart_id, 0
 
-    def save_chart_counts(self, counts: Dict[int, int], current_time: str):
-        """保存谱面计数到数据库（线程安全）"""
-        with self.db_lock:  # 使用锁保护数据库访问
-            with sqlite3.connect(self.db_path, timeout=10) as conn:
-                cursor = conn.cursor()
-                for chart_id, count in counts.items():
-                    cursor.execute('''
-                        INSERT OR REPLACE INTO chart_counts 
-                        (chart_id, count, timestamp) VALUES (?, ?, ?)
-                    ''', (chart_id, count, current_time))
-                conn.commit()
-
     def update_all_chart_counts(self):
         """多线程更新所有谱面的计数"""
         current_time = datetime.now().isoformat()
@@ -172,23 +160,29 @@ class ChartTracker:
                     print(f"进度: {completed}/{len(chart_ids)}")
         
         # 保存到数据库
-        self.save_chart_counts(counts, current_time)
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            for chart_id, count in counts.items():
+                cursor.execute('''
+                    INSERT OR REPLACE INTO chart_counts 
+                    (chart_id, count, timestamp) VALUES (?, ?, ?)
+                ''', (chart_id, count, current_time))
+            conn.commit()
         
         self.last_record_update = current_time
         self.calculate_increments(current_time)
 
     def get_previous_count(self, chart_id: int, target_time: datetime) -> int:
         """获取指定时间点的计数"""
-        with self.db_lock:  # 使用锁保护数据库访问
-            with sqlite3.connect(self.db_path, timeout=10) as conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT count FROM chart_counts 
-                    WHERE chart_id = ? AND timestamp <= ? 
-                    ORDER BY timestamp DESC LIMIT 1
-                ''', (chart_id, target_time.isoformat()))
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT count FROM chart_counts 
+                WHERE chart_id = ? AND timestamp <= ? 
+                ORDER BY timestamp DESC LIMIT 1
+            ''', (chart_id, target_time.isoformat()))
+            result = cursor.fetchone()
+            return result[0] if result else 0
 
     def calculate_increments(self, current_time_str: str):
         """计算不同时间范围的增量并排名"""
@@ -200,58 +194,57 @@ class ChartTracker:
             "month": current_time - timedelta(days=30)
         }
         
-        with self.db_lock:  # 使用锁保护数据库访问
-            with sqlite3.connect(self.db_path, timeout=10) as conn:
-                cursor = conn.cursor()
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            
+            # 获取当前所有谱面的最新计数
+            cursor.execute('''
+                SELECT chart_id, count FROM chart_counts 
+                WHERE timestamp = ?
+            ''', (current_time_str,))
+            current_counts = dict(cursor.fetchall())
+            
+            for time_range, start_time in time_ranges.items():
+                increments = []
                 
-                # 获取当前所有谱面的最新计数
-                cursor.execute('''
-                    SELECT chart_id, count FROM chart_counts 
-                    WHERE timestamp = ?
-                ''', (current_time_str,))
-                current_counts = dict(cursor.fetchall())
+                for chart_id, current_count in current_counts.items():
+                    previous_count = self.get_previous_count(chart_id, start_time)
+                    increment = current_count - previous_count
+                    increments.append((chart_id, increment))
                 
-                for time_range, start_time in time_ranges.items():
-                    increments = []
-                    
-                    for chart_id, current_count in current_counts.items():
-                        previous_count = self.get_previous_count(chart_id, start_time)
-                        increment = current_count - previous_count
-                        increments.append((chart_id, increment))
-                    
-                    # 按增量排序并分配排名
-                    increments.sort(key=lambda x: x[1], reverse=True)
-                    ranked_increments = []
-                    current_rank = 1
-                    last_increment = None
-                    skip_count = 0
-                    
-                    for i, (chart_id, increment) in enumerate(increments):
-                        if increment == last_increment:
-                            skip_count += 1
-                        else:
-                            current_rank += skip_count
-                            skip_count = 1
-                            last_increment = increment
-                        
-                        # 修正：添加time_range参数，使总数达到6个
-                        ranked_increments.append((
-                            chart_id, 
-                            time_range,  # 添加time_range参数
-                            increment, 
-                            current_rank, 
-                            start_time.isoformat(), 
-                            current_time_str
-                        ))
-                    
-                    # 保存排名数据
-                    cursor.executemany('''
-                        INSERT OR REPLACE INTO increment_ranks 
-                        (chart_id, time_range, increase, rank, period_start, period_end) 
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ''', ranked_increments)
+                # 按增量排序并分配排名
+                increments.sort(key=lambda x: x[1], reverse=True)
+                ranked_increments = []
+                current_rank = 1
+                last_increment = None
+                skip_count = 0
                 
-                conn.commit()
+                for i, (chart_id, increment) in enumerate(increments):
+                    if increment == last_increment:
+                        skip_count += 1
+                    else:
+                        current_rank += skip_count
+                        skip_count = 1
+                        last_increment = increment
+                    
+                    # 修正：添加time_range参数，使总数达到6个
+                    ranked_increments.append((
+                        chart_id, 
+                        time_range,  # 添加time_range参数
+                        increment, 
+                        current_rank, 
+                        start_time.isoformat(), 
+                        current_time_str
+                    ))
+                
+                # 保存排名数据
+                cursor.executemany('''
+                    INSERT OR REPLACE INTO increment_ranks 
+                    (chart_id, time_range, increase, rank, period_start, period_end) 
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', ranked_increments)
+            
+            conn.commit()
 
     def start_scheduler(self):
         """启动定时任务"""
@@ -301,7 +294,7 @@ def get_hot_rank(time_range: str):
     
     offset = (page - 1) * per_page
     
-    with sqlite3.connect(tracker.db_path, timeout=10) as conn:
+    with sqlite3.connect(tracker.db_path) as conn:
         cursor = conn.cursor()
         
         # 获取最新时间段的数据
@@ -348,7 +341,7 @@ def get_chart_rank(chart_id: int):
     time_ranges = ['hour', 'day', 'week', 'month']
     result = {"chart_id": chart_id, "ranks": {}}
     
-    with sqlite3.connect(tracker.db_path, timeout=10) as conn:
+    with sqlite3.connect(tracker.db_path) as conn:
         cursor = conn.cursor()
         
         for time_range in time_ranges:
