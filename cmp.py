@@ -115,7 +115,7 @@ class ServerStatusMonitor:
                 }
             
             # 第三步：发送验证包并测量延迟
-            header = bytes.fromhex('01220120')
+            header = bytes.fromhex('01160114')
             token_bytes = bytes.fromhex(token_hex)
             packet = header + token_bytes
             
