@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "appId": "hsnphira_frontend",
+  "groups": [
+    { "id": "appearance", "name": "appearance", "name_zh": "外观" }
+  ],
+  "preferences": [
+    {
+      "id": "theme_color",
+      "group": "appearance",
+      "type": "free",
+      "name": "theme_color",
+      "name_zh": "主题色",
+      "default": "#a1e5ef",
+      "placeholder": "#a1e5ef",
+      "placeholder_zh": "例如 #a1e5ef"
+    },
+    {
+      "id": "enable_glass_theme",
+      "group": "appearance",
+      "type": "boolean",
+      "name": "enable_glass_theme",
+      "name_zh": "毛玻璃主题",
+      "default": false
+    }
+  ]
+}

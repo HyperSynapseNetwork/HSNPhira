@@ -1,70 +1,124 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="HyperSynapse Network 提供免费、稳定、低延迟的 Phira 多人音乐游戏服务器" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HyperSynapse Network免费Phira多人游戏服务器</title>
-    <link rel="stylesheet" type="text/css" href="./css/style.css">
-    <link rel="stylesheet" type="text/css" href="./css/index.css">
-    <link rel="stylesheet" type="text/css" href="./css/footer.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HSNPhira — Demo</title>
+  <link rel="stylesheet" href="src/css/styles.css" />
 </head>
 <body>
-    <div id="footer"></div>  
-    <script>
-        $('#footer').load('./component/footer.html');
-    </script>
-    <header>
-         <img src="logo.png" alt="logo" />
-         <div class="nav-links">
-                   <a href="index.html">主页</a>
-                   <a href="rooms.html">房间列表</a>
-                   <a href="ranks.html">排行榜</a>
-                   <a href="top.html" class="active">热门谱面</a>
-         </div>
+  <div id="app" class="app-root">
+    <header class="header">
+      <h1>HSNPhira Demo</h1>
     </header>
 
-    <div class="parallax-bg"></div>
-    <div class="toast" id="toast">操作成功！</div>
+    <main class="page page-home">
+      <section class="home-left">
+        <h2>HyperSynapse Network Phira多人游戏服务器</h2>
+        <p class="subtitle">免费 · 多功能 · 稳定 · 低延迟</p>
+        <div id="visited-count" class="glass-card">已访问: --</div>
+      </section>
 
-    <section class="hero hero-content">
-         <h1>HyperSynapse Network Phira多人游戏服务器</h1>
-         <p class="tagline">免费 · 稳定 · 低延迟</p>
-         <p class="user-count" id="user-count">加载中...</p>
-    </section>
+      <section class="home-right">
+        <div class="glass-card server-status">
+          <h3>服务器状态</h3>
+            <div id="server-status">加载中...</div>
+            <div class="server-contact" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <div class="glass-card small" style="padding:8px;display:flex;align-items:center;gap:8px">
+                <div>QQ群: <strong id="server-qq">1049578201</strong></div>
+                <button class="btn-rect" id="copy-qq">复制</button>
+              </div>
+              <div class="glass-card small" style="padding:8px;display:flex;align-items:center;gap:8px">
+                <div>地址: <strong id="server-address">service.htadiy.com:7865</strong></div>
+                <button class="btn-rect" id="copy-address">复制</button>
+              </div>
+            </div>
+        </div>
+      </section>
 
-    <section class="qq-section">
-         <h2>联系我们</h2>
-         
-         <div class="info-box">
-              <div class="info-item">
-                   <span class="info-label">QQ群号</span>
-                   <span class="info-value">1049578201</span>
-              </div>
-              <div class="info-item">
-                   <span class="info-label">服务器地址</span>
-                   <span class="info-value">service.htadiy.cc:7865</span>
-              </div>
-         </div>
-         
-         <div class="buttons">
-              <button class="primary" onclick="copyQQ()">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 0C3.588 0 0 3.588 0 8s3.588 8 8 8 8-3.588 8-8-3.588-8-8-8zm.5 12h-1v-1h1v1zm0-2h-1V5h1v5z"/>
-                   </svg>
-                   复制QQ群号
-              </button>
-              <button onclick="copyServerAddress()">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
-                   </svg>
-                   复制服务器地址
-              </button>
-         </div>
-    </section>
-    <script src="js/index.js"></script>
-    <script src="js/window-links.js"></script>
+      <section class="room-list">
+        <h3>房间列表</h3>
+        <div class="server-status-inline">状态查询组件占位</div>
+        <table class="table glass3d" id="rooms-table">
+          <thead>
+            <tr>
+              <th>房间名</th>
+              <th>房主</th>
+              <th>人数</th>
+              <th>状态</th>
+              <th>循环</th>
+              <th>锁定</th>
+              <th>谱面</th>
+              <th>曲绘</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 由 JS 渲染 -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <!-- 其他页面占位 -->
+    <main class="page page-charts" data-page="charts" style="display:none">
+      <section>
+        <h3>谱面排行</h3>
+        <div id="charts-table">加载中...</div>
+      </section>
+    </main>
+
+    <main class="page page-users" data-page="users" style="display:none">
+      <section>
+        <h3>用户排行</h3>
+        <div id="users-table">加载中...</div>
+      </section>
+    </main>
+
+    <main class="page page-account" data-page="account" style="display:none">
+      <section>
+        <h3>账户管理</h3>
+        <div id="account-panel">加载中...</div>
+      </section>
+    </main>
+
+    <main class="page page-tools" data-page="tools" style="display:none">
+      <section>
+        <h3>谱面下载工具</h3>
+        <div class="glass-card">
+          <input id="tool-chart-id" placeholder="输入谱面ID并按确定" />
+          <button id="tool-open-chart" class="btn-rect">打开谱面</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="window-host"></div>
+
+    <div id="toast-root"></div>
+
+  </div>
+
+  <script src="src/js/core/event-bus.js"></script>
+  <script src="src/js/core/auth.js"></script>
+  <script src="src/js/core/sse-client.js"></script>
+  <script src="src/js/ui/header.js"></script>
+  <script src="src/js/ui/footer.js"></script>
+  <script src="src/js/ui/server-status.js"></script>
+  <script src="src/js/window/window-base.js"></script>
+  <script src="src/js/window/window-link.js"></script>
+  <script src="src/js/window/window-auth.js"></script>
+  <script src="src/js/window/window-chart.js"></script>
+  <script src="src/js/window/window-setting.js"></script>
+  <script src="src/js/ui/loader.js"></script>
+  <script src="src/js/core/page-loader.js"></script>
+    <script src="src/js/pages/charts-page.js"></script>
+    <script src="src/js/pages/users-page.js"></script>
+  <script src="src/js/ui/message-toast.js"></script>
+  <script>
+    // 初始化
+    document.addEventListener('DOMContentLoaded', async () => {
+      await corePageLoader.init();
+    });
+  </script>
 </body>
 </html>

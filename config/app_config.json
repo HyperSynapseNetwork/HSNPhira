@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "api_mode": "local",
+  "api_base_url": "http://localhost:7865",
+  "external_api_base": "https://phira.5wyxi.com",
+  "background_image": "https://webstatic.cn-nb1.rains3.com/5712x3360.jpeg",
+  "particle_effects": {
+    "enabled": false,
+    "preset": "default"
+  }
+}
