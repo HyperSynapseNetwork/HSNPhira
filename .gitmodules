@@ -1,6 +1,12 @@
 [submodule "phira-mp-logprocessor"]
 	path = phira-mp-logprocessor
-	url = https://gitee.com/HyperSynapse-Network/phira-mp-logprocessor.git
+	url = https://github.com/HyperSynapseNetwork/phira-mp-logprocessor.git
 [submodule "phira-mp"]
 	path = phira-mp
-	url = https://gitee.com/HyperSynapse-Network/phira-mp.git
+	url = https://github.com/HyperSynapseNetwork/phira-mp.git
+[submodule "phira"]
+	path = phira
+	url = https://github.com/HyperSynapseNetwork/phira.git
+[submodule "phira-web-monitor"]
+	path = phira-web-monitor
+	url = https://github.com/HyperSynapseNetwork/phira-web-monitor.git

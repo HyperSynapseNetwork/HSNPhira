@@ -86,5 +86,5 @@ build_log_processor() {
 
 check
 build_backend
-#build_phira_mp
+build_phira_mp
 build_log_processor
