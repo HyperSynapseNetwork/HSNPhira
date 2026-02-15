@@ -149,7 +149,7 @@
             <div class="px-4 py-2 text-white/60 text-xs">{{ t('common.language') }}</div>
             <select
               v-model="currentLanguage"
-              @change="changeLang(currentLanguage); closeMobileMenu()"
+              @change="(e) => { changeLang((e.target as HTMLSelectElement).value as Language); closeMobileMenu() }"
               class="w-full px-4 py-2 rounded-lg glass text-white bg-transparent border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="zh">简体中文</option>
@@ -200,6 +200,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/store'
 import { useI18nStore } from '@/stores/i18n'
 import { eventBus } from '@/utils/eventBus'
@@ -207,7 +208,8 @@ import type { Language } from '@/i18n'
 
 const userStore = useUserStore()
 const i18nStore = useI18nStore()
-const { t, currentLanguage } = i18nStore
+const { currentLanguage } = storeToRefs(i18nStore)
+const { t } = i18nStore
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)

@@ -1620,15 +1620,31 @@ export const messages = {
 export type Language = 'zh' | 'zh-TW' | 'en' | 'ja'
 
 export function detectLanguage(): Language {
+  // 调试：记录浏览器语言信息
+  console.log('Browser language detection:', {
+    navigatorLanguage: navigator.language,
+    navigatorLanguages: navigator.languages,
+    userAgent: navigator.userAgent
+  })
+
   const browserLang = navigator.language.toLowerCase()
 
   // 检测繁体中文（台湾、香港、澳门）
   if (browserLang === 'zh-tw' || browserLang === 'zh-hk' || browserLang === 'zh-mo') {
+    console.log('Detected Traditional Chinese:', browserLang)
     return 'zh-TW'
   }
-  
+
   // 其他中文变体默认为简体中文
-  if (browserLang.indexOf('zh') === 0) return 'zh'
-  if (browserLang.indexOf('ja') === 0) return 'ja'
+  if (browserLang.indexOf('zh') === 0) {
+    console.log('Detected Chinese variant:', browserLang)
+    return 'zh'
+  }
+  if (browserLang.indexOf('ja') === 0) {
+    console.log('Detected Japanese:', browserLang)
+    return 'ja'
+  }
+  
+  console.log('Defaulting to English')
   return 'en'
 }
