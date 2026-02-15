@@ -1,70 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh">
-<head>
+<html lang="zh-CN">
+  <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="HyperSynapse Network 提供免费、稳定、低延迟的 Phira 多人音乐游戏服务器" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HyperSynapse Network免费Phira多人游戏服务器</title>
-    <link rel="stylesheet" type="text/css" href="./css/style.css">
-    <link rel="stylesheet" type="text/css" href="./css/index.css">
-    <link rel="stylesheet" type="text/css" href="./css/footer.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <div id="footer"></div>  
-    <script>
-        $('#footer').load('./component/footer.html');
-    </script>
-    <header>
-         <img src="logo.png" alt="logo" />
-         <div class="nav-links">
-                   <a href="index.html">主页</a>
-                   <a href="rooms.html">房间列表</a>
-                   <a href="ranks.html">排行榜</a>
-                   <a href="top.html" class="active">热门谱面</a>
-         </div>
-    </header>
-
-    <div class="parallax-bg"></div>
-    <div class="toast" id="toast">操作成功！</div>
-
-    <section class="hero hero-content">
-         <h1>HyperSynapse Network Phira多人游戏服务器</h1>
-         <p class="tagline">免费 · 稳定 · 低延迟</p>
-         <p class="user-count" id="user-count">加载中...</p>
-    </section>
-
-    <section class="qq-section">
-         <h2>联系我们</h2>
-         
-         <div class="info-box">
-              <div class="info-item">
-                   <span class="info-label">QQ群号</span>
-                   <span class="info-value">1049578201</span>
-              </div>
-              <div class="info-item">
-                   <span class="info-label">服务器地址</span>
-                   <span class="info-value">service.htadiy.cc:7865</span>
-              </div>
-         </div>
-         
-         <div class="buttons">
-              <button class="primary" onclick="copyQQ()">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8 0C3.588 0 0 3.588 0 8s3.588 8 8 8 8-3.588 8-8-3.588-8-8-8zm.5 12h-1v-1h1v1zm0-2h-1V5h1v5z"/>
-                   </svg>
-                   复制QQ群号
-              </button>
-              <button onclick="copyServerAddress()">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
-                   </svg>
-                   复制服务器地址
-              </button>
-         </div>
-    </section>
-    <script src="js/index.js"></script>
-    <script src="js/window-links.js"></script>
-</body>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HyperSynapse Network Phira多人游戏服务器 - 免费·多功能·稳定·低延迟" />
+    <meta name="keywords" content="Phira,多人游戏,音游,联机服务器" />
+    <title>HSN Phira多人游戏服务器</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

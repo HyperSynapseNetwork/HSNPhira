@@ -1,0 +1,168 @@
+{
+  "apiMode": "remote",
+  "remoteBaseURL": "https://phira.htadiy.com",
+  "localBaseURL": "http://localhost:8080",
+  "routes": {
+    "auth": {
+      "login": "/api/auth/login",
+      "logout": "/api/auth/logout",
+      "me": "/api/auth/me",
+      "register": "/api/auth/users",
+      "visitedCount": "/api/auth/visited/count"
+    },
+    "rooms": {
+      "list": "/api/rooms/info",
+      "history": "/api/rooms/history",
+      "listen": "/api/rooms/listen"
+    },
+    "charts": {
+      "rank": "/chart/:id/rank",
+      "chartRank": "/chart_rank/:chart_id",
+      "hotRank": "/topchart/hot_rank/:timeRange"
+    },
+    "users": {
+      "rank": "/user_rank/:timeRange"
+    },
+    "server": {
+      "status": "/health/status",
+      "history": "/health/history"
+    },
+    "playtime": {
+      "leaderboard": "/rankapi/playtime_leaderboard"
+    }
+  },
+  "externalAPI": {
+    "phiraBaseURL": "https://phira.5wyxi.com"
+  },
+  "header": {
+    "visiblePages": [
+      "/",
+      "/rooms",
+      "/chart-ranking",
+      "/user-ranking",
+      "/chart-download",
+      "/phira-download",
+      "/navigation",
+      "/announcement",
+      "/agreement"
+    ]
+  },
+  "background": {
+    "defaultImageURL": "https://webstatic.cn-nb1.rains3.com/5712×3360.jpeg"
+  },
+  "particleEffects": {
+    "snow": "/effects/snow.js",
+    "rain": "/effects/rain.js"
+  },
+  "versionFileURL": "https://phira.htadiy.com/config/version.json",
+  "meta": {
+    "home": {
+      "title": {
+        "zh": "HSN Phira多人游戏服务器",
+        "en": "HSN Phira Multiplayer Server",
+        "ja": "HSN Phiraマルチプレイサーバー"
+      },
+      "description": {
+        "zh": "免费·多功能·稳定·低延迟的Phira多人游戏服务器",
+        "en": "Free, feature-rich, stable, low-latency Phira multiplayer server",
+        "ja": "無料・多機能・安定・低遅延のPhiraマルチプレイサーバー"
+      }
+    },
+    "rooms": {
+      "title": {
+        "zh": "房间列表 - HSN Phira",
+        "en": "Room List - HSN Phira",
+        "ja": "ルームリスト - HSN Phira"
+      },
+      "description": {
+        "zh": "查看和加入Phira多人游戏房间",
+        "en": "View and join Phira multiplayer rooms",
+        "ja": "Phiraマルチプレイルームを表示・参加"
+      }
+    },
+    "chart-ranking": {
+      "title": {
+        "zh": "谱面排行榜 - HSN Phira",
+        "en": "Chart Ranking - HSN Phira",
+        "ja": "譜面ランキング - HSN Phira"
+      },
+      "description": {
+        "zh": "查看热门谱面排行榜",
+        "en": "View popular chart rankings",
+        "ja": "人気譜面ランキングを表示"
+      }
+    },
+    "user-ranking": {
+      "title": {
+        "zh": "用户排行榜 - HSN Phira",
+        "en": "User Ranking - HSN Phira",
+        "ja": "ユーザーランキング - HSN Phira"
+      },
+      "description": {
+        "zh": "查看用户游玩时间排行榜",
+        "en": "View user playtime rankings",
+        "ja": "ユーザープレイ時間ランキングを表示"
+      }
+    },
+    "chart-download": {
+      "title": {
+        "zh": "谱面下载 - HSN Phira",
+        "en": "Chart Download - HSN Phira",
+        "ja": "譜面ダウンロード - HSN Phira"
+      },
+      "description": {
+        "zh": "下载Phira谱面文件",
+        "en": "Download Phira chart files",
+        "ja": "Phira譜面ファイルをダウンロード"
+      }
+    },
+    "phira-download": {
+      "title": {
+        "zh": "Phira客户端下载 - HSN Phira",
+        "en": "Phira Client Download - HSN Phira",
+        "ja": "Phiraクライアントダウンロード - HSN Phira"
+      },
+      "description": {
+        "zh": "下载Phira游戏客户端",
+        "en": "Download Phira game client",
+        "ja": "Phiraゲームクライアントをダウンロード"
+      }
+    },
+    "navigation": {
+      "title": {
+        "zh": "导航 - HSN Phira",
+        "en": "Navigation - HSN Phira",
+        "ja": "ナビゲーション - HSN Phira"
+      },
+      "description": {
+        "zh": "网站导航页面",
+        "en": "Website navigation page",
+        "ja": "ウェブサイトナビゲーションページ"
+      }
+    },
+    "announcement": {
+      "title": {
+        "zh": "公告 - HSN Phira",
+        "en": "Announcement - HSN Phira",
+        "ja": "お知らせ - HSN Phira"
+      },
+      "description": {
+        "zh": "查看服务器公告和更新",
+        "en": "View server announcements and updates",
+        "ja": "サーバーお知らせと更新を表示"
+      }
+    },
+    "agreement": {
+      "title": {
+        "zh": "用户协议 - HSN Phira",
+        "en": "User Agreement - HSN Phira",
+        "ja": "利用規約 - HSN Phira"
+      },
+      "description": {
+        "zh": "阅读用户协议和隐私政策",
+        "en": "Read user agreement and privacy policy",
+        "ja": "利用規約とプライバシーポリシーを読む"
+      }
+    }
+  }
+}

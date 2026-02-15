@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "appId": "hsnphira-frontend",
+  "groups": [
+    {
+      "id": "language",
+      "name": "Language",
+      "name_zh": "语言"
+    }
+  ],
+  "preferences": [
+    {
+      "id": "language",
+      "group": "language",
+      "type": "option",
+      "name": "Display Language",
+      "name_zh": "使用的语言",
+      "default": "zh",
+      "multiple": false,
+      "options": [
+        {
+          "value": "zh",
+          "name": "简体中文",
+          "name_zh": "简体中文"
+        },
+        {
+          "value": "zh-TW",
+          "name": "繁體中文",
+          "name_zh": "繁體中文"
+        },
+        {
+          "value": "en",
+          "name": "English",
+          "name_zh": "English"
+        },
+        {
+          "value": "ja",
+          "name": "日本語",
+          "name_zh": "日本語"
+        }
+      ]
+    }
+  ]
+}
