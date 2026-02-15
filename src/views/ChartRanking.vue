@@ -50,12 +50,6 @@
       <!-- 名次 -->
       <template #cell-rank="{ row }">
         <div class="flex items-center gap-2">
-          <span
-            v-if="row.rank <= 3"
-            class="text-2xl"
-          >
-            {{ row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : '🥉' }}
-          </span>
           <span class="text-white font-bold">#{{ row.rank }}</span>
         </div>
       </template>
@@ -178,9 +172,43 @@ const pagination = computed(() => ({
 
 async function loadData() {
   try {
-    const data = await chartsAPI.getHotRank(selectedRange.value, currentPage.value, pageSize)
-    if (Array.isArray(data)) {
-      charts.value = data
+    const response = await chartsAPI.getHotRank(selectedRange.value, currentPage.value, pageSize)
+    
+    if (response && response.results && Array.isArray(response.results)) {
+      // 获取谱面详情，但添加延迟以避免同时请求过多
+      const chartDetails = []
+      for (let i = 0; i < response.results.length; i++) {
+        const item = response.results[i]
+        try {
+          const detail = await chartsAPI.getChartDetail(item.chart_id)
+          chartDetails.push({
+            chart_id: item.chart_id,
+            chart_name: detail.name || `谱面 #${item.chart_id}`,
+            chart_image: detail.image_url || '',
+            increase: item.increase || 0,
+            last_count: 0
+          })
+          
+          // 每加载3个谱面后稍微延迟一下，避免请求过于密集
+          if (i % 3 === 2) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch details for chart ${item.chart_id}:`, error)
+          chartDetails.push({
+            chart_id: item.chart_id,
+            chart_name: `谱面 #${item.chart_id}`,
+            chart_image: '',
+            increase: item.increase || 0,
+            last_count: 0
+          })
+        }
+      }
+      
+      charts.value = chartDetails
+    } else {
+      console.error('Invalid response format:', response)
+      charts.value = []
     }
   } catch (error) {
     console.error('Failed to load chart ranking:', error)
