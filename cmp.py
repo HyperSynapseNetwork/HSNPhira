@@ -1,124 +1,374 @@
 import asyncio
-import aiohttp
+import socket
 import time
-import json
-from datetime import datetime, timedelta
-from flask import Flask, jsonify, request
-import threading
-from typing import Dict, Optional, List, Tuple
 import logging
-from collections import deque
-import statistics
+from datetime import datetime, timedelta
+from typing import Optional, Dict, List, Any
+from threading import Thread
+import json
 
-# 配置日志
+import aiohttp
+from flask import Flask, jsonify, request
+
+# ============================================================================
+# 配置参数
+# ============================================================================
+
+# 服务器认证凭据
+EMAIL = "fuckingemail"      # Phira登录邮箱
+PASSWORD = "fuckingpassword"            # Phira登录密码
+
+# TCP服务器配置
+TCP_HOST = "127.0.0.1"       # TCP服务器地址
+TCP_PORT = 7865                       # TCP服务器端口
+
+# API服务配置
+API_PORT = 5211                       # API服务端口
+API_HOST = "0.0.0.0"                  # API服务监听地址
+
+# 监控配置
+CHECK_INTERVAL = 600                  # 检查间隔（10分钟，600秒）
+HISTORY_HOURS = 48                    # 历史数据保留小时数
+
+# 登录API配置
+LOGIN_URL = "http://phira.5wyxi.com/login"
+
+# 服务器名称
+SERVER_NAME = "HSN多人联机服务器"
+
+# ============================================================================
+# 日志配置
+# ============================================================================
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# ============================================================================
+# 服务器状态监控类
+# ============================================================================
+
 class ServerStatusMonitor:
-    def __init__(self, username: str, password: str, check_interval: int = 600, history_hours: int = 48):
-        """
-        初始化服务器状态监控器
-        
-        Args:
-            username: 服务器用户名
-            password: 服务器密码
-            check_interval: 检查间隔（秒），默认600秒（10分钟）
-            history_hours: 历史数据保留小时数，默认48小时
-        """
-        self.username = username
-        self.password = password
-        self.check_interval = check_interval
-        self.history_hours = history_hours
-        
-        # 计算最大历史数据点数
-        checks_per_hour = 3600 // check_interval
-        self.max_history_points = history_hours * checks_per_hour
-        
-        # 历史数据存储（使用deque自动清理旧数据）
-        self.history_data = deque(maxlen=self.max_history_points)
-        self.history_lock = threading.Lock()
-        
-        # 当前状态
-        self.last_check_time: Optional[float] = None
-        self.last_status: Dict = {
+    """服务器状态监控管理类"""
+    
+    def __init__(self):
+        """初始化监控器"""
+        self.current_status = {
             "online": False,
-            "latency": None,
+            "latency_ms": None,
             "last_check": None,
+            "server_name": SERVER_NAME,
             "error_message": None
         }
+        self.history_data: List[Dict[str, Any]] = []
+        self.running = False
+        self.monitor_thread = None
         
-        # 监控控制
-        self.is_running = False
-        self.check_thread: Optional[threading.Thread] = None
+    def start(self):
+        """启动监控线程"""
+        if not self.running:
+            self.running = True
+            self.monitor_thread = Thread(target=self._monitor_loop, daemon=True)
+            self.monitor_thread.start()
+            logger.info("服务器状态监控已启动")
+    
+    def stop(self):
+        """停止监控线程"""
+        self.running = False
+        if self.monitor_thread:
+            self.monitor_thread.join(timeout=5)
+        logger.info("服务器状态监控已停止")
+    
+    def _monitor_loop(self):
+        """监控循环"""
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         
-        # 服务器配置
-        self.login_url = "https://phira.5wyxi.com/login"
-        self.server_host = "service.htadiy.cc"
-        self.server_port = 7865
-
-    async def _perform_status_check(self) -> Dict:
-        """执行服务器状态检查并返回结果"""
-        start_time = time.time()
-        token = None
-        reader = None
-        writer = None
+        # 立即执行一次检查
+        loop.run_until_complete(self._check_server_status())
+        
+        while self.running:
+            try:
+                time.sleep(CHECK_INTERVAL)
+                if self.running:
+                    loop.run_until_complete(self._check_server_status())
+            except Exception as e:
+                logger.error(f"监控循环错误: {e}", exc_info=True)
+        
+        loop.close()
+    
+    async def _check_server_status(self):
+        """检查服务器状态"""
+        logger.info("开始检查服务器状态...")
         
         try:
-            # 第一步：登录获取token
+            # 步骤1: 登录获取token
+            token = await self._login()
+            if not token:
+                raise Exception("登录失败，未获取到token")
+            
+            # 步骤2: 将token转为hex格式
+            token_hex = token.encode('utf-8').hex()
+            
+            # 步骤3: TCP连接并发送数据
+            start_time = time.time()
+        
+            await self._tcp_check(token_hex)
+            
+            # 计算延迟
+            latency = (time.time() - start_time) * 1000
+            
+            # 更新状态
+            self.current_status = {
+                "online": True,
+                "latency_ms": round(latency, 2),
+                "last_check": datetime.utcnow().isoformat() + "Z",
+                "server_name": SERVER_NAME,
+                "error_message": None
+            }
+            
+            # 记录历史
+            self._add_history_point({
+                "timestamp": self.current_status["last_check"],
+                "online": True,
+                "latency_ms": self.current_status["latency_ms"]
+            })
+            
+            logger.info(f"服务器在线，延迟: {latency:.2f}ms")
+            
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"服务器状态检查失败: {error_msg}")
+            
+            # 更新状态为离线
+            self.current_status = {
+                "online": False,
+                "latency_ms": None,
+                "last_check": datetime.utcnow().isoformat() + "Z",
+                "server_name": SERVER_NAME,
+                "error_message": error_msg
+            }
+            
+            # 记录历史
+            self._add_history_point({
+                "timestamp": self.current_status["last_check"],
+                "online": False,
+                "latency_ms": None,
+                "error_message": error_msg
+            })
+    
+    async def _login(self) -> Optional[str]:
+        """登录获取token"""
+        try:
             async with aiohttp.ClientSession() as session:
-                login_data = {
-                    "email": self.username,
-                    "password": self.password
-                }
-                
                 async with session.post(
-                    self.login_url, 
-                    json=login_data,
+                    LOGIN_URL,
+                    json={"email": EMAIL, "password": PASSWORD},
                     timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
                     if response.status != 200:
-                        return {
-                            "online": False,
-                            "latency": None,
-                            "error_message": f"登录失败，状态码: {response.status}"
-                        }
+                        raise Exception(f"登录请求失败，状态码: {response.status}")
                     
-                    result = await response.json()
-                    token = result.get("token")
+                    data = await response.json()
+                    token = data.get("token")
                     
                     if not token:
-                        return {
-                            "online": False,
-                            "latency": None,
-                            "error_message": "获取token失败"
-                        }
-            
-            # 第二步：连接服务器检查状态
-            token_hex = token.encode('utf-8').hex()
-            connect_start = time.time()
+                        raise Exception("响应中未找到token字段")
+                    
+                    logger.info("登录成功，已获取token")
+                    return token
+                    
+        except Exception as e:
+            logger.error(f"登录失败: {e}")
+            raise Exception(f"登录失败: {e}")
+    
+    async def _tcp_check(self, token_hex: str):
+        """TCP连接检查"""
+        try:
+            # 创建TCP连接
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(TCP_HOST, TCP_PORT),
+                timeout=10
+            )
             
             try:
-                reader, writer = await asyncio.wait_for(
-                    asyncio.open_connection(self.server_host, self.server_port),
-                    timeout=10.0
-                )
-                connect_time = time.time() - connect_start
+                # 构造数据包: 01 16 01 14 + token_hex
+                packet = bytes.fromhex("01160114") + bytes.fromhex(token_hex)
                 
-            except (ConnectionRefusedError, OSError, asyncio.TimeoutError) as e:
-                return {
-                    "online": False,
-                    "latency": None,
-                    "error_message": f"连接被拒绝: {str(e)}"
-                }
-            
-            # 第三步：发送验证包并测量延迟
-            header = bytes.fromhex('01160114')
-            token_bytes = bytes.fromhex(token_hex)
-            packet = header + token_bytes
-            
+                # 发送数据包
+                writer.write(packet)
+                await writer.drain()
+                
+                # 等待响应（可选，根据实际协议需求）
+                # 这里简单等待一小段时间确认连接成功
+                await asyncio.sleep(0.5)
+                
+                logger.info("TCP连接成功，数据包已发送")
+                
+            finally:
+                # 关闭连接
+                writer.close()
+                await writer.wait_closed()
+                
+        except asyncio.TimeoutError:
+            raise Exception(f"TCP连接超时: {TCP_HOST}:{TCP_PORT}")
+        except Exception as e:
+            raise Exception(f"TCP连接失败: {e}")
+    
+    def _add_history_point(self, data_point: Dict[str, Any]):
+        """添加历史数据点"""
+        self.history_data.append(data_point)
+        
+        # 清理过期数据
+        cutoff_time = datetime.utcnow() - timedelta(hours=HISTORY_HOURS)
+        self.history_data = [
+            point for point in self.history_data
+            if datetime.fromisoformat(point["timestamp"].replace("Z", "")) > cutoff_time
+        ]
+        
+        logger.debug(f"历史数据点数: {len(self.history_data)}")
+    
+    def get_current_status(self) -> Dict[str, Any]:
+        """获取当前状态"""
+        status = self.current_status.copy()
+        status["timestamp"] = datetime.utcnow().isoformat() + "Z"
+        # 移除error_message字段（只在历史数据中保留）
+        if "error_message" in status:
+            del status["error_message"]
+        return status
+    
+    def get_history(self, hours: Optional[int] = None) -> Dict[str, Any]:
+        """获取历史数据"""
+        if hours is None:
+            hours = HISTORY_HOURS
+        
+        # 过滤指定时间范围的数据
+        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        filtered_data = [
+            point for point in self.history_data
+            if datetime.fromisoformat(point["timestamp"].replace("Z", "")) > cutoff_time
+        ]
+        
+        # 计算统计信息
+        total_points = len(filtered_data)
+        online_points = sum(1 for p in filtered_data if p["online"])
+        offline_points = total_points - online_points
+        
+        # 计算延迟统计（仅在线数据）
+        online_latencies = [p["latency_ms"] for p in filtered_data if p["online"] and p["latency_ms"] is not None]
+        
+        if online_latencies:
+            avg_latency = round(sum(online_latencies) / len(online_latencies), 2)
+            max_latency = round(max(online_latencies), 2)
+            min_latency = round(min(online_latencies), 2)
+        else:
+            avg_latency = None
+            max_latency = None
+            min_latency = None
+        
+        # 计算可用率
+        availability_rate = round((online_points / total_points * 100), 2) if total_points > 0 else 0.0
+        
+        return {
+            "server_name": SERVER_NAME,
+            "data_points": filtered_data,
+            "summary": {
+                "total_points": total_points,
+                "online_points": online_points,
+                "offline_points": offline_points,
+                "availability_rate": availability_rate,
+                "avg_latency": avg_latency,
+                "max_latency": max_latency,
+                "min_latency": min_latency
+            }
+        }
+
+# ============================================================================
+# Flask API 应用
+# ============================================================================
+
+app = Flask(__name__)
+monitor = ServerStatusMonitor()
+
+@app.route('/api/status', methods=['GET'])
+def get_status():
+    """获取当前服务器状态"""
+    try:
+        status = monitor.get_current_status()
+        return jsonify(status), 200
+    except Exception as e:
+        logger.error(f"获取状态失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    """获取历史延迟数据"""
+    try:
+        hours = request.args.get('hours', type=int)
+        if hours is not None and hours <= 0:
+            return jsonify({"error": "hours参数必须大于0"}), 400
+        
+        history = monitor.get_history(hours)
+        return jsonify(history), 200
+    except Exception as e:
+        logger.error(f"获取历史数据失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """服务健康检查"""
+    return jsonify({
+        "status": "healthy",
+        "service": "Phira Server Monitor",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "monitoring_active": monitor.running
+    }), 200
+
+@app.route('/', methods=['GET'])
+def index():
+    """根路径"""
+    return jsonify({
+        "service": "Phira Server Status Monitor API",
+        "version": "1.0.0",
+        "endpoints": {
+            "status": "/api/status",
+            "history": "/api/history",
+            "health": "/api/health"
+        }
+    }), 200
+
+# ============================================================================
+# 主程序
+# ============================================================================
+
+def main():
+    """主函数"""
+    logger.info("=" * 60)
+    logger.info("Phira多人联机服务器状态监控API服务")
+    logger.info("=" * 60)
+    logger.info(f"API端口: {API_PORT}")
+    logger.info(f"检查间隔: {CHECK_INTERVAL}秒")
+    logger.info(f"历史数据保留: {HISTORY_HOURS}小时")
+    logger.info(f"TCP服务器: {TCP_HOST}:{TCP_PORT}")
+    logger.info("=" * 60)
+    
+    # 启动监控
+    monitor.start()
+    
+    try:
+        # 启动Flask应用
+        logger.info(f"启动API服务，监听 {API_HOST}:{API_PORT}")
+        app.run(host=API_HOST, port=API_PORT, debug=False, threaded=True)
+    except KeyboardInterrupt:
+        logger.info("收到退出信号")
+    finally:
+        monitor.stop()
+        logger.info("服务已停止")
+
+if __name__ == "__main__":
+    main()
             send_start = time.time()
             writer.write(packet)
             await writer.drain()
