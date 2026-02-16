@@ -104,6 +104,7 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = 20
 
+
 // 用户信息缓存
 const userCache = ref<Map<number, {name: string, avatar?: string, rks?: number}>>(new Map())
 const isLoading = ref(false)
@@ -144,7 +145,8 @@ const displayUsers = computed(() => {
 const pagination = computed(() => ({
   current: currentPage.value,
   totalPages: Math.ceil(filteredUsers.value.length / pageSize),
-  total: filteredUsers.value.length
+  total: filteredUsers.value.length,
+  pageSize: pageSize
 }))
 
 // 获取用户信息
@@ -209,19 +211,8 @@ async function loadPlaytimeData() {
       rankedUsers.value = initialUsers
       
       // 异步加载用户详细信息（分批进行）
-      const userIdsToLoad = data.data.slice(0, 20).map((item: any) => item.user_id) // 先加载前20个
-      const userInfos = await batchLoadUserInfo(userIdsToLoad)
-      
-      // 更新用户数据
-      rankedUsers.value = rankedUsers.value.map((user, index) => {
-        if (index < userInfos.length) {
-          return {
-            ...user,
-            userData: userInfos[index]
-          }
-        }
-        return user
-      })
+      // 加载第一页的用户详细信息
+      await loadUserDetailsForPage(1)
     }
   } catch (error) {
     console.error('Failed to load playtime data:', error)
@@ -230,9 +221,41 @@ async function loadPlaytimeData() {
   }
 }
 
+// 加载指定页面的用户详细信息
+async function loadUserDetailsForPage(page: number) {
+  const startIndex = (page - 1) * pagination.value.pageSize
+  const endIndex = Math.min(startIndex + pagination.value.pageSize, rankedUsers.value.length)
+  
+  const userIdsToLoad = rankedUsers.value.slice(startIndex, endIndex).map(user => user.userId)
+  
+  if (userIdsToLoad.length === 0) {
+    return
+  }
 
-function handlePageChange(page: number) {
+  try {
+    const userInfos = await batchLoadUserInfo(userIdsToLoad)
+    
+    // 更新用户数据
+    rankedUsers.value = rankedUsers.value.map((user, index) => {
+      const pageIndex = index - startIndex
+      if (index >= startIndex && index < endIndex && pageIndex < userInfos.length) {
+        return {
+          ...user,
+          userData: userInfos[pageIndex]
+        }
+      }
+      return user
+    })
+  } catch (error) {
+    console.error('Failed to load user details for page', page, ':', error)
+  }
+}
+
+
+async function handlePageChange(page: number) {
   currentPage.value = page
+  // 加载新页面的用户详细信息
+  await loadUserDetailsForPage(page)
 }
 
 function handleSearch() {

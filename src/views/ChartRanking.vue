@@ -144,6 +144,7 @@ const timeRanges = [
 
 const selectedRange = ref('day')
 const charts = ref<ChartRank[]>([])
+const totalCharts = ref(0)
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = 20
@@ -153,7 +154,7 @@ const filteredCharts = computed(() => {
   if (!searchQuery.value.trim()) {
     return charts.value
   }
-  
+
   const query = searchQuery.value.toLowerCase()
   return charts.value.filter(chart => {
     return (
@@ -165,26 +166,39 @@ const filteredCharts = computed(() => {
 
 // 分页显示
 const displayCharts = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  return filteredCharts.value.slice(start, end).map((chart, index) => ({
+  return filteredCharts.value.map((chart, index) => ({
     ...chart,
-    rank: start + index + 1
+    rank: (currentPage.value - 1) * pageSize + index + 1
   }))
 })
 
-// 分页信息
-const pagination = computed(() => ({
-  current: currentPage.value,
-  totalPages: Math.ceil(filteredCharts.value.length / pageSize),
-  total: filteredCharts.value.length
-}))
+// 分页信息 - 对于搜索，使用前端过滤后的结果
+const pagination = computed(() => {
+  if (searchQuery.value.trim()) {
+    // 搜索时使用前端分页
+    return {
+      current: currentPage.value,
+      totalPages: Math.ceil(filteredCharts.value.length / pageSize),
+      total: filteredCharts.value.length
+    }
+  } else {
+    // 非搜索时使用API分页
+    return {
+      current: currentPage.value,
+      totalPages: Math.ceil(totalCharts.value / pageSize),
+      total: totalCharts.value
+    }
+  }
+})
 
 async function loadData() {
   try {
     const response = await chartsAPI.getHotRank(selectedRange.value, currentPage.value, pageSize)
-    
+
     if (response && response.results && Array.isArray(response.results)) {
+      // 保存总记录数
+      totalCharts.value = response.total || 0
+      
       // 获取谱面详情，但添加延迟以避免同时请求过多
       const chartDetails = []
       for (let i = 0; i < response.results.length; i++) {
@@ -226,15 +240,16 @@ async function loadData() {
   }
 }
 
-function selectRange(range: string) {
+async function selectRange(range: string) {
   selectedRange.value = range
   currentPage.value = 1
   searchQuery.value = ''
-  loadData()
+  await loadData()
 }
 
-function handlePageChange(page: number) {
+async function handlePageChange(page: number) {
   currentPage.value = page
+  await loadData()
 }
 
 function handleSearch() {

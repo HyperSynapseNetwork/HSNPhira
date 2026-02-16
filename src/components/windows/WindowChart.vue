@@ -104,6 +104,62 @@
             </div>
           </div>
 
+          <!-- 谱面热度信息 -->
+          <div v-if="chartRankInfo" class="glass rounded-2xl p-4">
+            <h3 class="text-white font-bold mb-3">谱面热度</h3>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <!-- 小时热度 -->
+                <div v-if="chartRankInfo.ranks.hour" class="glass-dark rounded-xl p-3">
+                  <div class="text-white/60 text-xs mb-1">最近1小时</div>
+                  <div class="text-white font-bold text-lg">
+                    <span class="text-green-400">+{{ chartRankInfo.ranks.hour.increase }}</span>
+                  </div>
+                  <div class="text-white/80 text-sm mt-1">
+                    排名: <span class="font-bold">#{{ chartRankInfo.ranks.hour.rank }}</span>
+                  </div>
+                </div>
+
+                <!-- 日热度 -->
+                <div v-if="chartRankInfo.ranks.day" class="glass-dark rounded-xl p-3">
+                  <div class="text-white/60 text-xs mb-1">最近1天</div>
+                  <div class="text-white font-bold text-lg">
+                    <span class="text-yellow-400">+{{ chartRankInfo.ranks.day.increase }}</span>
+                  </div>
+                  <div class="text-white/80 text-sm mt-1">
+                    排名: <span class="font-bold">#{{ chartRankInfo.ranks.day.rank }}</span>
+                  </div>
+                </div>
+
+                <!-- 周热度 -->
+                <div v-if="chartRankInfo.ranks.week" class="glass-dark rounded-xl p-3">
+                  <div class="text-white/60 text-xs mb-1">最近1周</div>
+                  <div class="text-white font-bold text-lg">
+                    <span class="text-blue-400">+{{ chartRankInfo.ranks.week.increase }}</span>
+                  </div>
+                  <div class="text-white/80 text-sm mt-1">
+                    排名: <span class="font-bold">#{{ chartRankInfo.ranks.week.rank }}</span>
+                  </div>
+                </div>
+
+                <!-- 月热度 -->
+                <div v-if="chartRankInfo.ranks.month" class="glass-dark rounded-xl p-3">
+                  <div class="text-white/60 text-xs mb-1">最近1月</div>
+                  <div class="text-white font-bold text-lg">
+                    <span class="text-purple-400">+{{ chartRankInfo.ranks.month.increase }}</span>
+                  </div>
+                  <div class="text-white/80 text-sm mt-1">
+                    排名: <span class="font-bold">#{{ chartRankInfo.ranks.month.rank }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div v-if="chartRankInfo.ranks.day" class="text-white/60 text-xs">
+                数据更新时间: {{ formatDate(chartRankInfo.ranks.day.last_updated) }}
+              </div>
+            </div>
+          </div>
+
           <!-- 成绩排行榜 -->
           <div class="glass rounded-2xl p-4 flex-1 flex flex-col min-h-0">
             <h3 class="text-white font-bold mb-3">{{ t('chart.rankings') }}</h3>
@@ -116,6 +172,9 @@
                     <th class="px-2 py-2 text-right">{{ t('chart.score') }}</th>
                     <th class="px-2 py-2 text-right">{{ t('chart.accuracy') }}</th>
                     <th class="px-2 py-2 text-right">{{ t('chart.perfect') }}</th>
+                    <th class="px-2 py-2 text-right">{{ t('chart.good') }}</th>
+                    <th class="px-2 py-2 text-right">{{ t('chart.bad') }}</th>
+                    <th class="px-2 py-2 text-right">{{ t('chart.miss') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -150,6 +209,15 @@
                     <td class="px-2 py-2 text-right text-green-400">
                       {{ record.perfect || 0 }}
                     </td>
+                    <td class="px-2 py-2 text-right text-yellow-400">
+                      {{ record.good || 0 }}
+                    </td>
+                    <td class="px-2 py-2 text-right text-orange-400">
+                      {{ record.bad || 0 }}
+                    </td>
+                    <td class="px-2 py-2 text-right text-red-400">
+                      {{ record.miss || 0 }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -161,24 +229,26 @@
             </div>
 
             <!-- 排行榜翻页 -->
-            <div v-if="recordsTotalPages > 1" class="flex items-center justify-between mt-4 pt-4 border-t border-white/20">
-              <button
-                class="px-3 py-1 rounded-lg glass hover:bg-white/10 text-white text-sm transition-all disabled:opacity-30"
-                :disabled="recordsPage === 1"
-                @click="recordsPage--"
-              >
-                {{ t('chart.previous') }}
-              </button>
-              <span class="text-white/80 text-sm">
-                {{ recordsPage }} / {{ recordsTotalPages }}
-              </span>
-              <button
-                class="px-3 py-1 rounded-lg glass hover:bg-white/10 text-white text-sm transition-all disabled:opacity-30"
-                :disabled="recordsPage === recordsTotalPages"
-                @click="recordsPage++"
-              >
-                {{ t('chart.next') }}
-              </button>
+            <div v-if="recordsTotalPages > 1" class="flex flex-col items-center mt-4 pt-4 border-t border-white/20">
+              <div class="text-white/60 text-sm mb-2">
+                {{ t('chart.pageInfo', { page: recordsPage, totalPages: recordsTotalPages, total: recordsTotal }) }}
+              </div>
+              <div class="flex items-center justify-center gap-4">
+                <button
+                  class="px-4 py-2 rounded-lg glass hover:bg-white/10 text-white text-sm transition-all disabled:opacity-30"
+                  :disabled="recordsPage === 1"
+                  @click="loadRecords(1)"
+                >
+                  {{ t('chart.firstPage') }}
+                </button>
+                <button
+                  class="px-4 py-2 rounded-lg glass hover:bg-white/10 text-white text-sm transition-all disabled:opacity-30"
+                  :disabled="recordsPage >= recordsTotalPages"
+                  @click="loadMoreRecords"
+                >
+                  {{ recordsLoading ? t('common.loading') : t('chart.loadMore') }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -230,22 +300,50 @@ interface ScoreRecord {
   miss: number
 }
 
+// 谱面排名信息接口
+interface ChartRankInfo {
+  chart_id: number
+  ranks: {
+    hour?: {
+      increase: number
+      rank: number
+      last_updated: string
+    }
+    day?: {
+      increase: number
+      rank: number
+      last_updated: string
+    }
+    week?: {
+      increase: number
+      rank: number
+      last_updated: string
+    }
+    month?: {
+      increase: number
+      rank: number
+      last_updated: string
+    }
+  }
+}
+
 const isOpen = ref(false)
 const loading = ref(false)
 const chartId = ref(0)
 const chartData = ref<ChartData | null>(null)
 const records = ref<ScoreRecord[]>([])
+const chartRankInfo = ref<ChartRankInfo | null>(null)
 const recordsPage = ref(1)
 const recordsPerPage = 20
+const recordsTotal = ref(0)
+const recordsLoading = ref(false)
 
-const recordsTotalPages = computed(() => 
-  Math.ceil(records.value.length / recordsPerPage)
+const recordsTotalPages = computed(() =>
+  Math.ceil(recordsTotal.value / recordsPerPage)
 )
 
 const currentPageRecords = computed(() => {
-  const start = (recordsPage.value - 1) * recordsPerPage
-  const end = start + recordsPerPage
-  return records.value.slice(start, end)
+  return records.value
 })
 
 const chartImageUrl = computed(() => {
@@ -262,20 +360,67 @@ async function openWindow(id: number) {
   chartId.value = id
   isOpen.value = true
   loading.value = true
+  chartRankInfo.value = null
 
   try {
-    // 加载谱面详情
-    chartData.value = await chartsAPI.getChartDetail(id)
+    // 并行加载谱面详情、排名信息和第一页成绩记录（每页20条）
+    const [chartDetail, rankInfo, recordsData] = await Promise.all([
+      chartsAPI.getChartDetail(id),
+      chartsAPI.getChartRankDetail(id).catch(error => {
+        console.warn('Failed to load chart rank info:', error)
+        return null
+      }),
+      chartsAPI.getChartRecords(id, 1, recordsPerPage)
+    ])
 
-    // 加载第一页成绩记录，每页30条
-    const recordsData = await chartsAPI.getChartRecords(id, 1, 30)
+    chartData.value = chartDetail
     records.value = recordsData.results || []
+    recordsTotal.value = recordsData.count || 0
+
+    if (rankInfo) {
+      chartRankInfo.value = rankInfo
+    }
   } catch (error) {
     console.error('Failed to load chart:', error)
     chartData.value = null
   } finally {
     loading.value = false
   }
+}
+
+// 加载成绩记录
+async function loadRecords(page: number = recordsPage.value) {
+  if (recordsLoading.value) {
+    return
+  }
+
+  recordsLoading.value = true
+
+  try {
+    const recordsData = await chartsAPI.getChartRecords(chartId.value, page, recordsPerPage)
+    
+    if (page === 1) {
+      // 如果是第一页，替换现有记录
+      records.value = recordsData.results || []
+    } else {
+      // 如果是其他页，追加记录
+      records.value = [...records.value, ...(recordsData.results || [])]
+    }
+    
+    recordsPage.value = page
+  } catch (error) {
+    console.error('Failed to load records:', error)
+  } finally {
+    recordsLoading.value = false
+  }
+}
+
+// 加载更多成绩记录
+async function loadMoreRecords() {
+  if (recordsPage.value >= recordsTotalPages.value) {
+    return
+  }
+  await loadRecords(recordsPage.value + 1)
 }
 
 function copyChartId() {
@@ -302,6 +447,23 @@ function viewLargeImage() {
       url: chartImageUrl.value,
       alt: chartData.value?.name || '谱面曲绘'
     })
+  }
+}
+
+// 格式化日期时间
+function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+  } catch (error) {
+    return dateString
   }
 }
 

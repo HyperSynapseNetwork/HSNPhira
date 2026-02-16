@@ -17,7 +17,7 @@
     },
     "charts": {
       "rank": "/chart/:id/rank",
-      "chartRank": "/chart_rank/:chart_id",
+      "chartRank": "/topchart/chart_rank/:chart_id",
       "hotRank": "/topchart/hot_rank/:timeRange"
     },
     "users": {
@@ -75,9 +75,9 @@
         "ja": "ルームリスト - HSN Phira"
       },
       "description": {
-        "zh": "查看和加入Phira多人游戏房间",
-        "en": "View and join Phira multiplayer rooms",
-        "ja": "Phiraマルチプレイルームを表示・参加"
+        "zh": "查看和加入HSNPhira多人游戏房间",
+        "en": "View and join HSNPhira multiplayer rooms",
+        "ja": "HSNPhiraマルチプレイルームを表示・参加"
       }
     },
     "chart-ranking": {
@@ -87,9 +87,9 @@
         "ja": "譜面ランキング - HSN Phira"
       },
       "description": {
-        "zh": "查看热门谱面排行榜",
-        "en": "View popular chart rankings",
-        "ja": "人気譜面ランキングを表示"
+        "zh": "查看热门Phira谱面排行榜，查看热门Phira铺面排行榜",
+        "en": "View popular Phira chart rankings",
+        "ja": "人気Phira譜面ランキングを表示"
       }
     },
     "user-ranking": {
@@ -99,9 +99,9 @@
         "ja": "ユーザーランキング - HSN Phira"
       },
       "description": {
-        "zh": "查看用户游玩时间排行榜",
-        "en": "View user playtime rankings",
-        "ja": "ユーザープレイ時間ランキングを表示"
+        "zh": "查看HSNPhira用户游玩时间排行榜",
+        "en": "View HSNPhira user playtime rankings",
+        "ja": "HSNPhiraユーザープレイ時間ランキングを表示"
       }
     },
     "chart-download": {
@@ -111,7 +111,7 @@
         "ja": "譜面ダウンロード - HSN Phira"
       },
       "description": {
-        "zh": "下载Phira谱面文件",
+        "zh": "下载Phira谱面文件，下载Phira铺面文件",
         "en": "Download Phira chart files",
         "ja": "Phira譜面ファイルをダウンロード"
       }
@@ -135,9 +135,9 @@
         "ja": "ナビゲーション - HSN Phira"
       },
       "description": {
-        "zh": "网站导航页面",
-        "en": "Website navigation page",
-        "ja": "ウェブサイトナビゲーションページ"
+        "zh": "Phira社区网站导航页面",
+        "en": "Phira Community Website navigation page",
+        "ja": "Phiraコミュニティウェブサイトナビゲーションページ"
       }
     },
     "announcement": {
@@ -147,9 +147,9 @@
         "ja": "お知らせ - HSN Phira"
       },
       "description": {
-        "zh": "查看服务器公告和更新",
-        "en": "View server announcements and updates",
-        "ja": "サーバーお知らせと更新を表示"
+        "zh": "查看HSNPhira服务器公告和更新",
+        "en": "View HSNPhira server announcements and updates",
+        "ja": "HSNPhiraサーバーのお知らせと更新を確認する"
       }
     },
     "agreement": {
@@ -159,9 +159,9 @@
         "ja": "利用規約 - HSN Phira"
       },
       "description": {
-        "zh": "阅读用户协议和隐私政策",
+        "zh": "阅读HSNPhira用户协议和隐私政策",
         "en": "Read user agreement and privacy policy",
-        "ja": "利用規約とプライバシーポリシーを読む"
+        "ja": "HSNPhira利用規約とプライバシーポリシーを読む"
       }
     }
   }
