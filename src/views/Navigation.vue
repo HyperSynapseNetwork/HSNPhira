@@ -2,20 +2,64 @@
   <div class="container mx-auto px-4 py-24">
     <h1 class="text-4xl font-bold text-white text-center mb-12">{{ t('nav.navigation') }}</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <button
-        v-for="link in links"
-        :key="link.url"
-        class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
-        @click="openLink(link.url)"
-      >
-        <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
-          {{ link.title }}
-        </h3>
-        <p class="text-white/60 text-sm break-all">
-          {{ link.url }}
-        </p>
-      </button>
+    <!-- 官方链接 -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">{{ t('navigation.official') }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <button
+          v-for="link in officialLinks"
+          :key="link.url"
+          class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
+          @click="openLink(link.url)"
+        >
+          <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
+            {{ link.title }}
+          </h3>
+          <p class="text-white/60 text-sm break-all">
+            {{ link.url }}
+          </p>
+        </button>
+      </div>
+    </div>
+
+    <!-- 联机服务器 -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">{{ t('navigation.multiplayer') }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <button
+          v-for="link in multiplayerLinks"
+          :key="link.url"
+          class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
+          @click="openLink(link.url)"
+        >
+          <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
+            {{ link.title }}
+          </h3>
+          <p class="text-white/60 text-sm break-all">
+            {{ link.url }}
+          </p>
+        </button>
+      </div>
+    </div>
+
+    <!-- 社区开源仓库 -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-white mb-6">{{ t('navigation.community') }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <button
+          v-for="link in communityLinks"
+          :key="link.url"
+          class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
+          @click="openLink(link.url)"
+        >
+          <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
+            {{ link.title }}
+          </h3>
+          <p class="text-white/60 text-sm break-all">
+            {{ link.url }}
+          </p>
+        </button>
+      </div>
     </div>
 
     <div class="mt-12 text-center">
@@ -31,66 +75,90 @@
 
 <script setup lang="ts">
 import { useI18nStore } from '@/stores/i18n'
-import { eventBus } from '@/utils/eventBus'
 
 const { t } = useI18nStore()
 
-const links = [
+// 官方链接
+const officialLinks = [
   {
-    title: 'Phira官方仓库',
+    title: t('navigation.phiraOfficialRepo'),
     url: 'https://github.com/login?return_to=https://github.com/TeamFlos/phira/'
   },
   {
-    title: 'Phira官网',
+    title: t('navigation.phiraOfficialWebsite'),
     url: 'https://phira.moe/'
   },
   {
-    title: 'Phira多人游戏服务器状态查询',
-    url: 'https://status.dmocken.top/status/phira'
-  },
-  {
-    title: 'Dmocken的Phira下载站',
+    title: t('navigation.dmockenPhiraDownload'),
     url: 'https://phira.dmocken.top/'
   },
   {
-    title: 'HyperSynapse Network Phira多人游戏服务器官网',
-    url: 'https://phira.htadiy.com/'
-  },
-  {
-    title: 'FunXLink Studio Phira 联机服务器 Web 监控面板',
-    url: 'https://phira.chuzoux.top/'
-  },
-  {
-    title: 'PyPhira 房间查询',
-    url: 'http://qd.phira.huqi-studio.top:50253/'
-  },
-  {
-    title: '户山兔兔的phira服务器房间列表查询',
-    url: 'https://iphira.danieltoyama.fun/'
-  },
-  {
-    title: 'HSNPhira官方仓库',
-    url: 'https://github.com/HyperSynapseNetwork/HSNPhira'
-  },
-  {
-    title: 'tphira官方仓库',
-    url: 'https://github.com/Pimeng/tphira-mp/'
-  },
-  {
-    title: 'pyphira官方仓库',
-    url: 'https://github.com/Evi233/pyphira-mp'
-  },
-  {
-    title: 'cpp phira-mp官方仓库',
-    url: 'https://github.com/HyperSynapseNetwork/cpp-phira-mp'
-  },
-  {
-    title: 'Phira常见问题自助文档',
+    title: t('navigation.phiraFaqDocument'),
     url: 'https://docs.qq.com/pdf/DU0FRVHVCd01KdERO'
   }
 ]
 
+// 联机服务器链接
+const multiplayerLinks = [
+  {
+    title: t('navigation.phiraServerStatus'),
+    url: 'https://status.dmocken.top/status/phira'
+  },
+  {
+    title: t('navigation.hsnPhiraServer'),
+    url: 'https://phira.htadiy.com/'
+  },
+  {
+    title: t('navigation.funxlinkPhiraPanel'),
+    url: 'https://phira.chuzoux.top/'
+  },
+  {
+    title: t('navigation.toyamaPhiraRooms'),
+    url: 'https://iphira.danieltoyama.fun/'
+  },
+  {
+    title: t('navigation.autoRoomQuery'),
+    url: 'https://phira.dmocken.top/mulity'
+  }
+]
+
+// 社区开源仓库
+const communityLinks = [
+  {
+    title: t('navigation.hsnPhiraRepo'),
+    url: 'https://github.com/HyperSynapseNetwork/HSNPhira'
+  },
+  {
+    title: t('navigation.javaPhiraMp'),
+    url: 'https://github.com/lRENyaaa/jphira-mp'
+  },
+  {
+    title: t('navigation.hsnPhiraMp'),
+    url: 'https://github.com/HyperSynapseNetwork/phira-mp'
+  },
+  {
+    title: t('navigation.tsPhiraMpPimeng'),
+    url: 'https://github.com/Pimeng/tphira-mp'
+  },
+  {
+    title: t('navigation.tsPhiraMpChuzouX'),
+    url: 'https://github.com/chuzouX/phira-mp-nodejsver'
+  },
+  {
+    title: t('navigation.pythonPhiraMp'),
+    url: 'https://github.com/Evi233/pyphira-mp'
+  },
+  {
+    title: t('navigation.csharpPhiraMp'),
+    url: 'https://github.com/NuanRMxi-Lazy-Team/PhiraMpServerCSharp'
+  },
+  {
+    title: t('navigation.goPhiraMp'),
+    url: 'https://github.com/Pimeng/gphira-mp'
+  }
+]
+
 function openLink(url: string) {
-  eventBus.emit('open-link', url)
+  window.open(url, '_blank')
 }
 </script>

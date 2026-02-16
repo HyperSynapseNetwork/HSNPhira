@@ -93,6 +93,16 @@ const { t } = useI18nStore()
 
 const announcements = ref([
   {
+    title: t('announcement.phiraMpReleaseTitle'),
+    content: t('announcement.phiraMpReleaseContent') + ' https://github.com/HyperSynapseNetwork/phira-mp',
+    date: '2026-02-17'
+  },
+  {
+    title: t('announcement.frontendReleaseTitle'),
+    content: t('announcement.frontendReleaseContent') + ' https://github.com/HyperSynapseNetwork/HSNPhira',
+    date: '2026-02-17'
+  },
+  {
     title: t('announcement.welcomeTitle'),
     content: t('announcement.welcomeContent'),
     date: '2025-07-01'
