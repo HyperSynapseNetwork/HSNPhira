@@ -2,9 +2,12 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { messages, detectLanguage, type Language } from '@/i18n'
 
+// SSR 环境判断
+const isBrowser = typeof window !== 'undefined'
+
 export const useI18nStore = defineStore('i18n', () => {
   const currentLanguage = ref<Language>(detectLanguage())
-  
+
   const t = computed(() => {
     return (key: string, params?: Record<string, any>): string => {
       const keys = key.split('.')
@@ -20,17 +23,19 @@ export const useI18nStore = defineStore('i18n', () => {
 
       // 替换参数
       if (params) {
-        return value.replace(/\{(\w+)\}/g, (_, key) => params[key] || '')
+        return value.replace(/\{(\w+)\}/g, (_: string, key: string) => params[key] || '')
       }
 
       return value
     }
   })
-  
+
   function setLanguage(lang: Language) {
     currentLanguage.value = lang
+    if (!isBrowser) return
+
     localStorage.setItem('hsn_language', lang)
-    
+
     // 同时更新用户偏好配置中的language字段
     try {
       const userPreferences = JSON.parse(localStorage.getItem('hsn_user_preferences') || '{}')
@@ -40,12 +45,14 @@ export const useI18nStore = defineStore('i18n', () => {
       console.error('Failed to update user preferences:', error)
     }
   }
-  
+
   function initLanguage() {
+    if (!isBrowser) return
+
     // 首先检查用户偏好配置中的语言设置
     const userPreferences = JSON.parse(localStorage.getItem('hsn_user_preferences') || '{}')
     const prefLanguage = userPreferences.language
-    
+
     // 映射偏好配置中的语言值到Language类型
     let lang: Language | undefined
     if (prefLanguage === 'zh' || prefLanguage === 'zh-CN') {
@@ -57,7 +64,7 @@ export const useI18nStore = defineStore('i18n', () => {
     } else if (prefLanguage === 'ja' || prefLanguage === 'ja-JP') {
       lang = 'ja'
     }
-    
+
     if (lang && ['zh', 'zh-TW', 'en', 'ja'].indexOf(lang) !== -1) {
       currentLanguage.value = lang
       localStorage.setItem('hsn_language', lang)
@@ -71,7 +78,7 @@ export const useI18nStore = defineStore('i18n', () => {
       }
     }
   }
-  
+
   return {
     currentLanguage,
     t,

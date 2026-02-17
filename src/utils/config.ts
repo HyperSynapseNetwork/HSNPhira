@@ -1,11 +1,14 @@
 import type { AppConfig, PreferencesConfig } from '@/types'
 
+// SSR 环境判断工具
+const isBrowser = typeof window !== 'undefined'
+
 let appConfig: AppConfig | null = null
 let preferencesConfig: PreferencesConfig | null = null
 
 export async function loadAppConfig(): Promise<AppConfig> {
   if (appConfig) return appConfig
-  
+
   const response = await fetch('/config/app.config.json')
   appConfig = await response.json()
   return appConfig!
@@ -13,7 +16,7 @@ export async function loadAppConfig(): Promise<AppConfig> {
 
 export async function loadPreferencesConfig(): Promise<PreferencesConfig> {
   if (preferencesConfig) return preferencesConfig
-  
+
   const response = await fetch('/config/preferences.config.json')
   preferencesConfig = await response.json()
   return preferencesConfig!
@@ -46,24 +49,25 @@ export function getPhiraBaseURL(): string {
 export function getAPIRoute(category: string, name: string, params?: Record<string, string>): string {
   const config = getAppConfig()
   let route = config.routes[category]?.[name]
-  
+
   if (!route) {
     throw new Error(`API route not found: ${category}.${name}`)
   }
-  
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       route = route.replace(`:${key}`, value)
     })
   }
-  
+
   return route
 }
 
-// 用户偏好管理
+// 用户偏好管理（依赖 localStorage，SSR 环境不可用，全部加 isBrowser 守卫）
 const STORAGE_KEY = 'hsn_user_preferences'
 
 export function getUserPreferences(): Record<string, any> {
+  if (!isBrowser) return {}
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored) {
     try {
@@ -76,8 +80,9 @@ export function getUserPreferences(): Record<string, any> {
 }
 
 export function saveUserPreferences(preferences: Record<string, any>): void {
+  if (!isBrowser) return
   localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences))
-  
+
   // 应用主题色
   if (preferences.theme_color) {
     document.documentElement.style.setProperty('--primary-color', preferences.theme_color)
@@ -96,27 +101,29 @@ export function setUserPreference(key: string, value: any): void {
 }
 
 export function resetUserPreferences(): void {
+  if (!isBrowser) return
   const config = getPreferencesConfig()
   const defaults: Record<string, any> = {}
-  
+
   config.preferences.forEach(pref => {
     defaults[pref.id] = pref.default
   })
-  
+
   saveUserPreferences(defaults)
 }
 
-// 初始化用户偏好
+// 初始化用户偏好（仅客户端）
 export function initializeUserPreferences(): void {
+  if (!isBrowser) return
   const config = getPreferencesConfig()
   const current = getUserPreferences()
-  
+
   // 合并默认值
   config.preferences.forEach(pref => {
     if (!(pref.id in current)) {
       current[pref.id] = pref.default
     }
   })
-  
+
   saveUserPreferences(current)
 }

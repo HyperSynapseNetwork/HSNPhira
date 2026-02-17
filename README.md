@@ -19,6 +19,7 @@ HSNPhira Frontend由HSNPhira Backend与phira-mp-logprocessor提供后端支持
 - **状态管理**: Pinia
 - **路由**: Vue Router
 - **HTTP客户端**: Axios
+- **静态站点生成 (SSG)**: vite-ssg
 
 ## 项目结构
 
@@ -157,7 +158,7 @@ pnpm dev
 ### 构建生产版本
 
 ```bash
-# 执行TypeScript类型检查并构建
+# 执行TypeScript类型检查并构建（标准 SPA 模式）
 pnpm build
 # 或 npm run build
 
@@ -168,6 +169,40 @@ pnpm build
 - 构建过程会执行 `vue-tsc` 进行类型检查，确保TypeScript代码正确性
 - 生产构建会优化代码、压缩资源、生成sourcemap
 - 构建产物为纯静态文件，可部署到任何Web服务器
+
+### 构建 SSG（静态站点生成）版本
+
+```bash
+# 预渲染所有静态路由为 HTML 文件（SSG 模式）
+pnpm build:ssg
+# 或 npm run build:ssg
+```
+
+**SSG 说明**：
+
+SSG（Static Site Generation）会在构建时将每个路由预渲染为对应的 `index.html` 文件，输出到 `dist/` 目录。相比普通 SPA 构建，SSG 的优势包括：
+
+- **更好的 SEO**：搜索引擎爬虫可以直接抓取完整的 HTML 内容，无需等待 JS 执行
+- **更快的首屏加载**：用户首次访问即可获得完整的 HTML，无需等待 Vue 渲染
+- **社交分享友好**：各平台的 Open Graph 爬虫可正确解析页面 meta 信息
+
+**预渲染的路由**（不含需要登录的动态路由）：
+
+| 路由 | 输出文件 |
+|------|---------|
+| `/` | `dist/index.html` |
+| `/rooms` | `dist/rooms/index.html` |
+| `/chart-ranking` | `dist/chart-ranking/index.html` |
+| `/user-ranking` | `dist/user-ranking/index.html` |
+| `/agreement` | `dist/agreement/index.html` |
+| `/announcement` | `dist/announcement/index.html` |
+| `/chart-download` | `dist/chart-download/index.html` |
+| `/phira-download` | `dist/phira-download/index.html` |
+| `/navigation` | `dist/navigation/index.html` |
+
+> **注意**：`/account` 路由因需要登录鉴权，不参与 SSG 预渲染，仍以 SPA 方式在客户端渲染。
+
+**部署 SSG 产物**：SSG 构建产物与普通构建完全兼容，可以用相同的 Nginx/Apache 配置部署。需保留 `try_files $uri $uri/ /index.html;` 以确保 SPA 回退路由正常工作。
 
 ### 预览生产构建
 
@@ -343,7 +378,7 @@ server {
 
 ## 许可证
 
-本项目采用 GNU General Public License v3.0 (GPL-3.0) 开源协议。
+本项目采用 GNU Affero General Public License（AGPL）3.0 开源协议。
 
 ### 版权声明
 版权所有 © HyperSynapse Network。保留所有权利。
@@ -354,7 +389,7 @@ server {
 - 在分发时提供完整的源代码。
 - 任何基于本项目的衍生作品也必须使用 AGPL-3.0 协议开源。
 
-详细条款请查看 [GNU GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.html) 许可证全文。
+详细条款请查看 [GNU AGPL v3.0](https://www.gnu.org/licenses/agpl-3.0.html) 许可证全文。
 
 ## 联系方式
 

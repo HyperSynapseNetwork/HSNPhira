@@ -289,7 +289,11 @@ export const messages = {
       welcomeTitle: '欢迎使用HSN Phira服务器',
       welcomeContent: '感谢您选择我们的服务！我们致力于提供稳定、低延迟的多人游戏体验。',
       maintenanceTitle: '服务器维护公告',
-      maintenanceContent: '每天凌晨服务器会自动重启，请合理规划游戏时间。'
+      maintenanceContent: '每天凌晨服务器会自动重启，请合理规划游戏时间。',
+      frontendReleaseTitle: 'HSNPhira Frontend v1.0.1发布',
+      frontendReleaseContent: 'HSNPhira前端版本1.0.1已发布，包含谱面详情页改进、API级分页、国际化完善等新功能。',
+      phiraMpReleaseTitle: 'Rust Phira-mp改版，C++ Phira-mp，Lua/C++ Phira-mp发布',
+      phiraMpReleaseContent: 'HSNPhira-mp项目发布了Rust、C++和Lua/C++版本的多人在线服务器实现，提供高性能、跨平台支持。'
     },
     agreement: {
       title: '用户协议',
@@ -350,7 +354,27 @@ export const messages = {
       finalNote: '请仔细阅读并理解本协议的全部内容。注册或使用本平台服务即表示您同意接受本协议的约束。如有任何疑问，请联系我们的客服支持。'
     },
     navigation: {
-      tip: 'tip：如有其他需要加入的链接可以联系'
+      tip: 'tip：如有其他需要加入的链接可以联系',
+      official: '官方',
+      multiplayer: '联机服务器',
+      community: '社区开源仓库',
+      phiraOfficialRepo: 'Phira官方仓库',
+      phiraOfficialWebsite: 'Phira官网',
+      dmockenPhiraDownload: 'Dmocken的Phira下载站',
+      phiraFaqDocument: 'Phira常见问题自助文档',
+      phiraServerStatus: 'Phira多人游戏服务器状态查询',
+      hsnPhiraServer: 'HyperSynapse Network Phira多人游戏服务器官网',
+      funxlinkPhiraPanel: 'FunXLink Studio Phira 联机服务器 Web 监控面板',
+      toyamaPhiraRooms: '户山兔兔的phira服务器房间列表查询',
+      autoRoomQuery: 'Auto房间查询',
+      hsnPhiraRepo: 'HSNPhira',
+      javaPhiraMp: 'Java Phira-mp',
+      hsnPhiraMp: 'Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN',
+      tsPhiraMpPimeng: 'TypeScript Phira-mp By Pimeng',
+      tsPhiraMpChuzouX: 'TypeScript Phira-mp By chuzouX',
+      pythonPhiraMp: 'Python Phira-mp',
+      csharpPhiraMp: 'C# Phira-mp',
+      goPhiraMp: 'Go Phira-mp'
     },
     account: {
       title: '账户管理',
@@ -398,7 +422,6 @@ export const messages = {
       rooms: '房间数',
       ping: '延迟',
       uptime: '运行时间',
-      availability: '可用率',
       averageLatency: '平均延迟'
     },
     message: {
@@ -727,7 +750,11 @@ export const messages = {
       welcomeTitle: 'Welcome to HSN Phira Server',
       welcomeContent: 'Thank you for choosing our service! We are committed to providing stable, low-latency multiplayer gaming experience.',
       maintenanceTitle: 'Server Maintenance Announcement',
-      maintenanceContent: 'The server automatically restarts every early morning, please plan your gaming time appropriately.'
+      maintenanceContent: 'The server automatically restarts every early morning, please plan your gaming time appropriately.',
+      frontendReleaseTitle: 'HSNPhira Frontend v1.0.1 Released',
+      frontendReleaseContent: 'HSNPhira frontend version 1.0.1 has been released, featuring chart detail page improvements, API-level pagination, and enhanced internationalization.',
+      phiraMpReleaseTitle: 'Rust Phira-mp Revamp, C++ Phira-mp, Lua/C++ Phira-mp Released',
+      phiraMpReleaseContent: 'HSNPhira-mp project has released Rust, C++, and Lua/C++ versions of multiplayer online server implementations, providing high performance and cross-platform support.'
     },
     agreement: {
       title: 'User Agreement',
@@ -788,7 +815,27 @@ export const messages = {
       finalNote: 'Please read and understand the full content of this agreement carefully. Registration or use of this platform\'s services indicates your acceptance of the terms of this agreement. If you have any questions, please contact our customer support.'
     },
     navigation: {
-      tip: 'tip: If you have other links to add, please contact'
+      tip: 'tip: If you have other links to add, please contact',
+      official: 'Official',
+      multiplayer: 'Multiplayer Servers',
+      community: 'Community Open Source Repositories',
+      phiraOfficialRepo: 'Phira Official Repository',
+      phiraOfficialWebsite: 'Phira Official Website',
+      dmockenPhiraDownload: 'Dmocken\'s Phira Download Site',
+      phiraFaqDocument: 'Phira FAQ Self-Service Document',
+      phiraServerStatus: 'Phira Multiplayer Game Server Status Query',
+      hsnPhiraServer: 'HyperSynapse Network Phira Multiplayer Game Server',
+      funxlinkPhiraPanel: 'FunXLink Studio Phira Server Web Monitoring Panel',
+      toyamaPhiraRooms: 'Toyama\'s Phira Server Room List Query',
+      autoRoomQuery: 'Auto Room Query',
+      hsnPhiraRepo: 'HSNPhira',
+      javaPhiraMp: 'Java Phira-mp',
+      hsnPhiraMp: 'Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN',
+      tsPhiraMpPimeng: 'TypeScript Phira-mp By Pimeng',
+      tsPhiraMpChuzouX: 'TypeScript Phira-mp By chuzouX',
+      pythonPhiraMp: 'Python Phira-mp',
+      csharpPhiraMp: 'C# Phira-mp',
+      goPhiraMp: 'Go Phira-mp'
     },
     account: {
       title: 'Account Management',
@@ -836,7 +883,6 @@ export const messages = {
       rooms: 'Rooms',
       ping: 'Ping',
       uptime: 'Uptime',
-      availability: 'Availability',
       averageLatency: 'Average Latency'
     },
     message: {
@@ -1165,7 +1211,11 @@ export const messages = {
       welcomeTitle: 'HSN Phiraサーバーへようこそ',
       welcomeContent: '当サービスをご利用いただきありがとうございます！安定した低遅延のマルチプレイゲーム体験を提供します。',
       maintenanceTitle: 'サーバーメンテナンスのお知らせ',
-      maintenanceContent: 'サーバーは毎朝自動的に再起動します。ゲームプレイを適切に計画してください。'
+      maintenanceContent: 'サーバーは毎朝自動的に再起動します。ゲームプレイを適切に計画してください。',
+      frontendReleaseTitle: 'HSNPhira Frontend v1.0.1 リリース',
+      frontendReleaseContent: 'HSNPhiraフロントエンドバージョン1.0.1がリリースされました。譜面詳細ページの改善、APIレベルのページネーション、国際化の強化などの新機能が含まれています。',
+      phiraMpReleaseTitle: 'Rust Phira-mp改版、C++ Phira-mp、Lua/C++ Phira-mp リリース',
+      phiraMpReleaseContent: 'HSNPhira-mpプロジェクトがRust、C++、Lua/C++バージョンのマルチプレイオンラインサーバー実装をリリースしました。高性能かつクロスプラットフォーム対応を提供します。'
     },
     agreement: {
       title: '利用規約',
@@ -1226,7 +1276,27 @@ export const messages = {
       finalNote: '本同意書の全内容をよくお読みになり、理解してください。本プラットフォームサービスの登録又は使用は、本同意書の条項に同意したことを示します。ご質問がある場合は、カスタマーサポートにお問い合わせください。'
     },
     navigation: {
-      tip: 'tip: 追加するリンクがある場合は、ご連絡ください'
+      tip: 'tip: 追加するリンクがある場合は、ご連絡ください',
+      official: '公式',
+      multiplayer: 'マルチプレイサーバー',
+      community: 'コミュニティオープンソースリポジトリ',
+      phiraOfficialRepo: 'Phira公式リポジトリ',
+      phiraOfficialWebsite: 'Phira公式サイト',
+      dmockenPhiraDownload: 'DmockenのPhiraダウンロードサイト',
+      phiraFaqDocument: 'Phiraよくある質問自助ドキュメント',
+      phiraServerStatus: 'Phiraマルチプレイゲームサーバーステータス確認',
+      hsnPhiraServer: 'HyperSynapse Network Phiraマルチプレイゲームサーバー',
+      funxlinkPhiraPanel: 'FunXLink Studio PhiraサーバーWebモニタリングパネル',
+      toyamaPhiraRooms: '戸山兎兎のPhiraサーバールーム一覧確認',
+      autoRoomQuery: '自動ルーム確認',
+      hsnPhiraRepo: 'HSNPhira',
+      javaPhiraMp: 'Java Phira-mp',
+      hsnPhiraMp: 'Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN',
+      tsPhiraMpPimeng: 'TypeScript Phira-mp By Pimeng',
+      tsPhiraMpChuzouX: 'TypeScript Phira-mp By chuzouX',
+      pythonPhiraMp: 'Python Phira-mp',
+      csharpPhiraMp: 'C# Phira-mp',
+      goPhiraMp: 'Go Phira-mp'
     },
     account: {
       title: 'アカウント管理',
@@ -1274,7 +1344,6 @@ export const messages = {
       rooms: 'ルーム数',
       ping: '遅延',
       uptime: '稼働時間',
-      availability: '可用率',
       averageLatency: '平均遅延'
     },
     message: {
@@ -1597,7 +1666,11 @@ export const messages = {
       welcomeTitle: '歡迎使用HSN Phira伺服器',
       welcomeContent: '感謝您選擇我們的服務！我們致力於提供穩定、低延遲的多人遊戲體驗。',
       maintenanceTitle: '伺服器維護公告',
-      maintenanceContent: '每天凌晨伺服器會自動重啟，請合理規劃遊戲時間。'
+      maintenanceContent: '每天凌晨伺服器會自動重啟，請合理規劃遊戲時間。',
+      frontendReleaseTitle: 'HSNPhira Frontend v1.0.1 發佈',
+      frontendReleaseContent: 'HSNPhira前端版本1.0.1已發佈，包含譜面詳情頁改進、API級分頁、國際化完善等新功能。',
+      phiraMpReleaseTitle: 'Rust Phira-mp改版，C++ Phira-mp，Lua/C++ Phira-mp 發佈',
+      phiraMpReleaseContent: 'HSNPhira-mp項目發佈了Rust、C++和Lua/C++版本的多人連線伺服器實現，提供高效能、跨平台支援。'
     },
     agreement: {
       title: '用戶協議',
@@ -1658,7 +1731,27 @@ export const messages = {
       finalNote: '請仔細閱讀並理解本協議的全部內容。註冊或使用本平台服務即表示您同意接受本協議的約束。如有任何疑問，請聯繫我們的客服支援。'
     },
     navigation: {
-      tip: 'tip：如有其他需要加入的連結可以聯繫'
+      tip: 'tip：如有其他需要加入的連結可以聯繫',
+      official: '官方',
+      multiplayer: '連線伺服器',
+      community: '社群開源倉庫',
+      phiraOfficialRepo: 'Phira官方倉庫',
+      phiraOfficialWebsite: 'Phira官網',
+      dmockenPhiraDownload: 'Dmocken的Phira下載站',
+      phiraFaqDocument: 'Phira常見問題自助文件',
+      phiraServerStatus: 'Phira多人遊戲伺服器狀態查詢',
+      hsnPhiraServer: 'HyperSynapse Network Phira多人遊戲伺服器官網',
+      funxlinkPhiraPanel: 'FunXLink Studio Phira 連線伺服器 Web 監控面板',
+      toyamaPhiraRooms: '戶山兔兔的phira伺服器房間列表查詢',
+      autoRoomQuery: '自動房間查詢',
+      hsnPhiraRepo: 'HSNPhira',
+      javaPhiraMp: 'Java Phira-mp',
+      hsnPhiraMp: 'Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN',
+      tsPhiraMpPimeng: 'TypeScript Phira-mp By Pimeng',
+      tsPhiraMpChuzouX: 'TypeScript Phira-mp By chuzouX',
+      pythonPhiraMp: 'Python Phira-mp',
+      csharpPhiraMp: 'C# Phira-mp',
+      goPhiraMp: 'Go Phira-mp'
     },
     account: {
       title: '帳戶管理',
@@ -1706,7 +1799,6 @@ export const messages = {
       rooms: '房間數',
       ping: '延遲',
       uptime: '執行時間',
-      availability: '可用率',
       averageLatency: '平均延遲'
     },
     message: {
@@ -1756,31 +1848,16 @@ export const messages = {
 export type Language = 'zh' | 'zh-TW' | 'en' | 'ja'
 
 export function detectLanguage(): Language {
-  // 调试：记录浏览器语言信息
-  console.log('Browser language detection:', {
-    navigatorLanguage: navigator.language,
-    navigatorLanguages: navigator.languages,
-    userAgent: navigator.userAgent
-  })
+  // vite-ssg 用 happy-dom 模拟浏览器，navigator 存在但 userAgent 含 Node.js 特征
+  if (typeof navigator === 'undefined' || navigator.userAgent?.includes('Node.js')) {
+    return 'zh'
+  }
 
   const browserLang = navigator.language.toLowerCase()
 
-  // 检测繁体中文（台湾、香港、澳门）
-  if (browserLang === 'zh-tw' || browserLang === 'zh-hk' || browserLang === 'zh-mo') {
-    console.log('Detected Traditional Chinese:', browserLang)
-    return 'zh-TW'
-  }
+  if (browserLang === 'zh-tw' || browserLang === 'zh-hk' || browserLang === 'zh-mo') return 'zh-TW'
+  if (browserLang.indexOf('zh') === 0) return 'zh'
+  if (browserLang.indexOf('ja') === 0) return 'ja'
 
-  // 其他中文变体默认为简体中文
-  if (browserLang.indexOf('zh') === 0) {
-    console.log('Detected Chinese variant:', browserLang)
-    return 'zh'
-  }
-  if (browserLang.indexOf('ja') === 0) {
-    console.log('Detected Japanese:', browserLang)
-    return 'ja'
-  }
-  
-  console.log('Defaulting to English')
   return 'en'
 }

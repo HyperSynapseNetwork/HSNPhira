@@ -1,12 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
-const routes: RouteRecordRaw[] = [
+export const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
     component: () => import('@/views/Home.vue'),
-    meta: { 
+    meta: {
       title: 'HSN Phira多人游戏服务器 - 免费·多功能·稳定·低延迟',
       description: 'HyperSynapse Network Phira多人游戏服务器，为Phira玩家提供免费、稳定的多人联机服务',
       keywords: 'Phira,多人游戏,音游,联机服务器,HSN'
@@ -16,7 +15,7 @@ const routes: RouteRecordRaw[] = [
     path: '/rooms',
     name: 'RoomList',
     component: () => import('@/views/RoomList.vue'),
-    meta: { 
+    meta: {
       title: '房间列表 - HSN Phira服务器',
       description: '查看当前所有在线房间，加入你感兴趣的多人游戏',
       keywords: 'Phira房间,多人房间,联机游戏'
@@ -26,7 +25,7 @@ const routes: RouteRecordRaw[] = [
     path: '/chart-ranking',
     name: 'ChartRanking',
     component: () => import('@/views/ChartRanking.vue'),
-    meta: { 
+    meta: {
       title: '谱面排行 - HSN Phira服务器',
       description: '查看最热门的Phira谱面排行榜',
       keywords: 'Phira谱面,热门排行,谱面推荐'
@@ -36,7 +35,7 @@ const routes: RouteRecordRaw[] = [
     path: '/user-ranking',
     name: 'UserRanking',
     component: () => import('@/views/UserRanking.vue'),
-    meta: { 
+    meta: {
       title: '用户排行 - HSN Phira服务器',
       description: '查看游玩时间最长的玩家排行',
       keywords: 'Phira玩家,用户排行,游戏时长'
@@ -46,18 +45,18 @@ const routes: RouteRecordRaw[] = [
     path: '/account',
     name: 'Account',
     component: () => import('@/views/Account.vue'),
-    meta: { 
+    meta: {
       title: '账户管理 - HSN Phira服务器',
       description: '管理你的HSN账户信息',
       keywords: '账户管理,用户信息',
-      requiresAuth: true 
+      requiresAuth: true
     }
   },
   {
     path: '/agreement',
     name: 'Agreement',
     component: () => import('@/views/Agreement.vue'),
-    meta: { 
+    meta: {
       title: '用户协议 - HSN Phira服务器',
       description: 'HSN Phira服务器用户协议和免责声明',
       keywords: '用户协议,免责声明,服务条款'
@@ -67,7 +66,7 @@ const routes: RouteRecordRaw[] = [
     path: '/announcement',
     name: 'Announcement',
     component: () => import('@/views/Announcement.vue'),
-    meta: { 
+    meta: {
       title: '公告 - HSN Phira服务器',
       description: '查看最新公告和联系方式',
       keywords: '公告,联系方式,服务更新'
@@ -77,7 +76,7 @@ const routes: RouteRecordRaw[] = [
     path: '/chart-download',
     name: 'ChartDownload',
     component: () => import('@/views/ChartDownload.vue'),
-    meta: { 
+    meta: {
       title: '谱面下载工具 - HSN Phira服务器',
       description: '快速下载Phira谱面',
       keywords: '谱面下载,Phira谱面,下载工具'
@@ -87,7 +86,7 @@ const routes: RouteRecordRaw[] = [
     path: '/phira-download',
     name: 'PhiraDownload',
     component: () => import('@/views/PhiraDownload.vue'),
-    meta: { 
+    meta: {
       title: 'Phira下载站 - HSN Phira服务器',
       description: '下载Phira游戏客户端 - Android/Windows/Linux',
       keywords: 'Phira下载,Phira客户端,Phira安装'
@@ -97,53 +96,10 @@ const routes: RouteRecordRaw[] = [
     path: '/navigation',
     name: 'Navigation',
     component: () => import('@/views/Navigation.vue'),
-    meta: { 
+    meta: {
       title: '导航 - HSN Phira服务器',
       description: 'Phira相关资源导航',
       keywords: 'Phira导航,相关链接,资源导航'
     }
   },
 ]
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
-
-import { updatePageMeta, getPageNameFromRoute } from '@/utils/meta'
-
-// 路由守卫
-router.beforeEach((to, _from, next) => {
-  // 更新页面meta（基于配置文件的国际化）
-  const pageName = getPageNameFromRoute(to.path)
-  updatePageMeta(pageName)
-  
-  // 如果路由有自定义meta，则覆盖（兼容旧代码）
-  if (to.meta?.title) {
-    document.title = to.meta.title as string
-  }
-  
-  if (to.meta?.description) {
-    let metaDescription = document.querySelector('meta[name="description"]')
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta')
-      metaDescription.setAttribute('name', 'description')
-      document.head.appendChild(metaDescription)
-    }
-    metaDescription.setAttribute('content', to.meta.description as string)
-  }
-
-  if (to.meta?.keywords) {
-    let metaKeywords = document.querySelector('meta[name="keywords"]')
-    if (!metaKeywords) {
-      metaKeywords = document.createElement('meta')
-      metaKeywords.setAttribute('name', 'keywords')
-      document.head.appendChild(metaKeywords)
-    }
-    metaKeywords.setAttribute('content', to.meta.keywords as string)
-  }
-
-  next()
-})
-
-export default router
