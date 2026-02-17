@@ -422,7 +422,6 @@ export const messages = {
       rooms: '房间数',
       ping: '延迟',
       uptime: '运行时间',
-      availability: '可用率',
       averageLatency: '平均延迟'
     },
     message: {
@@ -884,7 +883,6 @@ export const messages = {
       rooms: 'Rooms',
       ping: 'Ping',
       uptime: 'Uptime',
-      availability: 'Availability',
       averageLatency: 'Average Latency'
     },
     message: {
@@ -1346,7 +1344,6 @@ export const messages = {
       rooms: 'ルーム数',
       ping: '遅延',
       uptime: '稼働時間',
-      availability: '可用率',
       averageLatency: '平均遅延'
     },
     message: {
@@ -1802,7 +1799,6 @@ export const messages = {
       rooms: '房間數',
       ping: '延遲',
       uptime: '執行時間',
-      availability: '可用率',
       averageLatency: '平均延遲'
     },
     message: {
