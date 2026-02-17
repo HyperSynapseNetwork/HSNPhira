@@ -10,6 +10,9 @@
       <button
         class="md:hidden p-2 rounded-lg glass hover:bg-white/10 transition-colors"
         @click="toggleMobileMenu"
+        :aria-label="t('common.menu')"
+        :aria-expanded="showMobileMenu"
+        aria-controls="mobile-menu"
       >
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -38,6 +41,9 @@
           <button
             class="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
             @click="toggleLangMenu"
+            :aria-label="t('common.language')"
+            :aria-expanded="showLangMenu"
+            aria-controls="language-menu"
             title="切换语言"
           >
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +134,7 @@
 
     <!-- 移动端菜单 -->
     <transition name="mobile-menu">
-      <div v-if="showMobileMenu" class="md:hidden glass-dark" @click.self="closeMobileMenu">
+      <div v-if="showMobileMenu" id="mobile-menu" class="md:hidden glass-dark" @click.self="closeMobileMenu">
         <div class="p-4">
           <!-- 导航链接 -->
           <div class="space-y-2 mb-4">

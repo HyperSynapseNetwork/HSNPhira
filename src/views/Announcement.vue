@@ -16,7 +16,7 @@
             <h3 class="text-xl font-bold text-white">{{ announcement.title }}</h3>
             <span class="text-white/40 text-sm">{{ announcement.date }}</span>
           </div>
-          <p class="text-white/80">{{ announcement.content }}</p>
+          <p class="text-white/80 break-all overflow-wrap-anywhere">{{ announcement.content }}</p>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
 
         <div class="glass-dark rounded-2xl p-4 hover:scale-105 transition-transform">
           <div class="text-white/60 text-sm mb-2">{{ t('announcement.serverAddress') }}</div>
-          <div class="text-white text-lg font-mono mb-3 break-all">service.htadiy.com:7865</div>
+          <div class="text-white text-lg font-mono mb-3 break-all overflow-wrap-anywhere">service.htadiy.com:7865</div>
           <Button size="sm" class="w-full" @click="copyServer">
 {{ t('announcement.copyAddress') }}
           </Button>
@@ -44,7 +44,7 @@
 
         <div class="glass-dark rounded-2xl p-4 hover:scale-105 transition-transform">
           <div class="text-white/60 text-sm mb-2">{{ t('announcement.email') }}</div>
-          <div class="text-white text-lg mb-3">nb3502022@outlook.com</div>
+          <div class="text-white text-lg mb-3 break-all overflow-wrap-anywhere">nb3502022@outlook.com</div>
           <Button size="sm" class="w-full" @click="copyEmail">
 {{ t('announcement.copyEmail') }}
           </Button>
@@ -55,7 +55,7 @@
           <a
             href="https://github.com/HyperSynapseNetwork/HSNPhira"
             target="_blank"
-            class="text-primary text-lg glow-on-hover block mb-3"
+            class="text-primary text-lg glow-on-hover block mb-3 break-all md:break-normal overflow-wrap-anywhere"
           >
             HSNPhira官方仓库
           </a>
@@ -69,7 +69,7 @@
           <a
             href="https://space.bilibili.com/625719258"
             target="_blank"
-            class="text-primary text-lg glow-on-hover block mb-3"
+            class="text-primary text-lg glow-on-hover block mb-3 break-all md:break-normal overflow-wrap-anywhere"
           >
             Firefly的Bilibili
           </a>
@@ -84,23 +84,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { copyToClipboard } from '@/utils/message'
 import Button from '@/components/common/Button.vue'
 import { useI18nStore } from '@/stores/i18n'
 
 const { t } = useI18nStore()
 
-const announcements = ref([
+const announcements = computed(() => [
   {
     title: t('announcement.phiraMpReleaseTitle'),
     content: t('announcement.phiraMpReleaseContent') + ' https://github.com/HyperSynapseNetwork/phira-mp',
-    date: '2026-02-17'
+    date: '2026-02-18'
   },
   {
     title: t('announcement.frontendReleaseTitle'),
     content: t('announcement.frontendReleaseContent') + ' https://github.com/HyperSynapseNetwork/HSNPhira',
-    date: '2026-02-17'
+    date: '2026-02-18'
   },
   {
     title: t('announcement.welcomeTitle'),

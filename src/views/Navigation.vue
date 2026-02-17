@@ -62,24 +62,27 @@
       </div>
     </div>
 
-    <div class="mt-12 text-center">
-      <p class="text-white/60 text-sm">
-        {{ t('navigation.tip') }}
-        <a href="mailto:nb3502022@outlook.com" class="text-primary glow-on-hover">
-          nb3502022@outlook.com
-        </a>
-      </p>
+    <div class="mt-12">
+      <div class="glass rounded-2xl p-6 text-center shadow-2xl">
+        <p class="text-white/80 text-sm">
+          {{ t('navigation.tip') }}
+          <a href="mailto:nb3502022@outlook.com" class="text-primary glow-on-hover font-medium">
+            nb3502022@outlook.com
+          </a>
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
 
 const { t } = useI18nStore()
 
 // 官方链接
-const officialLinks = [
+const officialLinks = computed(() => [
   {
     title: t('navigation.phiraOfficialRepo'),
     url: 'https://github.com/login?return_to=https://github.com/TeamFlos/phira/'
@@ -96,10 +99,10 @@ const officialLinks = [
     title: t('navigation.phiraFaqDocument'),
     url: 'https://docs.qq.com/pdf/DU0FRVHVCd01KdERO'
   }
-]
+])
 
 // 联机服务器链接
-const multiplayerLinks = [
+const multiplayerLinks = computed(() => [
   {
     title: t('navigation.phiraServerStatus'),
     url: 'https://status.dmocken.top/status/phira'
@@ -120,10 +123,10 @@ const multiplayerLinks = [
     title: t('navigation.autoRoomQuery'),
     url: 'https://phira.dmocken.top/mulity'
   }
-]
+])
 
 // 社区开源仓库
-const communityLinks = [
+const communityLinks = computed(() => [
   {
     title: t('navigation.hsnPhiraRepo'),
     url: 'https://github.com/HyperSynapseNetwork/HSNPhira'
@@ -156,7 +159,7 @@ const communityLinks = [
     title: t('navigation.goPhiraMp'),
     url: 'https://github.com/Pimeng/gphira-mp'
   }
-]
+])
 
 function openLink(url: string) {
   window.open(url, '_blank')

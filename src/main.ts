@@ -4,7 +4,6 @@ import App from './App.vue'
 import { routes } from './router'
 import './styles/main.css'
 import { loadAppConfig, loadPreferencesConfig, initializeUserPreferences } from './utils/config'
-import { initTheme } from './utils/theme'
 import { useI18nStore } from './stores/i18n'
 
 export const createApp = ViteSSG(
@@ -18,7 +17,6 @@ export const createApp = ViteSSG(
       await loadAppConfig()
       await loadPreferencesConfig()
       initializeUserPreferences()
-      initTheme()
 
       const i18nStore = useI18nStore()
       i18nStore.initLanguage()

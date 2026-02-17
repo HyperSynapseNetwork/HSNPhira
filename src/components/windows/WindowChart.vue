@@ -135,7 +135,7 @@
                 <div v-if="chartRankInfo.ranks.week" class="glass-dark rounded-xl p-3">
                   <div class="text-white/60 text-xs mb-1">最近1周</div>
                   <div class="text-white font-bold text-lg">
-                    <span class="text-blue-400">+{{ chartRankInfo.ranks.week.increase }}</span>
+                    <span class="text-primary">+{{ chartRankInfo.ranks.week.increase }}</span>
                   </div>
                   <div class="text-white/80 text-sm mt-1">
                     排名: <span class="font-bold">#{{ chartRankInfo.ranks.week.rank }}</span>

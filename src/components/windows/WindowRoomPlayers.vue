@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { eventBus } from '@/utils/eventBus'
+import { getBaseURL } from '@/utils/config'
 import Window from './Window.vue'
 
 interface Player {
@@ -87,11 +88,46 @@ interface RoomData {
 const isOpen = ref(false)
 const roomData = ref<RoomData | null>(null)
 const players = ref<Player[]>([])
+const isLoading = ref(false)
 
-function openWindow(room: RoomData) {
+async function fetchRoomInfo(roomName: string) {
+  try {
+    isLoading.value = true
+    const baseURL = getBaseURL()
+    const response = await fetch(`${baseURL}/api/rooms/info/${encodeURIComponent(roomName)}`)
+    if (!response.ok) throw new Error('获取房间信息失败')
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('Failed to fetch room info:', error)
+    return null
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function openWindow(room: RoomData) {
+  // 先显示传入的数据
   roomData.value = room
   players.value = room.players || []
   isOpen.value = true
+  
+  // 然后异步获取最新数据
+  const freshData = await fetchRoomInfo(room.name)
+  if (freshData) {
+    // 转换数据格式
+    const roomInfo = freshData.data || freshData
+    const playerIds = Array.isArray(roomInfo.users) ? roomInfo.users : []
+    
+    // 构建玩家列表（需要获取用户信息）
+    // 暂时使用ID列表，实际需要异步获取用户信息
+    // 这里简化处理，只更新player_count
+    roomData.value = {
+      ...roomData.value,
+      player_count: playerIds.length,
+      max_players: 100
+    }
+  }
 }
 
 function openPlayerPage(phiraId: number) {

@@ -231,9 +231,9 @@ pnpm preview
   "routes": {                              // API路由配置
     "auth": { "login": "/api/auth/login", ... },
     "rooms": { "list": "/api/rooms/info", ... },
-    "charts": { 
+    "charts": {
       "rank": "/chart/:id/rank",
-      "chartRank": "/chart_rank/:chart_id",
+      "chartRank": "/topchart/chart_rank/:chart_id",
       "hotRank": "/topchart/hot_rank/:timeRange"  // 注意：完整路径
     },
     "playtime": { "leaderboard": "/rankapi/playtime_leaderboard" }
@@ -265,7 +265,7 @@ pnpm preview
 - 房间: `/api/rooms/*`
 - 排行榜: `/rankapi/playtime_leaderboard`
 - 谱面信息: `/chart/*`
-- 谱面排名: `/chart_rank/*`
+- 谱面排名: `/topchart/chart_rank/*`
 - 谱面热门排行: `/topchart/hot_rank/*`（注意：路径为 `/topchart/hot_rank/`）
 - 用户排行: `/user_rank/*`
 
@@ -296,6 +296,7 @@ proxy: {
   '/rankapi': { target: 'http://localhost:8080' },
   '/chart': { target: 'http://localhost:8080' },
   '/topchart/hot_rank': { target: 'http://localhost:8080' },
+  '/topchart/chart_rank': { target: 'http://localhost:8080' },
   '/chart_rank': { target: 'http://localhost:8080' },
   '/user_rank': { target: 'http://localhost:8080' }
 }

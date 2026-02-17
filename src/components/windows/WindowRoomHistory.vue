@@ -93,7 +93,7 @@
                 </div>
                 <div class="flex justify-between">
                   <span class="text-white/60">Good</span>
-                  <span class="text-blue-400">{{ score.good }}</span>
+                  <span class="text-primary">{{ score.good }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-white/60">Bad</span>

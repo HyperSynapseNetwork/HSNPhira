@@ -51,60 +51,70 @@
     </div>
 
     <!-- 排行榜表格 -->
-    <Table
-      :columns="columns"
-      :data="displayCharts"
-      :pagination="pagination"
-      @page-change="handlePageChange"
-    >
-      <!-- 名次 -->
-      <template #cell-rank="{ row }">
-        <div class="flex items-center gap-2">
-          <span class="text-white font-bold">#{{ row.rank }}</span>
+    <template v-if="loading">
+      <div class="text-center py-12">
+        <div class="glass rounded-2xl p-12 inline-block">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <div class="text-white/60 text-lg">正在加载排行榜...</div>
         </div>
-      </template>
+      </div>
+    </template>
+    <template v-else>
+      <Table
+        :columns="columns"
+        :data="displayCharts"
+        :pagination="pagination"
+        @page-change="handlePageChange"
+      >
+        <!-- 名次 -->
+        <template #cell-rank="{ row }">
+          <div class="flex items-center gap-2">
+            <span class="text-white font-bold">#{{ row.rank }}</span>
+          </div>
+        </template>
 
-      <!-- 谱面名称 -->
-      <template #cell-chart_name="{ row }">
-        <button
-          class="px-3 py-1 rounded-full glass hover:bg-white/10 text-white text-sm transition-all"
-          @click="openChartWindow(row.chart_id)"
-        >
-          {{ row.chart_name }}
-        </button>
-      </template>
+        <!-- 谱面名称 -->
+        <template #cell-chart_name="{ row }">
+          <button
+            class="px-3 py-1 rounded-full glass hover:bg-white/10 text-white text-sm transition-all"
+            @click="openChartWindow(row.chart_id)"
+          >
+            {{ row.chart_name }}
+          </button>
+        </template>
 
-      <!-- 谱面ID -->
-      <template #cell-chart_id="{ row }">
-        <button
-          class="px-3 py-1 rounded-full glass hover:bg-white/10 text-white text-sm transition-all font-mono"
-          @click="copyChartId(row.chart_id)"
-        >
-          #{{ row.chart_id }}
-        </button>
-      </template>
+        <!-- 谱面ID -->
+        <template #cell-chart_id="{ row }">
+          <button
+            class="px-3 py-1 rounded-full glass hover:bg-white/10 text-white text-sm transition-all font-mono"
+            @click="copyChartId(row.chart_id)"
+          >
+            #{{ row.chart_id }}
+          </button>
+        </template>
 
-      <!-- 曲绘 -->
-      <template #cell-image="{ row }">
-        <button
-          v-if="row.chart_image"
-          @click="viewImage(row.chart_image)"
-          class="block"
-        >
-          <img
-            :src="row.chart_image"
-            alt="Chart"
-            class="w-16 h-16 object-cover rounded-lg cursor-pointer hover:scale-110 transition-transform"
-          />
-        </button>
-        <span v-else class="text-white/40">-</span>
-      </template>
+        <!-- 曲绘 -->
+        <template #cell-image="{ row }">
+          <button
+            v-if="row.chart_image"
+            @click="viewImage(row.chart_image)"
+            class="block"
+          >
+            <img
+              :src="row.chart_image"
+              alt="Chart"
+              class="w-16 h-16 object-cover rounded-lg cursor-pointer hover:scale-110 transition-transform"
+            />
+          </button>
+          <span v-else class="text-white/40">-</span>
+        </template>
 
-      <!-- 游玩次数 -->
-      <template #cell-play_count="{ row }">
-        <span class="text-white">{{ row.increase || 0 }}</span>
-      </template>
-    </Table>
+        <!-- 游玩次数 -->
+        <template #cell-play_count="{ row }">
+          <span class="text-white">{{ row.increase || 0 }}</span>
+        </template>
+      </Table>
+    </template>
   </div>
 </template>
 
@@ -144,6 +154,7 @@ const timeRanges = [
 
 const selectedRange = ref('day')
 const charts = ref<ChartRank[]>([])
+const loading = ref(false)
 const totalCharts = ref(0)
 const searchQuery = ref('')
 const currentPage = ref(1)
@@ -192,13 +203,14 @@ const pagination = computed(() => {
 })
 
 async function loadData() {
+  loading.value = true
   try {
     const response = await chartsAPI.getHotRank(selectedRange.value, currentPage.value, pageSize)
 
     if (response && response.results && Array.isArray(response.results)) {
       // 保存总记录数
       totalCharts.value = response.total || 0
-      
+
       // 获取谱面详情，但添加延迟以避免同时请求过多
       const chartDetails = []
       for (let i = 0; i < response.results.length; i++) {
@@ -212,7 +224,7 @@ async function loadData() {
             increase: item.increase || 0,
             last_count: 0
           })
-          
+
           // 每加载3个谱面后稍微延迟一下，避免请求过于密集
           if (i % 3 === 2) {
             await new Promise(resolve => setTimeout(resolve, 100))
@@ -228,7 +240,7 @@ async function loadData() {
           })
         }
       }
-      
+
       charts.value = chartDetails
     } else {
       console.error('Invalid response format:', response)
@@ -237,6 +249,8 @@ async function loadData() {
   } catch (error) {
     console.error('Failed to load chart ranking:', error)
     charts.value = []
+  } finally {
+    loading.value = false
   }
 }
 

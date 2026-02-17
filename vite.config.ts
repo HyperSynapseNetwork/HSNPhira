@@ -49,6 +49,10 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_TARGET || 'http://localhost:8080',
           changeOrigin: true,
         },
+        '/topchart/chart_rank': {
+          target: env.VITE_API_TARGET || 'http://localhost:8080',
+          changeOrigin: true,
+        },
         '/chart_rank': {
           target: env.VITE_API_TARGET || 'http://localhost:8080',
           changeOrigin: true,

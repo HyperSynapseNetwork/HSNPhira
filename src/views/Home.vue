@@ -11,7 +11,18 @@
           {{ t('home.features') }}
         </p>
         <p class="text-sm sm:text-base text-white/60">
-          {{ t('home.visitCount', { count: visitedCount }) }}
+          <template v-if="isLoading">
+            <span class="inline-flex items-center animate-pulse">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white/60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              正在加载用户数...
+            </span>
+          </template>
+          <template v-else>
+            {{ t('home.visitCount', { count: visitedCount }) }}
+          </template>
         </p>
 
         <!-- 向下滚动提示 -->
@@ -74,14 +85,70 @@ import { useI18nStore } from '@/stores/i18n'
 import ServerStatus from '@/components/ServerStatus.vue'
 
 const visitedCount = ref(0)
+const isLoading = ref(true)
 const { t } = useI18nStore()
 
-onMounted(async () => {
+// 缓存键名
+const CACHE_KEY = 'hsn_visited_count'
+const CACHE_TIMESTAMP_KEY = 'hsn_visited_count_timestamp'
+const CACHE_EXPIRY_MS = 60 * 60 * 1000 // 1小时缓存
+
+// 获取缓存的访问次数
+function getCachedVisitedCount(): number | null {
   try {
-    visitedCount.value = await authAPI.getVisitedCount()
+    const cached = localStorage.getItem(CACHE_KEY)
+    const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY)
+    
+    if (!cached || !timestamp) return null
+    
+    const now = Date.now()
+    const cachedTime = parseInt(timestamp, 10)
+    
+    if (now - cachedTime > CACHE_EXPIRY_MS) return null
+    
+    return parseInt(cached, 10)
   } catch {
-    visitedCount.value = 0
+    return null
   }
+}
+
+// 保存到缓存
+function saveToCache(count: number) {
+  try {
+    localStorage.setItem(CACHE_KEY, count.toString())
+    localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString())
+  } catch {
+    // 忽略localStorage错误
+  }
+}
+
+async function loadVisitedCount() {
+  isLoading.value = true
+  
+  // 先尝试从缓存读取
+  const cachedCount = getCachedVisitedCount()
+  if (cachedCount !== null) {
+    visitedCount.value = cachedCount
+    isLoading.value = false
+  }
+  
+  // 无论如何都获取最新数据
+  try {
+    const freshCount = await authAPI.getVisitedCount()
+    visitedCount.value = freshCount
+    saveToCache(freshCount)
+  } catch {
+    // 如果API失败且没有缓存，使用0
+    if (cachedCount === null) {
+      visitedCount.value = 0
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  loadVisitedCount()
 })
 
 function copyQQ() {

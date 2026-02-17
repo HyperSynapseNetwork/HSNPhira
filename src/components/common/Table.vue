@@ -95,7 +95,7 @@ defineEmits<{
   'page-change': [page: number]
 }>()
 
-const primaryColor = computed(() => getUserPreference('theme_color', '#6366f1'))
+const primaryColor = computed(() => getUserPreference('theme_color', '#00F7FF'))
 
 // 3D倾斜效果（仅桌面端）- 添加最大倾斜值限制
 function handleMouseMove(event: MouseEvent) {

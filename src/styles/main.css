@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #6366f1;
+  --primary-color: #00F7FF; /* 更亮的青色，提高视觉吸引力 */
+  --primary-color-hover: #33FFFF; /* 悬停状态 */
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.2);
-  --text-primary: rgba(255, 255, 255, 0.9);
-  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-primary: rgba(255, 255, 255, 0.95); /* 提高对比度 */
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --link-glow: rgba(0, 247, 255, 0.6); /* 链接发光效果，提高不透明度 */
 }
 
 * {
@@ -28,32 +30,136 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-weight: 600; /* 使用更粗的字重 */
 }
 
-/* 毛玻璃效果 - 无背景色，更透明 */
+/* 标题使用更粗的字重 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+/* 链接样式 - 提高对比度和可见性 */
+a, .link-primary {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+a:hover, .link-primary:hover {
+  color: var(--primary-color-hover);
+  text-shadow: 0 0 8px var(--link-glow);
+}
+
+/* 在毛玻璃背景上的链接增强 */
+.glass a, .glass-dark a, .liquid-glass a {
+  text-shadow: 0 0 4px var(--link-glow);
+}
+
+.glass a:hover, .glass-dark a:hover, .liquid-glass a:hover {
+  text-shadow: 0 0 12px var(--link-glow);
+}
+
+/* 毛玻璃效果 - 改进质感，参考Apple Materials设计 */
 .glass {
-  background: transparent;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px) saturate(180%) brightness(1.02) contrast(1.02);
+  -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.02) contrast(1.02);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 40px rgba(0, 247, 255, 0.2);
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  isolation: isolate;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* 性能优化：在低性能设备上降低模糊效果 */
+@media (prefers-reduced-motion: reduce), (prefers-contrast: more) {
+  .glass, .glass-dark, .liquid-glass {
+    backdrop-filter: blur(6px) saturate(160%) brightness(1) contrast(1);
+    -webkit-backdrop-filter: blur(6px) saturate(160%) brightness(1) contrast(1);
+  }
 }
 
 .glass-dark {
-  background: transparent;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px) saturate(180%) brightness(0.95) contrast(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(0.95) contrast(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 30px rgba(0, 247, 255, 0.15);
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease;
+  isolation: isolate;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
-/* 液态玻璃效果 */
+/* 液态玻璃效果 - 改进为Apple Liquid Glass风格 */
 .liquid-glass {
-  background: linear-gradient(135deg, var(--glass-bg), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(16px) saturate(200%) brightness(1.03) contrast(1.03);
+  -webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.03) contrast(1.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 20px rgba(255, 255, 255, 0.08);
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
+  isolation: isolate;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* 阴影发光效果 - 参考111.css改进 */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.15);
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+/* 苹果材质级别 - 根据厚度定义 */
+.glass-ultra-thin {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-thin {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px) saturate(170%);
+  -webkit-backdrop-filter: blur(10px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-regular {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-thick {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(190%);
+  -webkit-backdrop-filter: blur(14px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 /* 悬停发光效果 */
@@ -62,8 +168,7 @@ body {
 }
 
 .glow-on-hover:hover {
-  box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
-  text-shadow: 0 0 10px currentColor;
+  text-shadow: 0 0 10px var(--link-glow), 0 0 20px rgba(0, 247, 255, 0.8);
 }
 
 /* 3D倾斜效果 */
