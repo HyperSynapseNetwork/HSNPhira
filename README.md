@@ -343,7 +343,7 @@ server {
 
 ## 许可证
 
-本项目采用 GNU General Public License v3.0 (GPL-3.0) 开源协议。
+本项目采用 GNU Affero General Public License（AGPL）3.0 开源协议。
 
 ### 版权声明
 版权所有 © HyperSynapse Network。保留所有权利。
@@ -354,7 +354,7 @@ server {
 - 在分发时提供完整的源代码。
 - 任何基于本项目的衍生作品也必须使用 AGPL-3.0 协议开源。
 
-详细条款请查看 [GNU GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.html) 许可证全文。
+详细条款请查看 [GNU AGPL v3.0](https://www.gnu.org/licenses/agpl-3.0.html) 许可证全文。
 
 ## 联系方式
 
