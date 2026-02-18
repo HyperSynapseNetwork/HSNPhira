@@ -22,7 +22,7 @@ export const createApp = ViteSSG(
       i18nStore.initLanguage()
     }
 
-    router.beforeEach(async (to, from, next) => {
+    router.beforeEach(async (to, _from, next) => {
       if (isClient) {
         import('@/utils/meta').then(({ updatePageMeta, getPageNameFromRoute }) => {
           updatePageMeta(getPageNameFromRoute(to.path))
