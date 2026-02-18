@@ -4,6 +4,28 @@ HSN 统计图表系统 API 文档
 
 HSN 统计图表系统是一个基于 Flask 的 Web 服务，用于从 SQLite 数据库读取 HSN 服务器统计数据，生成可视化图表，并通过 RESTful API 提供数据访问。
 
+## 新增 API：获取指定用户的排名和具体数据
+
+**端点**：`/api/user_rank/<int:user_id>`
+
+**方法**：`GET`
+
+**描述**：根据用户ID查询其在总排行榜中的排名（考虑并列情况）以及总游玩时间。
+
+**参数**：
+- `user_id`（路径参数）：整数，用户ID。
+
+**成功响应**（HTTP 200）：
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 12345,
+    "rank": 7,
+    "total_playtime_seconds": 86400,
+    "total_playtime_hours": 24.0
+  }
+}
 API 端点
 
 健康检查
