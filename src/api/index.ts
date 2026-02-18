@@ -42,9 +42,15 @@ api.interceptors.response.use(
       console.error('Network error - 请确保后端服务器正在运行')
       showError('网络错误', '无法连接到服务器，请检查后端服务是否运行')
     } else {
-      const message = error.response?.data?.message || error.message || '请求失败'
-      console.error('API Error:', message)
-      showError('请求错误', message)
+      // 检查是否为未授权错误
+      if (error.response?.data?.error === 'unauthorized' || error.response?.status === 401) {
+        console.error('Unauthorized - 用户未登录')
+        showError('请求错误', '你还未登录HSN账号')
+      } else {
+        const message = error.response?.data?.message || error.message || '请求失败'
+        console.error('API Error:', message)
+        showError('请求错误', message)
+      }
     }
     return Promise.reject(error)
   }

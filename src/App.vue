@@ -34,8 +34,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { getUserPreference } from './utils/config'
+import { useUserStore } from '@/store'
 import Header from './components/common/Header.vue'
 import Footer from './components/common/Footer.vue'
 import Message from './components/common/Message.vue'
@@ -49,12 +50,13 @@ import BackgroundImage from './components/background/BackgroundImage.vue'
 import ParticleEffect from './components/background/ParticleEffect.vue'
 import PageUpdate from './components/PageUpdate.vue'
 
+const userStore = useUserStore()
 const particlesEnabled = computed(() => getUserPreference('particle_enabled', false))
 
-// 不在应用启动时自动获取用户信息，只在登录后请求
-// onMounted(async () => {
-//   await userStore.fetchUser()
-// })
+// 应用启动时自动获取用户信息，恢复登录状态
+onMounted(async () => {
+  await userStore.fetchUser()
+})
 </script>
 
 <style>
