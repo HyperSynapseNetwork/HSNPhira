@@ -59,11 +59,13 @@
     "home": {
       "title": {
         "zh": "HSN Phira多人游戏服务器",
+        "zh-TW": "HSN Phira多人遊戲伺服器",
         "en": "HSN Phira Multiplayer Server",
         "ja": "HSN Phiraマルチプレイサーバー"
       },
       "description": {
         "zh": "免费·多功能·稳定·低延迟的Phira多人游戏服务器",
+        "zh-TW": "免費·多功能·穩定·低延遲的Phira多人遊戲伺服器",
         "en": "Free, feature-rich, stable, low-latency Phira multiplayer server",
         "ja": "無料・多機能・安定・低遅延のPhiraマルチプレイサーバー"
       }
@@ -71,11 +73,13 @@
     "rooms": {
       "title": {
         "zh": "房间列表 - HSN Phira",
+        "zh-TW": "房間列表 - HSN Phira",
         "en": "Room List - HSN Phira",
         "ja": "ルームリスト - HSN Phira"
       },
       "description": {
         "zh": "查看和加入HSNPhira多人游戏房间",
+        "zh-TW": "查看和加入HSNPhira多人遊戲房間",
         "en": "View and join HSNPhira multiplayer rooms",
         "ja": "HSNPhiraマルチプレイルームを表示・参加"
       }
@@ -83,11 +87,13 @@
     "chart-ranking": {
       "title": {
         "zh": "谱面排行榜 - HSN Phira",
+        "zh-TW": "譜面排行榜 - HSN Phira",
         "en": "Chart Ranking - HSN Phira",
         "ja": "譜面ランキング - HSN Phira"
       },
       "description": {
         "zh": "查看热门Phira谱面排行榜，查看热门Phira铺面排行榜",
+        "zh-TW": "查看熱門Phira譜面排行榜，查看熱門Phira譜面排行榜",
         "en": "View popular Phira chart rankings",
         "ja": "人気Phira譜面ランキングを表示"
       }
@@ -95,11 +101,13 @@
     "user-ranking": {
       "title": {
         "zh": "用户排行榜 - HSN Phira",
+        "zh-TW": "用戶排行榜 - HSN Phira",
         "en": "User Ranking - HSN Phira",
         "ja": "ユーザーランキング - HSN Phira"
       },
       "description": {
         "zh": "查看HSNPhira用户游玩时间排行榜",
+        "zh-TW": "查看HSNPhira用戶遊玩時間排行榜",
         "en": "View HSNPhira user playtime rankings",
         "ja": "HSNPhiraユーザープレイ時間ランキングを表示"
       }
@@ -107,11 +115,13 @@
     "chart-download": {
       "title": {
         "zh": "谱面下载 - HSN Phira",
+        "zh-TW": "譜面下載 - HSN Phira",
         "en": "Chart Download - HSN Phira",
         "ja": "譜面ダウンロード - HSN Phira"
       },
       "description": {
         "zh": "下载Phira谱面文件，下载Phira铺面文件",
+        "zh-TW": "下載Phira譜面檔案，下載Phira譜面檔案",
         "en": "Download Phira chart files",
         "ja": "Phira譜面ファイルをダウンロード"
       }
@@ -119,11 +129,13 @@
     "phira-download": {
       "title": {
         "zh": "Phira客户端下载 - HSN Phira",
+        "zh-TW": "Phira客戶端下載 - HSN Phira",
         "en": "Phira Client Download - HSN Phira",
         "ja": "Phiraクライアントダウンロード - HSN Phira"
       },
       "description": {
         "zh": "下载Phira游戏客户端",
+        "zh-TW": "下載Phira遊戲客戶端",
         "en": "Download Phira game client",
         "ja": "Phiraゲームクライアントをダウンロード"
       }
@@ -131,11 +143,13 @@
     "navigation": {
       "title": {
         "zh": "导航 - HSN Phira",
+        "zh-TW": "導航 - HSN Phira",
         "en": "Navigation - HSN Phira",
         "ja": "ナビゲーション - HSN Phira"
       },
       "description": {
         "zh": "Phira社区网站导航页面",
+        "zh-TW": "Phira社群網站導航頁面",
         "en": "Phira Community Website navigation page",
         "ja": "Phiraコミュニティウェブサイトナビゲーションページ"
       }
@@ -143,11 +157,13 @@
     "announcement": {
       "title": {
         "zh": "公告 - HSN Phira",
+        "zh-TW": "公告 - HSN Phira",
         "en": "Announcement - HSN Phira",
         "ja": "お知らせ - HSN Phira"
       },
       "description": {
         "zh": "查看HSNPhira服务器公告和更新",
+        "zh-TW": "查看HSNPhira伺服器公告和更新",
         "en": "View HSNPhira server announcements and updates",
         "ja": "HSNPhiraサーバーのお知らせと更新を確認する"
       }
@@ -155,13 +171,85 @@
     "agreement": {
       "title": {
         "zh": "用户协议 - HSN Phira",
+        "zh-TW": "用戶協議 - HSN Phira",
         "en": "User Agreement - HSN Phira",
         "ja": "利用規約 - HSN Phira"
       },
       "description": {
         "zh": "阅读HSNPhira用户协议和隐私政策",
+        "zh-TW": "閱讀HSNPhira用戶協議和隱私政策",
         "en": "Read user agreement and privacy policy",
         "ja": "HSNPhira利用規約とプライバシーポリシーを読む"
+      }
+    },
+    "about": {
+      "title": {
+        "zh": "关于我们 - HSN Phira",
+        "zh-TW": "關於我們 - HSN Phira",
+        "en": "About Us - HSN Phira",
+        "ja": "私たちについて - HSN Phira"
+      },
+      "description": {
+        "zh": "了解HyperSynapse Network团队和项目信息",
+        "zh-TW": "了解HyperSynapse Network團隊和項目信息",
+        "en": "Learn about HyperSynapse Network team and project information",
+        "ja": "HyperSynapse Networkチームとプロジェクト情報について"
+      }
+    },
+    "account": {
+      "title": {
+        "zh": "账户管理 - HSN Phira",
+        "zh-TW": "帳戶管理 - HSN Phira",
+        "en": "Account Management - HSN Phira",
+        "ja": "アカウント管理 - HSN Phira"
+      },
+      "description": {
+        "zh": "管理您的HSN账户信息和设置",
+        "zh-TW": "管理您的HSN帳戶資訊和設定",
+        "en": "Manage your HSN account information and settings",
+        "ja": "HSNアカウント情報と設定を管理する"
+      }
+    },
+    "notFound": {
+      "title": {
+        "zh": "页面未找到 - HSN Phira",
+        "zh-TW": "頁面未找到 - HSN Phira",
+        "en": "Page Not Found - HSN Phira",
+        "ja": "ページが見つかりません - HSN Phira"
+      },
+      "description": {
+        "zh": "您访问的页面不存在",
+        "zh-TW": "您訪問的頁面不存在",
+        "en": "The page you visited does not exist",
+        "ja": "アクセスしたページは存在しません"
+      }
+    },
+    "docs": {
+      "title": {
+        "zh": "文档中心 - HSN Phira",
+        "zh-TW": "文檔中心 - HSN Phira",
+        "en": "Documentation Center - HSN Phira",
+        "ja": "ドキュメントセンター - HSN Phira"
+      },
+      "description": {
+        "zh": "HSNPhira服务器文档和用户指南",
+        "zh-TW": "HSNPhira伺服器文檔和用戶指南",
+        "en": "HSNPhira server documentation and user guides",
+        "ja": "HSNPhiraサーバードキュメントとユーザーガイド"
+      }
+    },
+    "docPage": {
+      "title": {
+        "zh": "{{pageTitle}} - HSN Phira",
+        "zh-TW": "{{pageTitle}} - HSN Phira",
+        "en": "{{pageTitle}} - HSN Phira",
+        "ja": "{{pageTitle}} - HSN Phira"
+      },
+      "description": {
+        "zh": "{{pageDescription}}",
+        "zh-TW": "{{pageDescription}}",
+        "en": "{{pageDescription}}",
+        "ja": "{{pageDescription}}"
       }
     }
   }

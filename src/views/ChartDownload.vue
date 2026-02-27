@@ -100,7 +100,7 @@ async function handleSubmit() {
     // 清空输入
     chartId.value = ''
   } catch (error) {
-    showError('错误', '谱面不存在或无法访问')
+    showError(t('common.error'), t('chartDownload.chartNotFound'))
   } finally {
     isLoading.value = false
   }

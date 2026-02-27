@@ -106,23 +106,23 @@
 
           <!-- 谱面热度信息 -->
           <div v-if="chartRankInfo" class="glass rounded-2xl p-4">
-            <h3 class="text-white font-bold mb-3">谱面热度</h3>
+            <h3 class="text-white font-bold mb-3">{{ t('chart.popularity') }}</h3>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-3">
                 <!-- 小时热度 -->
                 <div v-if="chartRankInfo.ranks.hour" class="glass-dark rounded-xl p-3">
-                  <div class="text-white/60 text-xs mb-1">最近1小时</div>
+                  <div class="text-white/60 text-xs mb-1">{{ t('chart.last1Hour') }}</div>
                   <div class="text-white font-bold text-lg">
                     <span class="text-green-400">+{{ chartRankInfo.ranks.hour.increase }}</span>
                   </div>
                   <div class="text-white/80 text-sm mt-1">
-                    排名: <span class="font-bold">#{{ chartRankInfo.ranks.hour.rank }}</span>
+                    {{ t('chart.rank') }}: <span class="font-bold">#{{ chartRankInfo.ranks.hour.rank }}</span>
                   </div>
                 </div>
 
                 <!-- 日热度 -->
                 <div v-if="chartRankInfo.ranks.day" class="glass-dark rounded-xl p-3">
-                  <div class="text-white/60 text-xs mb-1">最近1天</div>
+                  <div class="text-white/60 text-xs mb-1">{{ t('chart.last1Day') }}</div>
                   <div class="text-white font-bold text-lg">
                     <span class="text-yellow-400">+{{ chartRankInfo.ranks.day.increase }}</span>
                   </div>
@@ -133,7 +133,7 @@
 
                 <!-- 周热度 -->
                 <div v-if="chartRankInfo.ranks.week" class="glass-dark rounded-xl p-3">
-                  <div class="text-white/60 text-xs mb-1">最近1周</div>
+                  <div class="text-white/60 text-xs mb-1">{{ t('chart.last1Week') }}</div>
                   <div class="text-white font-bold text-lg">
                     <span class="text-primary">+{{ chartRankInfo.ranks.week.increase }}</span>
                   </div>
@@ -144,7 +144,7 @@
 
                 <!-- 月热度 -->
                 <div v-if="chartRankInfo.ranks.month" class="glass-dark rounded-xl p-3">
-                  <div class="text-white/60 text-xs mb-1">最近1月</div>
+                  <div class="text-white/60 text-xs mb-1">{{ t('chart.last1Month') }}</div>
                   <div class="text-white font-bold text-lg">
                     <span class="text-purple-400">+{{ chartRankInfo.ranks.month.increase }}</span>
                   </div>
@@ -155,7 +155,7 @@
               </div>
               
               <div v-if="chartRankInfo.ranks.day" class="text-white/60 text-xs">
-                数据更新时间: {{ formatDate(chartRankInfo.ranks.day.last_updated) }}
+                {{ t('chart.dataUpdateTime') }}: {{ formatDate(chartRankInfo.ranks.day.last_updated) }}
               </div>
             </div>
           </div>

@@ -10,9 +10,6 @@
       <button
         class="md:hidden p-2 rounded-lg glass hover:bg-white/10 transition-colors"
         @click="toggleMobileMenu"
-        :aria-label="t('common.menu')"
-        :aria-expanded="showMobileMenu"
-        aria-controls="mobile-menu"
       >
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -41,16 +38,13 @@
           <button
             class="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
             @click="toggleLangMenu"
-            :aria-label="t('common.language')"
-            :aria-expanded="showLangMenu"
-            aria-controls="language-menu"
             title="切换语言"
           >
             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
             </svg>
           </button>
-          
+
           <!-- 语言菜单 -->
           <transition name="fade">
             <div
@@ -70,6 +64,49 @@
           </transition>
         </div>
 
+        <!-- PWA安装按钮 -->
+        <div class="relative" v-if="showInstallButton">
+          <button
+            class="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+            @click="handleInstall"
+            :aria-label="t('common.installApp')"
+            title="安装为应用"
+          >
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 主题切换 -->
+        <div class="relative">
+          <button
+            class="p-2 rounded-lg glass hover:bg-white/10 transition-colors"
+            @click="themeStore.toggleDarkMode()"
+            :aria-label="getThemeLabel()"
+            :title="getThemeLabel()"
+          >
+            <svg v-if="themeStore.themeMode === 'light'" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg v-else-if="themeStore.themeMode === 'dark'" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+            <svg v-else class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <defs>
+                <linearGradient id="hc-glass" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
+                  <stop offset="100%" stop-color="#F0F0F0" stop-opacity="0.2" />
+                </linearGradient>
+              </defs>
+              <circle cx="12" cy="12" r="10" fill="url(#hc-glass)" stroke="#B0B0B0" stroke-width="0.5" />
+              <path d="M12,4 A8,8 0 0 0 12,20" fill="#2B2B2B" />
+              <path d="M12,4 A8,8 0 0 1 12,20" fill="#E0E0E0" />
+              <circle cx="15" cy="9" r="1.5" fill="#FFFFFF" fill-opacity="0.9" />
+              <circle cx="12" cy="12" r="9" fill="none" stroke="#4A4A4A" stroke-width="0.6" stroke-opacity="0.3" />
+            </svg>
+          </button>
+        </div>
 
         <!-- 登录按钮或用户头像 -->
         <template v-if="!userStore.isLoggedIn">
@@ -134,8 +171,8 @@
 
     <!-- 移动端菜单 -->
     <transition name="mobile-menu">
-      <div v-if="showMobileMenu" id="mobile-menu" class="md:hidden glass-dark" @click.self="closeMobileMenu">
-        <div class="p-4">
+      <div v-if="showMobileMenu" class="md:hidden glass-dark" @click.self="closeMobileMenu">
+        <div class="p-4 max-h-[calc(100vh-120px)] overflow-y-auto">
           <!-- 导航链接 -->
           <div class="space-y-2 mb-4">
             <router-link
@@ -155,7 +192,7 @@
             <div class="px-4 py-2 text-white/60 text-xs">{{ t('common.language') }}</div>
             <select
               v-model="currentLanguage"
-              @change="(e) => { changeLang((e.target as HTMLSelectElement).value as Language); closeMobileMenu() }"
+              @change="changeLang(currentLanguage); closeMobileMenu()"
               class="w-full px-4 py-2 rounded-lg glass text-white bg-transparent border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="zh">简体中文</option>
@@ -163,6 +200,36 @@
               <option value="en">English</option>
               <option value="ja">日本語</option>
             </select>
+
+            <!-- 主题切换 -->
+            <div class="px-4 py-2 text-white/60 text-xs">{{ t('common.theme') }}</div>
+            <button
+              class="w-full px-4 py-2 rounded-lg glass hover:bg-white/10 text-white transition-colors text-sm flex items-center justify-between"
+              @click="themeStore.toggleDarkMode(); closeMobileMenu()"
+            >
+              <span>{{ getThemeLabel() }}</span>
+              <div class="flex items-center">
+                <svg v-if="themeStore.themeMode === 'light'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg v-else-if="themeStore.themeMode === 'dark'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <defs>
+                    <linearGradient id="hc-glass-mobile" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
+                      <stop offset="100%" stop-color="#F0F0F0" stop-opacity="0.2" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="10" fill="url(#hc-glass-mobile)" stroke="#B0B0B0" stroke-width="0.5" />
+                  <path d="M12,4 A8,8 0 0 0 12,20" fill="#2B2B2B" />
+                  <path d="M12,4 A8,8 0 0 1 12,20" fill="#E0E0E0" />
+                  <circle cx="15" cy="9" r="1.5" fill="#FFFFFF" fill-opacity="0.9" />
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="#4A4A4A" stroke-width="0.6" stroke-opacity="0.3" />
+                </svg>
+              </div>
+            </button>
 
 
             <!-- 登录或用户菜单 -->
@@ -206,22 +273,26 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/store'
 import { useI18nStore } from '@/stores/i18n'
+import { useThemeStore } from '@/stores/theme'
 import { eventBus } from '@/utils/eventBus'
 import type { Language } from '@/i18n'
 
 const userStore = useUserStore()
 const i18nStore = useI18nStore()
-const { currentLanguage } = storeToRefs(i18nStore)
-const { t } = i18nStore
+const themeStore = useThemeStore()
+const { t, currentLanguage } = i18nStore
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
 const showLangMenu = ref(false)
 const userMenuRef = ref<HTMLElement>()
 const langMenuRef = ref<HTMLElement>()
+
+// PWA 安装
+const installPrompt = ref<any>(null)
+const showInstallButton = ref(false)
 
 const navRoutes = [
   { path: '/', nameKey: 'nav.home' },
@@ -233,6 +304,8 @@ const navRoutes = [
   { path: '/navigation', nameKey: 'nav.navigation' },
   { path: '/announcement', nameKey: 'nav.announcement' },
   { path: '/agreement', nameKey: 'nav.agreement' },
+  { path: '/about', nameKey: 'nav.about' },
+  { path: '/md', nameKey: 'nav.docs' },
 ]
 
 const languages = [
@@ -283,6 +356,30 @@ function handleLoginSuccess() {
   closeUserMenu()
 }
 
+// PWA 安装相关函数
+async function handleInstall() {
+  if (!installPrompt.value) return
+
+  installPrompt.value.prompt()
+  const choiceResult = await installPrompt.value.userChoice
+
+  if (choiceResult.outcome === 'accepted') {
+    console.log('用户接受了PWA安装')
+  } else {
+    console.log('用户拒绝了PWA安装')
+  }
+
+  installPrompt.value = null
+  showInstallButton.value = false
+}
+
+function getThemeLabel() {
+  const mode = themeStore.themeMode
+  if (mode === 'light') return t('common.themeLight')
+  if (mode === 'dark') return t('common.themeDark')
+  return t('common.themeHighContrast')
+}
+
 // 点击外部关闭菜单
 function handleClickOutside(e: MouseEvent) {
   const target = e.target as Node
@@ -304,12 +401,34 @@ function handleClickOutside(e: MouseEvent) {
   }
 }
 
+// PWA事件处理函数
+function handleBeforeInstallPrompt(e: Event) {
+  e.preventDefault()
+  installPrompt.value = e
+  showInstallButton.value = true
+  console.log('PWA安装提示已准备就绪')
+}
+
+function handleAppInstalled() {
+  installPrompt.value = null
+  showInstallButton.value = false
+  console.log('PWA已成功安装')
+}
+
 onMounted(() => {
+  // 监听PWA安装提示
+  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+
+  // 监听PWA安装完成
+  window.addEventListener('appinstalled', handleAppInstalled)
+
   eventBus.on('login-success', handleLoginSuccess)
   document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
+  window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+  window.removeEventListener('appinstalled', handleAppInstalled)
   eventBus.off('login-success', handleLoginSuccess)
   document.removeEventListener('click', handleClickOutside)
 })
@@ -317,7 +436,7 @@ onUnmounted(() => {
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-  height: 3px;
+  height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -325,8 +444,12 @@ onUnmounted(() => {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .fade-enter-active,

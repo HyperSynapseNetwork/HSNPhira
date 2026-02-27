@@ -1,0 +1,55 @@
+{
+  "cards": [
+    {
+      "id": "guide",
+      "icon": "📘",
+      "order": 1,
+      "category": "guide",
+      "title": {
+        "zh": "用户指南",
+        "zh-TW": "用戶指南",
+        "en": "User Guide",
+        "ja": "ユーザーガイド"
+      },
+      "description": {
+        "zh": "Phira入门和HSNPhira服务器使用指南",
+        "zh-TW": "Phira入門和HSNPhira伺服器使用指南",
+        "en": "Phira introduction and HSNPhira server usage guide",
+        "ja": "Phira入門とHSNPhiraサーバー使用ガイド"
+      }
+    }
+  ],
+  "pages": {
+    "guide": {
+      "title": {
+        "zh": "用户指南",
+        "zh-TW": "用戶指南",
+        "en": "User Guide",
+        "ja": "ユーザーガイド"
+      },
+      "description": {
+        "zh": "Phira入门和HSNPhira服务器使用指南",
+        "zh-TW": "Phira入門和HSNPhira伺服器使用指南",
+        "en": "Phira introduction and HSNPhira server usage guide",
+        "ja": "Phira入門とHSNPhiraサーバー使用ガイド"
+      },
+      "file": "/docs/guide.md"
+    }
+  },
+  "categories": {
+    "guide": {
+      "title": {
+        "zh": "指南",
+        "zh-TW": "指南",
+        "en": "Guides",
+        "ja": "ガイド"
+      },
+      "description": {
+        "zh": "用户指南和操作手册",
+        "zh-TW": "用戶指南和操作手冊",
+        "en": "User guides and manuals",
+        "ja": "ユーザーガイドとマニュアル"
+      }
+    }
+  }
+}

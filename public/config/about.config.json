@@ -1,0 +1,114 @@
+{
+  "teamIntroduction": {
+    "zh": "HyperSynapse Network/超弦网络正在开发维护HSNPhira，HSNBot，HSNMC等项目。",
+    "zh-TW": "HyperSynapse Network/超弦網路正在開發維護HSNPhira，HSNBot，HSNMC等項目。",
+    "en": "HyperSynapse Network is developing and maintaining HSNPhira, HSNBot, HSNMC and other projects.",
+    "ja": "HyperSynapse Networkは、HSNPhira、HSNBot、HSNMCなどのプロジェクトを開発・保守しています。"
+  },
+  "teamMembers": [
+    {
+      "id": "firefly",
+      "name": "Firefly",
+      "avatar": "https://avatars.githubusercontent.com/u/107394246",
+      "homepage": "https://github.com/FireflyF09"
+    },
+    {
+      "id": "htadiy",
+      "name": "htadiy",
+      "avatar": "https://avatars.githubusercontent.com/u/69406129",
+      "homepage": "https://github.com/htadiy"
+    },
+    {
+      "id": "explodingkonjac",
+      "name": "ExplodingKonjac",
+      "avatar": "https://avatars.githubusercontent.com/u/62525374",
+      "homepage": "https://github.com/ExplodingKonjac"
+    },
+    {
+      "id": "ly-xiang",
+      "name": "LY-Xiang",
+      "avatar": "https://avatars.githubusercontent.com/u/74460076",
+      "homepage": "https://github.com/LY-Xiang"
+    }
+  ],
+  "acknowledgements": [
+    {
+      "id": "ght-f1",
+      "name": "Ght/F=1",
+      "avatarId": "1",
+      "contribution": "图标设计"
+    },
+    {
+      "id": "forever-crimson-moon",
+      "name": "永远鲜红的砕月",
+      "avatarId": "2",
+      "contribution": "资助者"
+    },
+    {
+      "id": "grizz",
+      "name": "Grizz",
+      "avatarId": "3",
+      "contribution": "资助者"
+    },
+    {
+      "id": "oshima",
+      "name": "緒山_",
+      "avatarId": "4",
+      "contribution": "资助者"
+    },
+    {
+      "id": "afewsuns",
+      "name": "AFewSuns",
+      "avatarId": "5",
+      "contribution": "资助者"
+    },
+    {
+      "id": "explodingkonjac-ack",
+      "name": "Explodingkonjac",
+      "avatarId": "6",
+      "contribution": "资助者"
+    },
+    {
+      "id": "lusyu",
+      "name": "Lusyu",
+      "avatarId": "7",
+      "contribution": "资助者"
+    },
+    {
+      "id": "snowman",
+      "name": "雪人",
+      "avatarId": "8",
+      "contribution": "资助者"
+    },
+    {
+      "id": "ayachi-nene",
+      "name": "Ayachi nene",
+      "avatarId": "9",
+      "contribution": "资助者"
+    },
+    {
+      "id": "thorn-valley",
+      "name": "荆棘谷",
+      "avatarId": "10",
+      "contribution": "资助者"
+    },
+    {
+      "id": "question-mark-exclamation",
+      "name": "问号问号感叹号",
+      "avatarId": "11",
+      "contribution": "资助者"
+    },
+    {
+      "id": "li-renyuan",
+      "name": "李任渊",
+      "avatarId": "12",
+      "contribution": "资助者"
+    },
+    {
+      "id": "dmocken-ack",
+      "name": "Dmocken",
+      "avatarId": "13",
+      "contribution": "宣传与服务器监控"
+    }
+  ]
+}

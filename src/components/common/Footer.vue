@@ -11,12 +11,12 @@
       <!-- 分隔线 -->
       <div class="w-px h-3 md:h-6 bg-white/20 flex-shrink-0" />
 
-      <!-- 联系我们按钮 -->
+      <!-- 关于我们按钮 -->
       <router-link
-        to="/announcement"
+        to="/about"
         class="px-2 md:px-4 py-1 md:py-1.5 rounded-lg hover:bg-white/10 transition-all duration-300 text-white/80 hover:text-white whitespace-nowrap hover:text-shadow-glow flex-shrink-0"
       >
-        {{ t('footer.contact') }}
+        {{ t('footer.about') }}
       </router-link>
     </div>
   </div>

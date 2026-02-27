@@ -1,0 +1,22 @@
+{
+  "server": {
+    "phiraServerAddress": {
+      "zh": "service.htadiy.cc:7865",
+      "zh-TW": "service.htadiy.cc:7865",
+      "en": "service.htadiy.cc:7865",
+      "ja": "service.htadiy.cc:7865"
+    },
+    "qqGroup": {
+      "zh": "1049578201",
+      "zh-TW": "1049578201",
+      "en": "1049578201",
+      "ja": "1049578201"
+    },
+    "hsnmcServerAddress": {
+      "zh": "play.simpfun.cn:17659",
+      "zh-TW": "play.simpfun.cn:17659",
+      "en": "play.simpfun.cn:17659",
+      "ja": "play.simpfun.cn:17659"
+    }
+  }
+}

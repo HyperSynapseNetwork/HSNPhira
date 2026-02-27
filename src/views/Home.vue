@@ -45,13 +45,20 @@
           <div class="space-y-4">
             <div class="glass rounded-2xl p-4 hover:scale-105 transition-transform">
               <div class="text-white/60 text-sm mb-1">{{ t('home.qqGroup') }}</div>
-              <div class="text-white text-lg sm:text-xl font-mono">1049578201</div>
+              <div class="text-white text-lg sm:text-xl font-mono">{{ qqGroup }}</div>
             </div>
 
             <div class="glass rounded-2xl p-4 hover:scale-105 transition-transform">
               <div class="text-white/60 text-sm mb-1">{{ t('home.serverAddress') }}</div>
               <div class="text-white text-base sm:text-xl font-mono break-all">
-                service.htadiy.com:7865
+                {{ phiraServerAddress }}
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-4 hover:scale-105 transition-transform">
+              <div class="text-white/60 text-sm mb-1">{{ t('home.hsnmcServerAddress') }}</div>
+              <div class="text-white text-base sm:text-xl font-mono break-all">
+                {{ hsnmcServerAddress }}
               </div>
             </div>
           </div>
@@ -70,6 +77,12 @@
             >
               {{ t('home.copyServer') }}
             </button>
+            <button
+              class="flex-1 px-6 py-3 rounded-xl glass text-white font-medium hover:scale-105 hover:shadow-lg transition-all text-sm sm:text-base"
+              @click="copyHsnmc"
+            >
+              {{ t('home.copyHsnmc') }}
+            </button>
           </div>
         </div>
       </div>
@@ -78,15 +91,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { authAPI } from '@/api/auth'
 import { copyToClipboard } from '@/utils/message'
 import { useI18nStore } from '@/stores/i18n'
+import { getGlobalConfig, getLocalizedText } from '@/utils/config'
 import ServerStatus from '@/components/ServerStatus.vue'
 
 const visitedCount = ref(0)
 const isLoading = ref(true)
 const { t } = useI18nStore()
+
+// 全局配置
+const globalConfig = computed(() => getGlobalConfig())
+
+// 配置值计算属性
+const qqGroup = computed(() => getLocalizedText(globalConfig.value.server.qqGroup))
+const phiraServerAddress = computed(() => getLocalizedText(globalConfig.value.server.phiraServerAddress))
+const hsnmcServerAddress = computed(() => getLocalizedText(globalConfig.value.server.hsnmcServerAddress))
 
 // 缓存键名
 const CACHE_KEY = 'hsn_visited_count'
@@ -152,10 +174,14 @@ onMounted(() => {
 })
 
 function copyQQ() {
-  copyToClipboard('1049578201', 'QQ群号已复制')
+  copyToClipboard(qqGroup.value, t('home.qqCopied'))
 }
 
 function copyServer() {
-  copyToClipboard('service.htadiy.com:7865', '服务器地址已复制')
+  copyToClipboard(phiraServerAddress.value, t('home.serverCopied'))
+}
+
+function copyHsnmc() {
+  copyToClipboard(hsnmcServerAddress.value, t('home.hsnmcCopied'))
 }
 </script>

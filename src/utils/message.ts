@@ -1,5 +1,6 @@
 import { eventBus } from './eventBus'
 import type { Message } from '@/types'
+import { useI18nStore } from '@/stores/i18n'
 
 export const PRESET_COLORS = {
   INFO: '#3b82f6',
@@ -44,13 +45,15 @@ export function showError(title: string, content: string): void {
   })
 }
 
-export function copyToClipboard(text: string, successMessage = '复制成功'): void {
+export function copyToClipboard(text: string, successMessage?: string): void {
+  const { t } = useI18nStore()
+  const finalSuccessMessage = successMessage || t('common.copySuccess')
   navigator.clipboard.writeText(text).then(
     () => {
-      showSuccess('成功', successMessage)
+      showSuccess(t('common.success'), finalSuccessMessage)
     },
     () => {
-      showError('错误', '复制失败')
+      showError(t('common.error'), t('common.copyFailed'))
     }
   )
 }

@@ -14,11 +14,19 @@
 import { computed } from 'vue'
 import type { CSSProperties } from 'vue'
 import { getAppConfig, getUserPreference } from '@/utils/config'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
 
 const backgroundUrl = computed(() => {
+  // 高对比度模式下不显示背景图片，使用纯色背景
+  if (themeStore.isHighContrastMode) {
+    return ''
+  }
+
   const userBg = getUserPreference('background_image', '')
   if (userBg) return userBg
-  
+
   try {
     const config = getAppConfig()
     return config.background.defaultImageURL

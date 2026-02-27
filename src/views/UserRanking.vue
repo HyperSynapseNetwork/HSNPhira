@@ -19,7 +19,7 @@
     <div v-if="isLoading" class="mb-6 text-center">
       <div class="glass rounded-2xl p-8 inline-block">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-        <div class="text-white/60 text-lg">正在加载排行榜数据...</div>
+        <div class="text-white/60 text-lg">{{ t('userRanking.loading') }}</div>
       </div>
     </div>
 

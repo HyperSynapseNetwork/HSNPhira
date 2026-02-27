@@ -128,6 +128,14 @@ export interface ChartRecord {
   time: string
 }
 
+// 多语言文本内容
+export interface MultiLanguageText {
+  zh: string
+  'zh-TW': string
+  en: string
+  ja: string
+}
+
 // 配置文件类型
 export interface AppConfig {
   apiMode: 'local' | 'remote'
@@ -136,6 +144,9 @@ export interface AppConfig {
   routes: Record<string, Record<string, string>>
   externalAPI: {
     phiraBaseURL: string
+  }
+  header: {
+    visiblePages: string[]
   }
   background: {
     defaultImageURL: string
@@ -199,4 +210,106 @@ export interface ServerStatus {
   online: boolean
   availability: number
   latency: number
+}
+
+// 全局配置
+export interface GlobalConfig {
+  server: {
+    phiraServerAddress: MultiLanguageText
+    qqGroup: MultiLanguageText
+    hsnmcServerAddress: MultiLanguageText
+  }
+}
+
+// 下载配置
+export interface DownloadCard {
+  id: string
+  title: MultiLanguageText
+  description: MultiLanguageText
+  buttonText: MultiLanguageText
+  buttonLink: string
+}
+
+export interface DownloadConfig {
+  latestVersion: string
+  downloadCards: DownloadCard[]
+}
+
+// 导航配置
+export interface CardGroup {
+  id: string
+  name: MultiLanguageText
+}
+
+export interface NavigationCard {
+  id: string
+  groupId: string
+  title: MultiLanguageText
+  link: string
+}
+
+export interface NavigationConfig {
+  cardGroups: CardGroup[]
+  cards: NavigationCard[]
+}
+
+// 公告配置
+export interface Announcement {
+  id: string
+  title: MultiLanguageText
+  time: string
+  content: MultiLanguageText
+}
+
+export interface AnnouncementConfig {
+  announcements: Announcement[]
+}
+
+// 关于配置
+export interface TeamMember {
+  id: string
+  name: string
+  avatar: string
+  homepage: string
+}
+
+export interface Acknowledgement {
+  id: string
+  name: string
+  avatarId: string
+  contribution: string
+}
+
+export interface AboutConfig {
+  teamIntroduction: MultiLanguageText
+  teamMembers: TeamMember[]
+  acknowledgements: Acknowledgement[]
+}
+
+// 文档配置（已存在，但需要完善）
+export interface DocConfig {
+  cards: DocCard[]
+  pages: Record<string, DocPage>
+  categories: Record<string, DocCategory>
+}
+
+export interface DocCard {
+  id: string
+  icon: string
+  order: number
+  category: string
+  title: MultiLanguageText
+  description: MultiLanguageText
+}
+
+export interface DocPage {
+  title: MultiLanguageText
+  description: MultiLanguageText
+  content?: MultiLanguageText
+  file?: string
+}
+
+export interface DocCategory {
+  title: MultiLanguageText
+  description: MultiLanguageText
 }

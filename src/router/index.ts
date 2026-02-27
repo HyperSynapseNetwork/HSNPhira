@@ -102,4 +102,44 @@ export const routes: RouteRecordRaw[] = [
       keywords: 'Phira导航,相关链接,资源导航'
     }
   },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/About.vue'),
+    meta: {
+      title: '关于我们 - HSN Phira服务器',
+      description: '了解HyperSynapse Network团队和项目信息',
+      keywords: '关于我们,团队介绍,联系我们'
+    }
+  },
+  {
+    path: '/md',
+    name: 'DocsHome',
+    component: () => import('@/views/DocsHome.vue'),
+    meta: {
+      title: '文档中心 - HSN Phira服务器',
+      description: 'HSNPhira服务器相关文档和指南',
+      keywords: '文档,指南,帮助,FAQ'
+    }
+  },
+  {
+    path: '/md/:pageId',
+    name: 'DocPage',
+    component: () => import('@/views/DocPage.vue'),
+    meta: {
+      title: '文档 - HSN Phira服务器',
+      description: 'HSNPhira服务器文档',
+      keywords: '文档,帮助'
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue'),
+    meta: {
+      title: '页面未找到 - HSN Phira服务器',
+      description: '您访问的页面不存在',
+      keywords: '404,页面未找到'
+    }
+  }
 ]

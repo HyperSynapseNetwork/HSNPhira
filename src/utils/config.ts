@@ -1,11 +1,30 @@
-import type { AppConfig, PreferencesConfig } from '@/types'
+import type { 
+  AppConfig, 
+  PreferencesConfig, 
+  MultiLanguageText,
+  GlobalConfig,
+  DownloadConfig,
+  NavigationConfig,
+  AnnouncementConfig,
+  AboutConfig,
+  DocConfig
+} from '@/types'
+import { useI18nStore } from '@/stores/i18n'
+import type { Language } from '@/i18n'
 
 // SSR 环境判断工具
 const isBrowser = typeof window !== 'undefined'
 
 let appConfig: AppConfig | null = null
 let preferencesConfig: PreferencesConfig | null = null
+let globalConfig: GlobalConfig | null = null
+let downloadConfig: DownloadConfig | null = null
+let navigationConfig: NavigationConfig | null = null
+let announcementConfig: AnnouncementConfig | null = null
+let aboutConfig: AboutConfig | null = null
+let docConfig: DocConfig | null = null
 
+// 主配置加载
 export async function loadAppConfig(): Promise<AppConfig> {
   if (appConfig) return appConfig
 
@@ -22,6 +41,56 @@ export async function loadPreferencesConfig(): Promise<PreferencesConfig> {
   return preferencesConfig!
 }
 
+// 新配置加载函数
+export async function loadGlobalConfig(): Promise<GlobalConfig> {
+  if (globalConfig) return globalConfig
+
+  const response = await fetch('/config/global.config.json')
+  globalConfig = await response.json()
+  return globalConfig!
+}
+
+export async function loadDownloadConfig(): Promise<DownloadConfig> {
+  if (downloadConfig) return downloadConfig
+
+  const response = await fetch('/config/download.config.json')
+  downloadConfig = await response.json()
+  return downloadConfig!
+}
+
+export async function loadNavigationConfig(): Promise<NavigationConfig> {
+  if (navigationConfig) return navigationConfig
+
+  const response = await fetch('/config/navigation.config.json')
+  navigationConfig = await response.json()
+  return navigationConfig!
+}
+
+export async function loadAnnouncementConfig(): Promise<AnnouncementConfig> {
+  if (announcementConfig) return announcementConfig
+
+  const response = await fetch('/config/announcement.config.json')
+  announcementConfig = await response.json()
+  return announcementConfig!
+}
+
+export async function loadAboutConfig(): Promise<AboutConfig> {
+  if (aboutConfig) return aboutConfig
+
+  const response = await fetch('/config/about.config.json')
+  aboutConfig = await response.json()
+  return aboutConfig!
+}
+
+export async function loadDocConfig(): Promise<DocConfig> {
+  if (docConfig) return docConfig
+
+  const response = await fetch('/config/docs.config.json')
+  docConfig = await response.json()
+  return docConfig!
+}
+
+// 获取配置函数
 export function getAppConfig(): AppConfig {
   if (!appConfig) {
     throw new Error('App config not loaded')
@@ -34,6 +103,73 @@ export function getPreferencesConfig(): PreferencesConfig {
     throw new Error('Preferences config not loaded')
   }
   return preferencesConfig as PreferencesConfig
+}
+
+export function getGlobalConfig(): GlobalConfig {
+  if (!globalConfig) {
+    throw new Error('Global config not loaded')
+  }
+  return globalConfig as GlobalConfig
+}
+
+export function getDownloadConfig(): DownloadConfig {
+  if (!downloadConfig) {
+    throw new Error('Download config not loaded')
+  }
+  return downloadConfig as DownloadConfig
+}
+
+export function getNavigationConfig(): NavigationConfig {
+  if (!navigationConfig) {
+    throw new Error('Navigation config not loaded')
+  }
+  return navigationConfig as NavigationConfig
+}
+
+export function getAnnouncementConfig(): AnnouncementConfig {
+  if (!announcementConfig) {
+    throw new Error('Announcement config not loaded')
+  }
+  return announcementConfig as AnnouncementConfig
+}
+
+export function getAboutConfig(): AboutConfig {
+  if (!aboutConfig) {
+    throw new Error('About config not loaded')
+  }
+  return aboutConfig as AboutConfig
+}
+
+export function getDocConfig(): DocConfig {
+  if (!docConfig) {
+    throw new Error('Doc config not loaded')
+  }
+  return docConfig as DocConfig
+}
+
+// 多语言文本辅助函数
+export function getLocalizedText(text: MultiLanguageText, language?: Language): string {
+  if (!text) return ''
+  
+  const i18nStore = useI18nStore()
+  const lang = language || i18nStore.currentLanguage
+  
+  // 尝试获取当前语言，如果不存在则使用zh作为回退
+  return text[lang] || text['zh'] || ''
+}
+
+// 批量加载所有配置
+export async function loadAllConfigs(): Promise<void> {
+  await Promise.all([
+    loadAppConfig(),
+    loadPreferencesConfig(),
+    loadGlobalConfig(),
+    loadDownloadConfig(),
+    loadNavigationConfig(),
+    loadAnnouncementConfig(),
+    loadAboutConfig(),
+    loadDocConfig()
+  ])
 }
 
 export function getBaseURL(): string {

@@ -11,6 +11,10 @@
           <p class="text-sm text-white/60">{{ t('agreement.lastUpdate') }}：{{ t('agreement.lastUpdateDate') }}</p>
         </div>
 
+        <div class="mt-4 p-4 glass-dark rounded-xl">
+          <p class="text-white/80">{{ t('agreement.disclaimer') }}</p>
+        </div>
+
         <section>
           <h2 class="text-xl font-bold mb-3">{{ t('agreement.section1') }}</h2>
           <h3 class="text-lg font-semibold mb-2">{{ t('agreement.section1_1') }}</h3>

@@ -9,18 +9,28 @@ export const messages = {
       phiraDownload: 'Phira下载',
       navigation: '导航',
       announcement: '公告',
-      agreement: '用户协议'
+      agreement: '用户协议',
+      about: '关于我们',
+      docs: '文档中心'
     },
     common: {
       login: '登录',
       register: '注册',
       logout: '退出登录',
+      homepage: '主页',
       account: '账户管理',
       settings: '偏好设置',
       language: '语言',
+      theme: '主题',
+      themeDark: '深色模式',
+      themeLight: '浅色模式',
+      themeHighContrast: '高对比度模式',
+      toggleDarkMode: '切换深色模式',
+      toggleHighContrast: '切换高对比度模式',
+      installApp: '安装为应用',
+      close: '关闭',
       copy: '复制',
       download: '下载',
-      close: '关闭',
       confirm: '确认',
       cancel: '取消',
       save: '保存',
@@ -52,7 +62,18 @@ export const messages = {
       unknown: '未知',
       other: '其他',
       more: '更多',
-      less: '收起'
+      less: '收起',
+      operationFailed: '操作失败',
+      connectionFailed: '连接失败',
+      copySuccess: '复制成功',
+      copyFailed: '复制失败',
+      totalItems: '共 {total} 条',
+      previousPage: '上一页',
+      nextPage: '下一页',
+      pageOf: '{current} / {total}',
+      notFoundTitle: '404',
+      notFoundDescription: '诶，你访问的页面不存在哦，你可以点击 [主页] 返回HSNPhira的主页，页面也会在5秒后自动跳转主页哦。',
+      goHome: '主页'
     },
     home: {
       title: 'HyperSynapse Network',
@@ -67,7 +88,10 @@ export const messages = {
       noRooms: '暂无房间',
       noRoomsDesc: '当前没有活跃的游戏房间',
       qqCopied: 'QQ群号已复制',
-      serverCopied: '服务器地址已复制'
+      serverCopied: '服务器地址已复制',
+      hsnmcServerAddress: 'HSNMC互通服务器地址',
+      copyHsnmc: '复制互通地址',
+      hsnmcCopied: '互通服务器地址已复制'
     },
     auth: {
       username: '用户名',
@@ -82,14 +106,49 @@ export const messages = {
       loginFailed: '登录失败',
       registerSuccess: '注册成功',
       registerFailed: '注册失败',
+      registerRequestFailed: '注册请求失败',
       logoutSuccess: '退出成功',
       usernameRequired: '请输入用户名',
       passwordRequired: '请输入密码',
       passwordTooShort: '密码长度至少6位',
       agreePolicyRequired: '请同意用户协议'
     },
+    about: {
+      teamIntroduction: '团队介绍',
+      teamIntroductionText: 'HyperSynapse Network/超弦网络正在开发维护HSNPhira，HSNBot，HSNMC等项目。',
+      teamMembers: '团队成员',
+      teamMembersNote: '注：团队成员排序不分先后',
+      feedback: '问题反馈',
+      feedbackText: '您可以前往我们的Github页面提交Issue，加入我们的QQ群1049578201，或者向nb3502022@outlook.com反馈您的问题与建议。',
+      githubIssues: 'GitHub Issues',
+      qqGroup: 'QQ群',
+      donate: '捐助我们',
+      donateText: '您可以加群获取HSN2026年度预算报表，并前往我们的爱发电主页进行捐赠，感谢❤️❤️❤️。',
+      donateButton: '前往爱发电',
+      joinUs: '加入我们',
+      joinUsText: '向HSN开发团队招募提交问卷，通过审核后我们将发送邮件邀请您加入我们❤️。',
+      joinUsButton: '提交问卷',
+      acknowledgements: '致谢',
+      acknowledgementsNote: '注：以下贡献者排序不分先后'
+    },
+    docs: {
+      homeTitle: '文档中心',
+      homeDescription: 'HSNPhira服务器文档和用户指南',
+      allDocuments: '所有文档',
+      backToDocs: '返回文档中心',
+      pageNotFound: '文档页面未找到',
+      pageNotFoundDesc: '您访问的文档页面不存在或已被移除',
+      errorLoading: '加载失败',
+      errorLoadingDesc: '文档加载失败，请稍后重试',
+      lastUpdated: '最后更新',
+      copyLink: '复制链接',
+      linkCopied: '文档链接已复制',
+      noDocuments: '暂无文档',
+      noDocumentsDescription: '当前没有可用的文档，请稍后再来查看'
+    },
     footer: {
       copyright: '© 2025-2026 HyperSynapse Network. 保留所有权利',
+      about: '关于我们',
       contact: '联系我们',
       privacy: '隐私政策',
       terms: '服务条款'
@@ -123,7 +182,29 @@ export const messages = {
       viewHistory: '查看历史',
       statusWaiting: '等待中',
       statusEnded: '已结束',
-      playerCount: '{current}/{max}'
+      playerCount: '{current}/{max}',
+      window: {
+        roomPlayers: '房间人员',
+        roomHistory: '游玩历史',
+        playersCount: '人数：',
+        noPlayers: '暂无玩家',
+        roomOwner: '房主',
+        noHistory: '暂无游玩历史',
+        loadingHistory: '正在加载游玩历史...',
+        time: '时间',
+        timeUnknown: '时间未知',
+        justNow: '刚刚',
+        minutesAgo: '{minutes}分钟前',
+        hoursAgo: '{hours}小时前',
+        daysAgo: '{days}天前',
+        score: '分数',
+        accuracy: '准度',
+        perfect: 'Perfect',
+        good: 'Good',
+        bad: 'Bad',
+        miss: 'Miss',
+        copyChartIdSuccess: '谱面ID已复制'
+      }
     },
     chart: {
       details: '谱面详情',
@@ -157,7 +238,13 @@ export const messages = {
       copyId: '复制ID',
       download: '下载文件',
       loading: '加载中...',
-      loadFailed: '加载失败'
+      loadFailed: '加载失败',
+      popularity: '谱面热度',
+      last1Hour: '最近1小时',
+      last1Day: '最近1天',
+      last1Week: '最近1周',
+      last1Month: '最近1月',
+      dataUpdateTime: '数据更新时间'
     },
     chartDownload: {
       title: '谱面下载工具',
@@ -213,7 +300,8 @@ export const messages = {
       cacheFailed: '缓存失败',
       downloadProgress: '下载进度',
       downloadCancelled: '下载已取消',
-      downloadingHint: '正在下载，请稍候...'
+      downloadingHint: '正在下载，请稍候...',
+      chartNotFound: '谱面不存在或无法访问'
     },
     // 从参考文件添加的新模块
     chartRanking: {
@@ -228,7 +316,9 @@ export const messages = {
       day: '最近1天',
       week: '最近1周',
       month: '最近1月',
-      idCopied: '谱面ID已复制'
+      idCopied: '谱面ID已复制',
+      currentDisplay: '当前显示',
+      chartIllustration: '谱面曲绘'
     },
     userRanking: {
       title: '用户排行榜',
@@ -239,7 +329,8 @@ export const messages = {
       playCount: '游玩次数',
       accuracy: '准确率',
       searchPlaceholder: '搜索用户名或ID...',
-      loadingMore: '正在后台加载更多用户信息...'
+      loadingMore: '正在后台加载更多用户信息...',
+      loading: '正在加载排行榜数据...'
     },
     phiraDownload: {
       title: 'Phira下载',
@@ -265,13 +356,15 @@ export const messages = {
       linuxInstall: 'Linux：下载ZIP后解压，给予执行权限后运行',
       downloadNote: '本下载站由 GitHub Proxy 服务驱动，提供更快的下载速度',
       githubLink: 'GitHub Releases',
-      downloadIssue: '下载遇到问题？访问'
+      downloadIssue: '下载遇到问题？访问',
+      getMoreVersions: '获取更多版本'
     },
     announcement: {
       title: '公告',
       publishTime: '发布时间',
       author: '发布者',
       noAnnouncements: '暂无公告',
+      noAnnouncementsDesc: '目前没有公告',
       pageTitle: '公告与联系',
       latestAnnouncements: '最新公告',
       contactUs: '联系我们',
@@ -285,12 +378,18 @@ export const messages = {
       copyEmail: '复制邮箱',
       visitGitHub: '访问GitHub',
       visitBilibili: '访问B站',
+      githubRepo: 'HSNPhira官方仓库',
+      bilibiliChannel: 'Firefly的Bilibili',
+      supportUs: '支持我们',
+      afdianLink: 'HSN爱发电主页',
+      afdianPlatform: '爱发电',
+      visitAfdian: '前往爱发电',
       welcomeTitle: '欢迎使用HSN Phira服务器',
       welcomeContent: '感谢您选择我们的服务！我们致力于提供稳定、低延迟的多人游戏体验。',
       maintenanceTitle: '服务器维护公告',
       maintenanceContent: '每天凌晨服务器会自动重启，请合理规划游戏时间。',
-      frontendReleaseTitle: 'HSNPhira Frontend v1.0.2发布',
-      frontendReleaseContent: '修复了大量问题，优化了用户体验。',
+      frontendReleaseTitle: 'HSNPhira Frontend v1.1.0发布',
+      frontendReleaseContent: '新增文档中心、深色模式、高对比度模式、关于我们页面、404页面、PWA支持、SEO优化等多项功能，大幅提升用户体验。',
       phiraMpReleaseTitle: 'Rust Phira-mp改版，C++ Phira-mp，Lua/C++ Phira-mp发布',
       phiraMpReleaseContent: 'HSNPhira-mp项目发布了Rust、C++和Lua/C++版本的多人在线服务器实现，提供高性能、跨平台支持。'
     },
@@ -300,7 +399,8 @@ export const messages = {
       lastUpdate: '最后更新',
       effectiveDate: '生效日期',
       effectiveDateText: '用户注册账号之日起生效',
-      lastUpdateDate: '2025年07月16日',
+      lastUpdateDate: '2026年02月26日',
+      disclaimer: '本项目运营方HyperSynapseNetwork与鸽游（Pigeon Games）及TeamFlos无任何直接关联',
       accept: '接受',
       decline: '拒绝',
       // 章节标题
@@ -465,16 +565,25 @@ export const messages = {
       phiraDownload: 'Phira Download',
       navigation: 'Navigation',
       announcement: 'Announcement',
-      agreement: 'Agreement'
+      agreement: 'Agreement',
+      about: 'About Us',
+      docs: 'Documentation'
     },
     common: {
       login: 'Login',
       register: 'Register',
       logout: 'Logout',
+      homepage: 'Homepage',
       account: 'Account',
       settings: 'Settings',
       theme: 'Theme',
+      themeDark: 'Dark Mode',
+      themeLight: 'Light Mode',
+      themeHighContrast: 'High Contrast Mode',
+      toggleDarkMode: 'Toggle Dark Mode',
+      toggleHighContrast: 'Toggle High Contrast Mode',
       language: 'Language',
+      installApp: 'Install as App',
       copy: 'Copy',
       download: 'Download',
       close: 'Close',
@@ -509,7 +618,18 @@ export const messages = {
       unknown: 'Unknown',
       other: 'Other',
       more: 'More',
-      less: 'Less'
+      less: 'Less',
+      operationFailed: 'Operation failed',
+      connectionFailed: 'Connection failed',
+      copySuccess: 'Copy successful',
+      copyFailed: 'Copy failed',
+      totalItems: 'Total {total} items',
+      previousPage: 'Previous',
+      nextPage: 'Next',
+      pageOf: '{current} / {total}',
+      notFoundTitle: '404',
+      notFoundDescription: 'Oops, the page you visited does not exist. You can click [Home] to return to HSNPhira homepage, the page will automatically redirect to homepage in 5 seconds.',
+      goHome: 'Home'
     },
     home: {
       title: 'HyperSynapse Network',
@@ -524,7 +644,10 @@ export const messages = {
       noRooms: 'No Rooms',
       noRoomsDesc: 'No active game rooms at the moment',
       qqCopied: 'QQ group copied',
-      serverCopied: 'Server address copied'
+      serverCopied: 'Server address copied',
+      hsnmcServerAddress: 'HSNMC Interoperability Server Address',
+      copyHsnmc: 'Copy Interoperability Address',
+      hsnmcCopied: 'Interoperability server address copied'
     },
     auth: {
       username: 'Username',
@@ -539,14 +662,34 @@ export const messages = {
       loginFailed: 'Login failed',
       registerSuccess: 'Registration successful',
       registerFailed: 'Registration failed',
+      registerRequestFailed: 'Registration request failed',
       logoutSuccess: 'Logout successful',
       usernameRequired: 'Please enter username',
       passwordRequired: 'Please enter password',
       passwordTooShort: 'Password must be at least 6 characters',
       agreePolicyRequired: 'Please agree to the user agreement'
     },
+    about: {
+      teamIntroduction: 'Team Introduction',
+      teamIntroductionText: 'HyperSynapse Network is developing and maintaining HSNPhira, HSNBot, HSNMC and other projects.',
+      teamMembers: 'Team Members',
+      teamMembersNote: 'Note: Team members are listed in no particular order',
+      feedback: 'Feedback',
+      feedbackText: 'You can submit issues on our GitHub page, join our QQ group 1049578201, or send feedback and suggestions to nb3502022@outlook.com.',
+      githubIssues: 'GitHub Issues',
+      qqGroup: 'QQ Group',
+      donate: 'Donate',
+      donateText: 'You can join the group to get the HSN 2026 annual budget report and donate at our Afdian homepage. Thank you ❤️❤️❤️.',
+      donateButton: 'Go to Afdian',
+      joinUs: 'Join Us',
+      joinUsText: 'Submit a questionnaire to the HSN development team recruitment. After approval, we will send an email invitation to join us ❤️.',
+      joinUsButton: 'Submit Questionnaire',
+      acknowledgements: 'Acknowledgements',
+      acknowledgementsNote: 'Note: Contributors are listed in no particular order'
+    },
     footer: {
       copyright: '© 2025-2026 HyperSynapse Network. All Rights Reserved',
+      about: 'About Us',
       contact: 'Contact Us',
       privacy: 'Privacy Policy',
       terms: 'Terms of Service'
@@ -580,7 +723,29 @@ export const messages = {
       viewHistory: 'View History',
       statusWaiting: 'Waiting',
       statusEnded: 'Ended',
-      playerCount: '{current}/{max}'
+      playerCount: '{current}/{max}',
+      window: {
+        roomPlayers: 'Room Players',
+        roomHistory: 'Play History',
+        playersCount: 'Players: ',
+        noPlayers: 'No Players',
+        roomOwner: 'Room Owner',
+        noHistory: 'No Play History',
+        loadingHistory: 'Loading play history...',
+        time: 'Time',
+        timeUnknown: 'Time Unknown',
+        justNow: 'Just Now',
+        minutesAgo: '{minutes} minutes ago',
+        hoursAgo: '{hours} hours ago',
+        daysAgo: '{days} days ago',
+        score: 'Score',
+        accuracy: 'Accuracy',
+        perfect: 'Perfect',
+        good: 'Good',
+        bad: 'Bad',
+        miss: 'Miss',
+        copyChartIdSuccess: 'Chart ID copied'
+      }
     },
     chart: {
       details: 'Chart Details',
@@ -614,7 +779,13 @@ export const messages = {
       copyId: 'Copy ID',
       download: 'Download File',
       loading: 'Loading...',
-      loadFailed: 'Load Failed'
+      loadFailed: 'Load Failed',
+      popularity: 'Chart Popularity',
+      last1Hour: 'Last 1 Hour',
+      last1Day: 'Last 1 Day',
+      last1Week: 'Last 1 Week',
+      last1Month: 'Last 1 Month',
+      dataUpdateTime: 'Data Update Time'
     },
     chartDownload: {
       title: 'Chart Download Tool',
@@ -670,7 +841,8 @@ export const messages = {
       cacheFailed: 'Cache failed',
       downloadProgress: 'Download Progress',
       downloadCancelled: 'Download cancelled',
-      downloadingHint: 'Downloading, please wait...'
+      downloadingHint: 'Downloading, please wait...',
+      chartNotFound: 'Chart not found or inaccessible'
     },
     // 从参考文件添加的新模块
     chartRanking: {
@@ -685,7 +857,9 @@ export const messages = {
       day: 'Last Day',
       week: 'Last Week',
       month: 'Last Month',
-      idCopied: 'Chart ID copied'
+      idCopied: 'Chart ID copied',
+      currentDisplay: 'Current display',
+      chartIllustration: 'Chart illustration'
     },
     userRanking: {
       title: 'User Ranking',
@@ -696,7 +870,8 @@ export const messages = {
       playCount: 'Play Count',
       accuracy: 'Accuracy',
       searchPlaceholder: 'Search username or ID...',
-      loadingMore: 'Loading more user information in background...'
+      loadingMore: 'Loading more user information in background...',
+      loading: 'Loading ranking data...'
     },
     phiraDownload: {
       title: 'Phira Download',
@@ -722,13 +897,15 @@ export const messages = {
       linuxInstall: 'Linux: Download ZIP, extract, give execution permission and run',
       downloadNote: 'This download site is powered by GitHub Proxy service for faster download speeds',
       githubLink: 'GitHub Releases',
-      downloadIssue: 'Having download issues? Visit'
+      downloadIssue: 'Having download issues? Visit',
+      getMoreVersions: 'Get More Versions'
     },
     announcement: {
       title: 'Announcements',
       publishTime: 'Published',
       author: 'Author',
       noAnnouncements: 'No announcements',
+      noAnnouncementsDesc: 'No announcements at the moment',
       pageTitle: 'Announcements & Contact',
       latestAnnouncements: 'Latest Announcements',
       contactUs: 'Contact Us',
@@ -742,6 +919,12 @@ export const messages = {
       copyEmail: 'Copy Email',
       visitGitHub: 'Visit GitHub',
       visitBilibili: 'Visit Bilibili',
+      githubRepo: 'HSNPhira Official Repository',
+      bilibiliChannel: "Firefly's Bilibili",
+      supportUs: 'Support Us',
+      afdianLink: 'HSN Afdian Homepage',
+      afdianPlatform: 'Afdian',
+      visitAfdian: 'Visit Afdian',
       welcomeTitle: 'Welcome to HSN Phira Server',
       welcomeContent: 'Thank you for choosing our service! We are committed to providing stable, low-latency multiplayer gaming experience.',
       maintenanceTitle: 'Server Maintenance Announcement',
@@ -757,7 +940,8 @@ export const messages = {
       lastUpdate: 'Last Updated',
       effectiveDate: 'Effective Date',
       effectiveDateText: 'Effective from the date of user account registration',
-      lastUpdateDate: 'July 16, 2025',
+      lastUpdateDate: 'February 26, 2026',
+      disclaimer: 'The operator of this project, HyperSynapseNetwork, has no direct affiliation with Pigeon Games or TeamFlos.',
       accept: 'Accept',
       decline: 'Decline',
       // Section titles
@@ -808,6 +992,21 @@ export const messages = {
       
       // Final note
       finalNote: 'Please read and understand the full content of this agreement carefully. Registration or use of this platform\'s services indicates your acceptance of the terms of this agreement. If you have any questions, please contact our customer support.'
+    },
+    docs: {
+      homeTitle: 'Documentation Center',
+      homeDescription: 'HSNPhira server documentation and user guides',
+      allDocuments: 'All Documents',
+      backToDocs: 'Back to Documentation Center',
+      pageNotFound: 'Document page not found',
+      pageNotFoundDesc: 'The document page you visited does not exist or has been removed',
+      errorLoading: 'Loading failed',
+      errorLoadingDesc: 'Document loading failed, please try again later',
+      lastUpdated: 'Last updated',
+      copyLink: 'Copy link',
+      linkCopied: 'Document link copied',
+      noDocuments: 'No documents',
+      noDocumentsDescription: 'There are no available documents at the moment, please check back later'
     },
     navigation: {
       tip: 'tip: If you have other links to add, please contact',
@@ -922,16 +1121,25 @@ export const messages = {
       phiraDownload: 'Phiraダウンロード',
       navigation: 'ナビゲーション',
       announcement: 'お知らせ',
-      agreement: '利用規約'
+      agreement: '利用規約',
+      about: '私たちについて',
+      docs: 'ドキュメントセンター'
     },
     common: {
       login: 'ログイン',
       register: '登録',
       logout: 'ログアウト',
+      homepage: 'ホームページ',
       account: 'アカウント',
       settings: '設定',
       theme: 'テーマ',
+      themeDark: 'ダークモード',
+      themeLight: 'ライトモード',
+      themeHighContrast: 'ハイコントラストモード',
+      toggleDarkMode: 'ダークモードを切り替え',
+      toggleHighContrast: 'ハイコントラストモードを切り替え',
       language: '言語',
+      installApp: 'アプリとしてインストール',
       copy: 'コピー',
       download: 'ダウンロード',
       close: '閉じる',
@@ -966,7 +1174,18 @@ export const messages = {
       unknown: '不明',
       other: 'その他',
       more: 'もっと見る',
-      less: '閉じる'
+      less: '閉じる',
+      operationFailed: '操作失敗',
+      connectionFailed: '接続失敗',
+      copySuccess: 'コピー成功',
+      copyFailed: 'コピー失敗',
+      totalItems: '合計 {total} 件',
+      previousPage: '前へ',
+      nextPage: '次へ',
+      pageOf: '{current} / {total}',
+      notFoundTitle: '404',
+      notFoundDescription: 'おっと、アクセスしたページは存在しません。 [ホーム] をクリックするとHSNPhiraホームページに戻ります。ページは5秒後に自動的にホームページにリダイレクトされます。',
+      goHome: 'ホーム'
     },
     home: {
       title: 'HyperSynapse Network',
@@ -981,7 +1200,10 @@ export const messages = {
       noRooms: 'ルームなし',
       noRoomsDesc: '現在アクティブなゲームルームはありません',
       qqCopied: 'QQグループをコピーしました',
-      serverCopied: 'サーバーアドレスをコピーしました'
+      serverCopied: 'サーバーアドレスをコピーしました',
+      hsnmcServerAddress: 'HSNMC相互運用サーバーアドレス',
+      copyHsnmc: '相互運用アドレスをコピー',
+      hsnmcCopied: '相互運用サーバーアドレスをコピーしました'
     },
     auth: {
       username: 'ユーザー名',
@@ -996,14 +1218,34 @@ export const messages = {
       loginFailed: 'ログインに失敗しました',
       registerSuccess: '登録しました',
       registerFailed: '登録に失敗しました',
+      registerRequestFailed: '登録リクエストに失敗しました',
       logoutSuccess: 'ログアウトしました',
       usernameRequired: 'ユーザー名を入力してください',
       passwordRequired: 'パスワードを入力してください',
       passwordTooShort: 'パスワードは6文字以上にしてください',
       agreePolicyRequired: '利用規約に同意してください'
     },
+    about: {
+      teamIntroduction: 'チーム紹介',
+      teamIntroductionText: 'HyperSynapse Networkは、HSNPhira、HSNBot、HSNMCなどのプロジェクトを開発・保守しています。',
+      teamMembers: 'チームメンバー',
+      teamMembersNote: '注：チームメンバーの順序は特に決まっていません',
+      feedback: 'フィードバック',
+      feedbackText: 'GitHubページでIssueを提出するか、QQグループ1049578201に参加するか、nb3502022@outlook.comにフィードバックや提案を送信してください。',
+      githubIssues: 'GitHub Issues',
+      qqGroup: 'QQグループ',
+      donate: '寄付',
+      donateText: 'グループに参加してHSN2026年度予算報告書を取得し、愛発電ホームページで寄付することができます。ありがとうございます❤️❤️❤️。',
+      donateButton: '愛発電へ行く',
+      joinUs: '参加する',
+      joinUsText: 'HSN開発チーム募集にアンケートを提出してください。承認後、参加への招待メールを送信します❤️。',
+      joinUsButton: 'アンケートを提出',
+      acknowledgements: '謝辞',
+      acknowledgementsNote: '注：貢献者の順序は特に決まっていません'
+    },
     footer: {
       copyright: '© 2025-2026 HyperSynapse Network. All Rights Reserved',
+      about: '私たちについて',
       contact: 'お問い合わせ',
       privacy: 'プライバシーポリシー',
       terms: '利用規約'
@@ -1037,7 +1279,29 @@ export const messages = {
       viewHistory: '履歴を見る',
       statusWaiting: '待機中',
       statusEnded: '終了',
-      playerCount: '{current}/{max}'
+      playerCount: '{current}/{max}',
+      window: {
+        roomPlayers: 'ルームプレイヤー',
+        roomHistory: 'プレイ履歴',
+        playersCount: '人数：',
+        noPlayers: 'プレイヤーがいません',
+        roomOwner: 'ルームオーナー',
+        noHistory: 'プレイ履歴がありません',
+        loadingHistory: 'プレイ履歴を読み込み中...',
+        time: '時間',
+        timeUnknown: '時間不明',
+        justNow: 'たった今',
+        minutesAgo: '{minutes}分前',
+        hoursAgo: '{hours}時間前',
+        daysAgo: '{days}日前',
+        score: 'スコア',
+        accuracy: '精度',
+        perfect: 'Perfect',
+        good: 'Good',
+        bad: 'Bad',
+        miss: 'Miss',
+        copyChartIdSuccess: '譜面IDをコピーしました'
+      }
     },
     chart: {
       details: '譜面詳細',
@@ -1071,7 +1335,13 @@ export const messages = {
       copyId: 'IDをコピー',
       download: 'ファイルをダウンロード',
       loading: '読み込み中...',
-      loadFailed: '読み込み失敗'
+      loadFailed: '読み込み失敗',
+      popularity: '譜面人気度',
+      last1Hour: '最近1時間',
+      last1Day: '最近1日',
+      last1Week: '最近1週間',
+      last1Month: '最近1か月',
+      dataUpdateTime: 'データ更新時間'
     },
     chartDownload: {
       title: '譜面ダウンロードツール',
@@ -1127,7 +1397,8 @@ export const messages = {
       cacheFailed: 'キャッシュに失敗しました',
       downloadProgress: 'ダウンロード進捗',
       downloadCancelled: 'ダウンロードをキャンセルしました',
-      downloadingHint: 'ダウンロード中、お待ちください...'
+      downloadingHint: 'ダウンロード中、お待ちください...',
+      chartNotFound: '譜面が見つからないかアクセスできません'
     },
     // 从参考文件添加的新模块
     chartRanking: {
@@ -1142,7 +1413,9 @@ export const messages = {
       day: '過去1日',
       week: '過去1週間',
       month: '過去1ヶ月',
-      idCopied: '譜面IDをコピーしました'
+      idCopied: '譜面IDをコピーしました',
+      currentDisplay: '現在表示',
+      chartIllustration: '譜面イラスト'
     },
     userRanking: {
       title: 'ユーザーランキング',
@@ -1153,7 +1426,8 @@ export const messages = {
       playCount: 'プレイ回数',
       accuracy: '正確率',
       searchPlaceholder: 'ユーザー名またはIDを検索...',
-      loadingMore: 'バックグラウンドでユーザー情報を読み込み中...'
+      loadingMore: 'バックグラウンドでユーザー情報を読み込み中...',
+      loading: 'ランキングデータを読み込み中...'
     },
     phiraDownload: {
       title: 'Phiraダウンロード',
@@ -1179,13 +1453,15 @@ export const messages = {
       linuxInstall: 'Linux: ZIPをダウンロードし、解凍して実行権限を与えて実行',
       downloadNote: 'このダウンロードサイトはより高速なダウンロード速度のために GitHub Proxy サービスによって提供されています',
       githubLink: 'GitHub Releases',
-      downloadIssue: 'ダウンロードに問題がありますか？訪問'
+      downloadIssue: 'ダウンロードに問題がありますか？訪問',
+      getMoreVersions: '他のバージョンを取得'
     },
     announcement: {
       title: 'お知らせ',
       publishTime: '公開日時',
       author: '投稿者',
       noAnnouncements: 'お知らせはありません',
+      noAnnouncementsDesc: '現在、お知らせはありません',
       pageTitle: 'お知らせと連絡先',
       latestAnnouncements: '最新のお知らせ',
       contactUs: 'お問い合わせ',
@@ -1199,6 +1475,12 @@ export const messages = {
       copyEmail: 'メールをコピー',
       visitGitHub: 'GitHubを訪問',
       visitBilibili: 'Bilibiliを訪問',
+      githubRepo: 'HSNPhira公式リポジトリ',
+      bilibiliChannel: 'FireflyのBilibili',
+      supportUs: 'サポート',
+      afdianLink: 'HSN愛発電ホームページ',
+      afdianPlatform: '愛発電',
+      visitAfdian: '愛発電を訪問',
       welcomeTitle: 'HSN Phiraサーバーへようこそ',
       welcomeContent: '当サービスをご利用いただきありがとうございます！安定した低遅延のマルチプレイゲーム体験を提供します。',
       maintenanceTitle: 'サーバーメンテナンスのお知らせ',
@@ -1214,7 +1496,8 @@ export const messages = {
       lastUpdate: '最終更新',
       effectiveDate: '発効日',
       effectiveDateText: 'ユーザーアカウント登録日より発効',
-      lastUpdateDate: '2025年7月16日',
+      lastUpdateDate: '2026年2月26日',
+      disclaimer: '本プロジェクトの運営者であるHyperSynapseNetworkは、Pigeon GamesおよびTeamFlosとの直接的関係は一切ありません。',
       accept: '同意する',
       decline: '拒否する',
       // 章タイトル
@@ -1265,6 +1548,21 @@ export const messages = {
       
       // 最終説明
       finalNote: '本同意書の全内容をよくお読みになり、理解してください。本プラットフォームサービスの登録又は使用は、本同意書の条項に同意したことを示します。ご質問がある場合は、カスタマーサポートにお問い合わせください。'
+    },
+    docs: {
+      homeTitle: 'ドキュメントセンター',
+      homeDescription: 'HSNPhiraサーバードキュメントとユーザーガイド',
+      allDocuments: 'すべてのドキュメント',
+      backToDocs: 'ドキュメントセンターに戻る',
+      pageNotFound: 'ドキュメントページが見つかりません',
+      pageNotFoundDesc: 'アクセスしたドキュメントページは存在しないか、削除されました',
+      errorLoading: '読み込みに失敗しました',
+      errorLoadingDesc: 'ドキュメントの読み込みに失敗しました。後でもう一度お試しください',
+      lastUpdated: '最終更新',
+      copyLink: 'リンクをコピー',
+      linkCopied: 'ドキュメントリンクをコピーしました',
+      noDocuments: 'ドキュメントはありません',
+      noDocumentsDescription: '現在利用可能なドキュメントはありません。後でもう一度確認してください'
     },
     navigation: {
       tip: 'tip: 追加するリンクがある場合は、ご連絡ください',
@@ -1379,16 +1677,25 @@ export const messages = {
       phiraDownload: 'Phira下載',
       navigation: '導航',
       announcement: '公告',
-      agreement: '用戶協議'
+      agreement: '用戶協議',
+      about: '關於我們',
+      docs: '文檔中心'
     },
     common: {
       login: '登入',
       register: '註冊',
       logout: '退出登入',
+      homepage: '主頁',
       account: '帳戶管理',
       settings: '偏好設定',
       theme: '主題',
+      themeDark: '深色模式',
+      themeLight: '淺色模式',
+      themeHighContrast: '高對比度模式',
+      toggleDarkMode: '切換深色模式',
+      toggleHighContrast: '切換高對比度模式',
       language: '語言',
+      installApp: '安裝為應用',
       copy: '複製',
       download: '下載',
       close: '關閉',
@@ -1423,7 +1730,18 @@ export const messages = {
       unknown: '未知',
       other: '其他',
       more: '更多',
-      less: '收起'
+      less: '收起',
+      operationFailed: '操作失敗',
+      connectionFailed: '連接失敗',
+      copySuccess: '複製成功',
+      copyFailed: '複製失敗',
+      totalItems: '共 {total} 條',
+      previousPage: '上一頁',
+      nextPage: '下一頁',
+      pageOf: '{current} / {total}',
+      notFoundTitle: '404',
+      notFoundDescription: '诶，你訪問的頁面不存在哦，你可以點擊 [主頁] 返回HSNPhira的主頁，頁面也會在5秒後自動跳轉主頁哦。',
+      goHome: '主頁'
     },
     home: {
       title: 'HyperSynapse Network',
@@ -1439,7 +1757,10 @@ export const messages = {
       noRoomsDesc: '當前沒有活躍的遊戲房間',
       noActiveRooms: '當前沒有活躍的遊戲房間',
       qqCopied: 'QQ群號已複製',
-      serverCopied: '伺服器位址已複製'
+      serverCopied: '伺服器位址已複製',
+      hsnmcServerAddress: 'HSNMC互通伺服器地址',
+      copyHsnmc: '複製互通地址',
+      hsnmcCopied: '互通伺服器地址已複製'
     },
     auth: {
       username: '用戶名',
@@ -1454,11 +1775,30 @@ export const messages = {
       loginFailed: '登入失敗',
       registerSuccess: '註冊成功',
       registerFailed: '註冊失敗',
+      registerRequestFailed: '註冊請求失敗',
       logoutSuccess: '退出成功',
       usernameRequired: '請輸入用戶名',
       passwordRequired: '請輸入密碼',
       passwordTooShort: '密碼長度至少6位',
       agreePolicyRequired: '請同意用戶協議'
+    },
+    about: {
+      teamIntroduction: '團隊介紹',
+      teamIntroductionText: 'HyperSynapse Network/超弦網絡正在開發維護HSNPhira，HSNBot，HSNMC等項目。',
+      teamMembers: '團隊成員',
+      teamMembersNote: '注：團隊成員排序不分先後',
+      feedback: '問題反饋',
+      feedbackText: '您可以前往我們的Github頁面提交Issue，加入我們的QQ群1049578201，或者向nb3502022@outlook.com反饋您的問題與建議。',
+      githubIssues: 'GitHub Issues',
+      qqGroup: 'QQ群',
+      donate: '捐助我們',
+      donateText: '您可以加群獲取HSN2026年度預算報表，並前往我們的愛發電主頁進行捐贈，感謝❤️❤️❤️。',
+      donateButton: '前往愛發電',
+      joinUs: '加入我們',
+      joinUsText: '向HSN開發團隊招募提交問卷，通過審核後我們將發送郵件邀請您加入我們❤️。',
+      joinUsButton: '提交問卷',
+      acknowledgements: '致謝',
+      acknowledgementsNote: '注：以下貢獻者排序不分先後'
     },
     rooms: {
       title: '房間列表',
@@ -1489,7 +1829,29 @@ export const messages = {
       statusWaiting: '等待中',
       statusPlaying: '遊戲中',
       statusEnded: '已結束',
-      playerCount: '{current}/{max}'
+      playerCount: '{current}/{max}',
+      window: {
+        roomPlayers: '房間人員',
+        roomHistory: '遊玩歷史',
+        playersCount: '人數：',
+        noPlayers: '暫無玩家',
+        roomOwner: '房主',
+        noHistory: '暫無遊玩歷史',
+        loadingHistory: '正在載入遊玩歷史...',
+        time: '時間',
+        timeUnknown: '時間未知',
+        justNow: '剛剛',
+        minutesAgo: '{minutes}分鐘前',
+        hoursAgo: '{hours}小時前',
+        daysAgo: '{days}天前',
+        score: '分數',
+        accuracy: '準度',
+        perfect: 'Perfect',
+        good: 'Good',
+        bad: 'Bad',
+        miss: 'Miss',
+        copyChartIdSuccess: '譜面ID已複製'
+      }
     },
     chartRanking: {
       title: '譜面排行榜',
@@ -1503,7 +1865,9 @@ export const messages = {
       day: '最近1天',
       week: '最近1週',
       month: '最近1月',
-      idCopied: '譜面ID已複製'
+      idCopied: '譜面ID已複製',
+      currentDisplay: '目前顯示',
+      chartIllustration: '譜面曲繪'
     },
     userRanking: {
       title: '用戶排行榜',
@@ -1514,7 +1878,8 @@ export const messages = {
       playCount: '遊玩次數',
       accuracy: '準確率',
       searchPlaceholder: '搜尋用戶名或ID...',
-      loadingMore: '正在後台加載更多用戶資訊...'
+      loadingMore: '正在後台加載更多用戶資訊...',
+      loading: '正在加載排行榜資料...'
     },
     chart: {
       details: '譜面詳情',
@@ -1548,7 +1913,13 @@ export const messages = {
       copyId: '複製ID',
       download: '下載文件',
       loading: '載入中...',
-      loadFailed: '載入失敗'
+      loadFailed: '載入失敗',
+      popularity: '譜面熱度',
+      last1Hour: '最近1小時',
+      last1Day: '最近1天',
+      last1Week: '最近1週',
+      last1Month: '最近1月',
+      dataUpdateTime: '資料更新時間'
     },
     chartDownload: {
       title: '譜面下載工具',
@@ -1604,7 +1975,8 @@ export const messages = {
       cacheFailed: '緩存失敗',
       downloadProgress: '下載進度',
       downloadCancelled: '下載已取消',
-      downloadingHint: '正在下載，請稍候...'
+      downloadingHint: '正在下載，請稍候...',
+      chartNotFound: '譜面不存在或無法訪問'
     },
     phiraDownload: {
       title: 'Phira下載',
@@ -1630,13 +2002,15 @@ export const messages = {
       linuxInstall: 'Linux：下載ZIP後解壓，給予執行權限後執行',
       downloadNote: '本下載站由 GitHub Proxy 服務驅動，提供更快的下載速度',
       githubLink: 'GitHub Releases',
-      downloadIssue: '下載遇到問題？訪問'
+      downloadIssue: '下載遇到問題？訪問',
+      getMoreVersions: '獲取更多版本'
     },
     announcement: {
       title: '公告',
       publishTime: '發佈時間',
       author: '發佈者',
       noAnnouncements: '暫無公告',
+      noAnnouncementsDesc: '目前沒有公告',
       pageTitle: '公告與聯繫',
       latestAnnouncements: '最新公告',
       contactUs: '聯繫我們',
@@ -1650,6 +2024,12 @@ export const messages = {
       copyEmail: '複製郵箱',
       visitGitHub: '訪問GitHub',
       visitBilibili: '訪問B站',
+      githubRepo: 'HSNPhira官方倉庫',
+      bilibiliChannel: 'Firefly的Bilibili',
+      supportUs: '支持我們',
+      afdianLink: 'HSN愛發電主頁',
+      afdianPlatform: '愛發電',
+      visitAfdian: '前往愛發電',
       welcomeTitle: '歡迎使用HSN Phira伺服器',
       welcomeContent: '感謝您選擇我們的服務！我們致力於提供穩定、低延遲的多人遊戲體驗。',
       maintenanceTitle: '伺服器維護公告',
@@ -1665,7 +2045,8 @@ export const messages = {
       lastUpdate: '最後更新',
       effectiveDate: '生效日期',
       effectiveDateText: '用戶註冊帳號之日起生效',
-      lastUpdateDate: '2025年07月16日',
+      lastUpdateDate: '2026年02月26日',
+      disclaimer: '本項目運營方HyperSynapseNetwork與鴿遊（Pigeon Games）及TeamFlos無任何直接關聯。',
       accept: '接受',
       decline: '拒絕',
       // 章節標題
@@ -1716,6 +2097,21 @@ export const messages = {
       
       // 結尾說明
       finalNote: '請仔細閱讀並理解本協議的全部內容。註冊或使用本平台服務即表示您同意接受本協議的約束。如有任何疑問，請聯繫我們的客服支援。'
+    },
+    docs: {
+      homeTitle: '文檔中心',
+      homeDescription: 'HSNPhira伺服器文檔和用戶指南',
+      allDocuments: '所有文檔',
+      backToDocs: '返回文檔中心',
+      pageNotFound: '文檔頁面未找到',
+      pageNotFoundDesc: '您訪問的文檔頁面不存在或已被移除',
+      errorLoading: '載入失敗',
+      errorLoadingDesc: '文檔載入失敗，請稍後重試',
+      lastUpdated: '最後更新',
+      copyLink: '複製連結',
+      linkCopied: '文檔連結已複製',
+      noDocuments: '暫無文檔',
+      noDocumentsDescription: '當前沒有可用的文檔，請稍後再來查看'
     },
     navigation: {
       tip: 'tip：如有其他需要加入的連結可以聯繫',
@@ -1797,6 +2193,7 @@ export const messages = {
     },
     footer: {
       copyright: '© 2025-2026 HyperSynapse Network. 保留所有權利',
+      about: '關於我們',
       contact: '聯絡我們',
       privacy: '隱私政策',
       terms: '服務條款'

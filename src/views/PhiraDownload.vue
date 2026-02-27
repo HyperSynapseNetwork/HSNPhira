@@ -4,45 +4,23 @@
 
     <div class="glass rounded-3xl p-8 space-y-6">
       <p class="text-white/80 text-center mb-8">
-        {{ t('phiraDownload.versionInfo') }}
+        {{ t('phiraDownload.versionInfo', { version: latestVersion }) }}
       </p>
 
       <div class="space-y-4">
-        <!-- Android -->
-        <div class="glass-dark rounded-2xl p-6">
+        <!-- 动态生成下载卡片 -->
+        <div
+          v-for="card in downloadCards"
+          :key="card.id"
+          class="glass-dark rounded-2xl p-6"
+        >
           <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex-1">
-              <h3 class="text-xl font-bold text-white mb-2">{{ t('phiraDownload.android') }}</h3>
-              <p class="text-white/60 text-sm">{{ t('phiraDownload.forAndroid') }}</p>
+              <h3 class="text-xl font-bold text-white mb-2">{{ card.title }}</h3>
+              <p class="text-white/60 text-sm">{{ card.description }}</p>
             </div>
-            <Button @click="download('android')">
-              {{ t('phiraDownload.downloadBtn') }} APK
-            </Button>
-          </div>
-        </div>
-
-        <!-- Windows -->
-        <div class="glass-dark rounded-2xl p-6">
-          <div class="flex items-center justify-between flex-wrap gap-4">
-            <div class="flex-1">
-              <h3 class="text-xl font-bold text-white mb-2">{{ t('phiraDownload.windows') }}</h3>
-              <p class="text-white/60 text-sm">{{ t('phiraDownload.forWindows') }}</p>
-            </div>
-            <Button @click="download('windows')">
-              {{ t('phiraDownload.downloadBtn') }} ZIP
-            </Button>
-          </div>
-        </div>
-
-        <!-- Linux -->
-        <div class="glass-dark rounded-2xl p-6">
-          <div class="flex items-center justify-between flex-wrap gap-4">
-            <div class="flex-1">
-              <h3 class="text-xl font-bold text-white mb-2">{{ t('phiraDownload.linux') }}</h3>
-              <p class="text-white/60 text-sm">{{ t('phiraDownload.forLinux') }}</p>
-            </div>
-            <Button @click="download('linux')">
-              {{ t('phiraDownload.downloadBtn') }} ZIP
+            <Button @click="download(card.id, card.buttonLink)">
+              {{ card.buttonText }}
             </Button>
           </div>
         </div>
@@ -74,27 +52,38 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
 import { showSuccess } from '@/utils/message'
+import { getDownloadConfig, getLocalizedText } from '@/utils/config'
 import Button from '@/components/common/Button.vue'
 
 const { t } = useI18nStore()
 
-const downloadUrls = {
-  android: 'https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-v0.6.7-arm64-v8a.apk',
-  windows: 'https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-windows-v0.6.7.zip',
-  linux: 'https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-linux-v0.6.7.zip'
-}
+// 从配置加载下载信息
+const downloadConfig = computed(() => getDownloadConfig())
+const latestVersion = computed(() => downloadConfig.value.latestVersion)
 
-function download(platform: keyof typeof downloadUrls) {
-  const url = downloadUrls[platform]
+// 处理多语言文本的下载卡片
+const downloadCards = computed(() => {
+  const config = downloadConfig.value
+  return config.downloadCards.map(card => ({
+    id: card.id,
+    title: getLocalizedText(card.title),
+    description: getLocalizedText(card.description),
+    buttonText: getLocalizedText(card.buttonText),
+    buttonLink: card.buttonLink
+  }))
+})
+
+function download(_platform: string, url: string) {
   const link = document.createElement('a')
   link.href = url
   link.download = ''
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  
+
   showSuccess('下载开始', '文件下载已开始，请查看浏览器下载列表')
 }
 </script>

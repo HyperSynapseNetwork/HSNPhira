@@ -2,63 +2,36 @@
   <div class="container mx-auto px-4 py-24">
     <h1 class="text-4xl font-bold text-white text-center mb-12">{{ t('nav.navigation') }}</h1>
 
-    <!-- 官方链接 -->
-    <div class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">{{ t('navigation.official') }}</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <button
-          v-for="link in officialLinks"
-          :key="link.url"
-          class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
-          @click="openLink(link.url)"
-        >
-          <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
-            {{ link.title }}
-          </h3>
-          <p class="text-white/60 text-sm break-all">
-            {{ link.url }}
-          </p>
-        </button>
+    <!-- 加载状态 -->
+    <div v-if="isLoading" class="text-center py-12">
+      <div class="inline-flex items-center">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-white/80">{{ t('common.loading') }}</span>
       </div>
     </div>
 
-    <!-- 联机服务器 -->
-    <div class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">{{ t('navigation.multiplayer') }}</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <button
-          v-for="link in multiplayerLinks"
-          :key="link.url"
-          class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
-          @click="openLink(link.url)"
-        >
-          <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
-            {{ link.title }}
-          </h3>
-          <p class="text-white/60 text-sm break-all">
-            {{ link.url }}
-          </p>
-        </button>
-      </div>
-    </div>
-
-    <!-- 社区开源仓库 -->
-    <div class="mb-12">
-      <h2 class="text-2xl font-bold text-white mb-6">{{ t('navigation.community') }}</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <button
-          v-for="link in communityLinks"
-          :key="link.url"
-          class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
-          @click="openLink(link.url)"
-        >
-          <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
-            {{ link.title }}
-          </h3>
-          <p class="text-white/60 text-sm break-all">
-            {{ link.url }}
-          </p>
-        </button>
+    <!-- 卡片组列表 -->
+    <div v-else>
+      <div v-for="group in cardGroups" :key="group.id" class="mb-12">
+        <h2 class="text-2xl font-bold text-white mb-6">{{ group.name }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <button
+            v-for="card in getCardsByGroupId(group.id)"
+            :key="card.url"
+            class="glass rounded-2xl p-6 hover:scale-105 hover:shadow-2xl transition-all group text-left"
+            @click="openLink(card.url)"
+          >
+            <h3 class="text-xl font-bold text-white mb-2 glow-on-hover">
+              {{ card.title }}
+            </h3>
+            <p class="text-white/60 text-sm break-all">
+              {{ card.url }}
+            </p>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -76,90 +49,61 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useI18nStore } from '@/stores/i18n'
+import { loadNavigationConfig, getNavigationConfig, getLocalizedText } from '@/utils/config'
 
-const { t } = useI18nStore()
+const { t, currentLanguage } = useI18nStore()
 
-// 官方链接
-const officialLinks = computed(() => [
-  {
-    title: t('navigation.phiraOfficialRepo'),
-    url: 'https://github.com/login?return_to=https://github.com/TeamFlos/phira/'
-  },
-  {
-    title: t('navigation.phiraOfficialWebsite'),
-    url: 'https://phira.moe/'
-  },
-  {
-    title: t('navigation.dmockenPhiraDownload'),
-    url: 'https://phira.dmocken.top/'
-  },
-  {
-    title: t('navigation.phiraFaqDocument'),
-    url: 'https://docs.qq.com/pdf/DU0FRVHVCd01KdERO'
+const isLoading = ref(false)
+const navigationConfig = ref<any>(null)
+
+// 加载配置
+async function loadConfig() {
+  try {
+    isLoading.value = true
+    await loadNavigationConfig()
+    navigationConfig.value = getNavigationConfig()
+  } catch (error) {
+    console.error('Failed to load navigation config:', error)
+  } finally {
+    isLoading.value = false
   }
-])
+}
 
-// 联机服务器链接
-const multiplayerLinks = computed(() => [
-  {
-    title: t('navigation.phiraServerStatus'),
-    url: 'https://status.dmocken.top/status/phira'
-  },
-  {
-    title: t('navigation.hsnPhiraServer'),
-    url: 'https://phira.htadiy.com/'
-  },
-  {
-    title: t('navigation.funxlinkPhiraPanel'),
-    url: 'https://phira.chuzoux.top/'
-  },
-  {
-    title: t('navigation.toyamaPhiraRooms'),
-    url: 'https://iphira.danieltoyama.fun/'
-  },
-  {
-    title: t('navigation.autoRoomQuery'),
-    url: 'https://phira.dmocken.top/mulity'
-  }
-])
+// 获取卡片组
+const cardGroups = computed(() => {
+  if (!navigationConfig.value) return []
+  return navigationConfig.value.cardGroups.map((group: any) => ({
+    id: group.id,
+    name: getLocalizedText(group.name)
+  }))
+})
 
-// 社区开源仓库
-const communityLinks = computed(() => [
-  {
-    title: t('navigation.hsnPhiraRepo'),
-    url: 'https://github.com/HyperSynapseNetwork/HSNPhira'
-  },
-  {
-    title: t('navigation.javaPhiraMp'),
-    url: 'https://github.com/lRENyaaa/jphira-mp'
-  },
-  {
-    title: t('navigation.hsnPhiraMp'),
-    url: 'https://github.com/HyperSynapseNetwork/phira-mp'
-  },
-  {
-    title: t('navigation.tsPhiraMpPimeng'),
-    url: 'https://github.com/Pimeng/tphira-mp'
-  },
-  {
-    title: t('navigation.tsPhiraMpChuzouX'),
-    url: 'https://github.com/chuzouX/phira-mp-nodejsver'
-  },
-  {
-    title: t('navigation.pythonPhiraMp'),
-    url: 'https://github.com/Evi233/pyphira-mp'
-  },
-  {
-    title: t('navigation.csharpPhiraMp'),
-    url: 'https://github.com/NuanRMxi-Lazy-Team/PhiraMpServerCSharp'
-  },
-  {
-    title: t('navigation.goPhiraMp'),
-    url: 'https://github.com/Pimeng/gphira-mp'
+// 根据卡片组ID获取卡片
+const getCardsByGroupId = computed(() => {
+  return (groupId: string) => {
+    if (!navigationConfig.value) return []
+    return navigationConfig.value.cards
+      .filter((card: any) => card.groupId === groupId)
+      .map((card: any) => ({
+        title: getLocalizedText(card.title),
+        url: card.link
+      }))
   }
-])
+})
+
+onMounted(() => {
+  loadConfig()
+})
+
+// 监听语言变化
+watch(() => currentLanguage, () => {
+  if (navigationConfig.value) {
+    // 强制重新计算
+    navigationConfig.value = { ...navigationConfig.value }
+  }
+})
 
 function openLink(url: string) {
   window.open(url, '_blank')

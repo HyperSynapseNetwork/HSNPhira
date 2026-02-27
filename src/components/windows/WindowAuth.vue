@@ -145,7 +145,7 @@ let registerEventSource: EventSource | null = null
 
 async function handleSubmit() {
   if (!formData.agreePolicy) {
-    showError('错误', '请同意用户协议')
+    showError(t('common.error'), t('auth.agreePolicyRequired'))
     return
   }
 
@@ -158,7 +158,7 @@ async function handleSubmit() {
       await handleRegister()
     }
   } catch (error: any) {
-    showError('错误', error.message || '操作失败')
+    showError(t('common.error'), error.message || t('common.operationFailed'))
   } finally {
     isSubmitting.value = false
   }
@@ -166,7 +166,7 @@ async function handleSubmit() {
 
 async function handleLogin() {
   await userStore.login(formData.username, formData.password, formData.remember)
-  showSuccess('成功', '登录成功')
+  showSuccess(t('common.success'), t('auth.loginSuccess'))
   eventBus.emit('login-success')
   isOpen.value = false
   resetForm()
@@ -195,7 +195,7 @@ async function handleRegister() {
       const user = JSON.parse(e.data)
       registerStatus.value = { type: 'success' }
       userStore.setUser(user)
-      showSuccess('成功', '注册成功')
+      showSuccess(t('common.success'), t('auth.registerSuccess'))
       eventBus.emit('login-success')
       setTimeout(() => {
         isOpen.value = false
@@ -207,7 +207,7 @@ async function handleRegister() {
     eventSource.addEventListener('error', (e: any) => {
       registerStatus.value = {
         type: 'error',
-        message: e.data || '注册失败',
+        message: e.data || t('auth.registerFailed'),
       }
       eventSource.close()
     })
@@ -220,14 +220,14 @@ async function handleRegister() {
     eventSource.onerror = () => {
       registerStatus.value = {
         type: 'error',
-        message: '连接失败',
+        message: t('common.connectionFailed'),
       }
       eventSource.close()
     }
   } catch (error: any) {
     registerStatus.value = {
       type: 'error',
-      message: error.message || '注册请求失败',
+      message: error.message || t('auth.registerRequestFailed'),
     }
   }
 }

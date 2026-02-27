@@ -1,13 +1,13 @@
 <template>
   <Window v-model="isOpen" width="600px">
     <div class="text-white">
-      <h2 class="text-2xl font-bold mb-6 text-center">房间人员</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">{{ t('rooms.window.roomPlayers') }}</h2>
       
       <!-- 房间信息 -->
       <div v-if="roomData" class="glass-dark rounded-xl p-4 mb-6">
         <div class="text-lg font-bold mb-2">{{ roomData.name }}</div>
         <div class="text-white/60 text-sm">
-          人数：{{ roomData.player_count }}/{{ roomData.max_players || 100 }}
+          {{ t('rooms.window.playersCount') }}{{ roomData.player_count }}/{{ roomData.max_players || 100 }}
         </div>
       </div>
 
@@ -41,7 +41,7 @@
                 @click="openPlayerPage(player.phira_id)"
               >
                 {{ player.username }}
-                <span v-if="player.is_owner" class="ml-2 text-xs">(房主)</span>
+                <span v-if="player.is_owner" class="ml-2 text-xs">({{ t('rooms.window.roomOwner') }})</span>
               </button>
             </div>
             
@@ -54,7 +54,7 @@
         
         <!-- 空状态 -->
         <div v-if="players.length === 0" class="text-center text-white/40 py-8">
-          暂无玩家
+          {{ t('rooms.window.noPlayers') }}
         </div>
       </div>
     </div>
@@ -65,7 +65,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { eventBus } from '@/utils/eventBus'
 import { getBaseURL } from '@/utils/config'
+import { useI18nStore } from '@/stores/i18n'
 import Window from './Window.vue'
+
+const { t } = useI18nStore()
 
 interface Player {
   id: number

@@ -1,0 +1,220 @@
+{
+  "cardGroups": [
+    {
+      "id": "official",
+      "name": {
+        "zh": "官方",
+        "zh-TW": "官方",
+        "en": "Official",
+        "ja": "公式"
+      }
+    },
+    {
+      "id": "multiplayer",
+      "name": {
+        "zh": "联机服务器",
+        "zh-TW": "連線伺服器",
+        "en": "Multiplayer Servers",
+        "ja": "マルチプレイサーバー"
+      }
+    },
+    {
+      "id": "community",
+      "name": {
+        "zh": "社区开源仓库",
+        "zh-TW": "社群開源倉庫",
+        "en": "Community Open Source Repositories",
+        "ja": "コミュニティオープンソースリポジトリ"
+      }
+    }
+  ],
+  "cards": [
+    {
+      "id": "phira-official-repo",
+      "groupId": "official",
+      "title": {
+        "zh": "Phira官方仓库",
+        "zh-TW": "Phira官方倉庫",
+        "en": "Phira Official Repository",
+        "ja": "Phira公式リポジトリ"
+      },
+      "link": "https://github.com/login?return_to=https://github.com/TeamFlos/phira/"
+    },
+    {
+      "id": "phira-official-website",
+      "groupId": "official",
+      "title": {
+        "zh": "Phira官网",
+        "zh-TW": "Phira官網",
+        "en": "Phira Official Website",
+        "ja": "Phira公式サイト"
+      },
+      "link": "https://phira.moe/"
+    },
+    {
+      "id": "dmocken-phira-download",
+      "groupId": "official",
+      "title": {
+        "zh": "Dmocken的Phira下载站",
+        "zh-TW": "Dmocken的Phira下載站",
+        "en": "Dmocken's Phira Download Site",
+        "ja": "DmockenのPhiraダウンロードサイト"
+      },
+      "link": "https://phira.dmocken.top/"
+    },
+    {
+      "id": "phira-faq-document",
+      "groupId": "official",
+      "title": {
+        "zh": "Phira常见问题自助文档",
+        "zh-TW": "Phira常見問題自助文件",
+        "en": "Phira FAQ Self-Service Document",
+        "ja": "Phiraよくある質問自助ドキュメント"
+      },
+      "link": "https://pgrfm.miraheze.org/wiki/Phira"
+    },
+    {
+      "id": "phira-server-status",
+      "groupId": "multiplayer",
+      "title": {
+        "zh": "Phira多人游戏服务器状态查询",
+        "zh-TW": "Phira多人遊戲伺服器狀態查詢",
+        "en": "Phira Multiplayer Game Server Status Query",
+        "ja": "Phiraマルチプレイゲームサーバーステータス確認"
+      },
+      "link": "https://status.phira.htadiy.com/"
+    },
+    {
+      "id": "hsn-phira-server",
+      "groupId": "multiplayer",
+      "title": {
+        "zh": "HyperSynapse Network Phira多人游戏服务器官网",
+        "zh-TW": "HyperSynapse Network Phira多人遊戲伺服器官網",
+        "en": "HyperSynapse Network Phira Multiplayer Game Server",
+        "ja": "HyperSynapse Network Phiraマルチプレイゲームサーバー"
+      },
+      "link": "https://phira.htadiy.com/"
+    },
+    {
+      "id": "funxlink-phira-panel",
+      "groupId": "multiplayer",
+      "title": {
+        "zh": "FunXLink Studio Phira 联机服务器 Web 监控面板",
+        "zh-TW": "FunXLink Studio Phira 連線伺服器 Web 監控面板",
+        "en": "FunXLink Studio Phira Server Web Monitoring Panel",
+        "ja": "FunXLink Studio PhiraサーバーWeb監視パネル"
+      },
+      "link": "https://phira.funxlink.cn/"
+    },
+    {
+      "id": "toyama-phira-rooms",
+      "groupId": "multiplayer",
+      "title": {
+        "zh": "户山兔兔的phira服务器房间列表查询",
+        "zh-TW": "戶山兔兔的phira伺服器房間列表查詢",
+        "en": "Toyama's Phira Server Room List Query",
+        "ja": "ToyamaのPhiraサーバールームリスト確認"
+      },
+      "link": "https://phira.toyamatudon.com/"
+    },
+    {
+      "id": "auto-room-query",
+      "groupId": "multiplayer",
+      "title": {
+        "zh": "Auto房间查询",
+        "zh-TW": "Auto房間查詢",
+        "en": "Auto Room Query",
+        "ja": "Autoルーム確認"
+      },
+      "link": "https://phira.yee.autos/"
+    },
+    {
+      "id": "hsn-phira-repo",
+      "groupId": "community",
+      "title": {
+        "zh": "HSNPhira",
+        "zh-TW": "HSNPhira",
+        "en": "HSNPhira",
+        "ja": "HSNPhira"
+      },
+      "link": "https://github.com/HyperSynapseNetwork/HSNPhira"
+    },
+    {
+      "id": "java-phira-mp",
+      "groupId": "community",
+      "title": {
+        "zh": "Java Phira-mp",
+        "zh-TW": "Java Phira-mp",
+        "en": "Java Phira-mp",
+        "ja": "Java Phira-mp"
+      },
+      "link": "https://github.com/HyperSynapseNetwork/Java-Phira-mp"
+    },
+    {
+      "id": "hsn-phira-mp",
+      "groupId": "community",
+      "title": {
+        "zh": "Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN",
+        "zh-TW": "Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN",
+        "en": "Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN",
+        "ja": "Rust Phira-mp, C++ Phira-mp, Lua/C++ Phira-mp By HSN"
+      },
+      "link": "https://github.com/HyperSynapseNetwork/phira-mp"
+    },
+    {
+      "id": "ts-phira-mp-pimeng",
+      "groupId": "community",
+      "title": {
+        "zh": "TypeScript Phira-mp By Pimeng",
+        "zh-TW": "TypeScript Phira-mp By Pimeng",
+        "en": "TypeScript Phira-mp By Pimeng",
+        "ja": "TypeScript Phira-mp By Pimeng"
+      },
+      "link": "https://github.com/Pimeng-S/phira-mp"
+    },
+    {
+      "id": "ts-phira-mp-chuzou-x",
+      "groupId": "community",
+      "title": {
+        "zh": "TypeScript Phira-mp By chuzouX",
+        "zh-TW": "TypeScript Phira-mp By chuzouX",
+        "en": "TypeScript Phira-mp By chuzouX",
+        "ja": "TypeScript Phira-mp By chuzouX"
+      },
+      "link": "https://github.com/chuzouX/Phira-mp"
+    },
+    {
+      "id": "python-phira-mp",
+      "groupId": "community",
+      "title": {
+        "zh": "Python Phira-mp",
+        "zh-TW": "Python Phira-mp",
+        "en": "Python Phira-mp",
+        "ja": "Python Phira-mp"
+      },
+      "link": "https://github.com/HyperSynapseNetwork/Python-Phira-mp"
+    },
+    {
+      "id": "csharp-phira-mp",
+      "groupId": "community",
+      "title": {
+        "zh": "C# Phira-mp",
+        "zh-TW": "C# Phira-mp",
+        "en": "C# Phira-mp",
+        "ja": "C# Phira-mp"
+      },
+      "link": "https://github.com/HyperSynapseNetwork/Csharp-Phira-mp"
+    },
+    {
+      "id": "go-phira-mp",
+      "groupId": "community",
+      "title": {
+        "zh": "Go Phira-mp",
+        "zh-TW": "Go Phira-mp",
+        "en": "Go Phira-mp",
+        "ja": "Go Phira-mp"
+      },
+      "link": "https://github.com/HyperSynapseNetwork/Go-Phira-mp"
+    }
+  ]
+}

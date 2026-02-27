@@ -1,13 +1,13 @@
 <template>
   <Window v-model="isOpen" width="90vw" height="85vh">
     <div class="text-white h-full flex flex-col">
-      <h2 class="text-2xl font-bold mb-6 text-center">游玩历史</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">{{ t('rooms.window.roomHistory') }}</h2>
 
       <!-- 加载状态 -->
       <div v-if="isLoading" class="flex-1 flex flex-col items-center justify-center">
         <div class="glass rounded-2xl p-12 inline-block">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <div class="text-white/60 text-lg">正在加载游玩历史...</div>
+          <div class="text-white/60 text-lg">{{ t('rooms.window.loadingHistory') }}</div>
         </div>
       </div>
 
@@ -80,27 +80,27 @@
               <!-- 成绩详情 -->
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <span class="text-white/60">分数</span>
+                  <span class="text-white/60">{{ t('chart.score') }}</span>
                   <span class="text-white font-mono font-bold">{{ score.score.toLocaleString() }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-white/60">准度</span>
+                  <span class="text-white/60">{{ t('chart.accuracy') }}</span>
                   <span class="text-white">{{ (score.accuracy * 100).toFixed(2) }}%</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-white/60">Perfect</span>
+                  <span class="text-white/60">{{ t('chart.perfect') }}</span>
                   <span class="text-green-400">{{ score.perfect }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-white/60">Good</span>
+                  <span class="text-white/60">{{ t('chart.good') }}</span>
                   <span class="text-primary">{{ score.good }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-white/60">Bad</span>
+                  <span class="text-white/60">{{ t('chart.bad') }}</span>
                   <span class="text-yellow-400">{{ score.bad }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-white/60">Miss</span>
+                  <span class="text-white/60">{{ t('chart.miss') }}</span>
                   <span class="text-red-400">{{ score.miss }}</span>
                 </div>
               </div>
@@ -110,7 +110,7 @@
 
         <!-- 空状态 -->
         <div v-if="records.length === 0 && !isLoading" class="text-center text-white/40 py-12">
-          暂无游玩历史
+          {{ t('rooms.window.noHistory') }}
         </div>
       </div>
     </div>
@@ -121,7 +121,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { eventBus } from '@/utils/eventBus'
 import { copyToClipboard } from '@/utils/message'
+import { useI18nStore } from '@/stores/i18n'
 import Window from './Window.vue'
+
+const { t } = useI18nStore()
 
 interface RawScore {
   player: number
@@ -327,16 +330,16 @@ function openPlayerPage(playerId: number) {
 }
 
 function copyChartId(chartId: number) {
-  copyToClipboard(`#${chartId}`, '谱面ID已复制')
+  copyToClipboard(`#${chartId}`, t('rooms.window.copyChartIdSuccess'))
 }
 
 function formatTime(timeStr: string): string {
   try {
     const time = new Date(timeStr)
     if (isNaN(time.getTime())) {
-      return '时间未知'
+      return t('rooms.window.timeUnknown')
     }
-    
+
     const now = new Date()
     const diff = now.getTime() - time.getTime()
 
@@ -344,12 +347,12 @@ function formatTime(timeStr: string): string {
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor(diff / (1000 * 60))
 
-    if (days > 0) return `${days}天前`
-    if (hours > 0) return `${hours}小时前`
-    if (minutes > 0) return `${minutes}分钟前`
-    return '刚刚'
+    if (days > 0) return t('rooms.window.daysAgo', { days })
+    if (hours > 0) return t('rooms.window.hoursAgo', { hours })
+    if (minutes > 0) return t('rooms.window.minutesAgo', { minutes })
+    return t('rooms.window.justNow')
   } catch {
-    return '时间未知'
+    return t('rooms.window.timeUnknown')
   }
 }
 

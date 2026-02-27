@@ -1,0 +1,68 @@
+{
+  "announcements": [
+    {
+      "id": "welcome",
+      "title": {
+        "zh": "欢迎使用HSN Phira服务器",
+        "zh-TW": "歡迎使用HSN Phira伺服器",
+        "en": "Welcome to HSN Phira Server",
+        "ja": "HSN Phiraサーバーへようこそ"
+      },
+      "time": "2025-10-01",
+      "content": {
+        "zh": "感谢您选择我们的服务！我们致力于提供稳定、低延迟的多人游戏体验。",
+        "zh-TW": "感謝您選擇我們的服務！我們致力於提供穩定、低延遲的多人遊戲體驗。",
+        "en": "Thank you for choosing our service! We are committed to providing stable, low-latency multiplayer gaming experience.",
+        "ja": "当社のサービスをお選びいただきありがとうございます！安定した低遅延のマルチプレイゲーム体験を提供することに尽力しています。"
+      }
+    },
+    {
+      "id": "maintenance",
+      "title": {
+        "zh": "服务器维护公告",
+        "zh-TW": "伺服器維護公告",
+        "en": "Server Maintenance Announcement",
+        "ja": "サーバーメンテナンスのお知らせ"
+      },
+      "time": "2025-11-15",
+      "content": {
+        "zh": "每天凌晨服务器会自动重启，请合理规划游戏时间。",
+        "zh-TW": "每天凌晨伺服器會自動重啟，請合理規劃遊戲時間。",
+        "en": "The server automatically restarts every early morning, please plan your gaming time appropriately.",
+        "ja": "サーバーは毎日早朝に自動的に再起動します。ゲーム時間を適切に計画してください。"
+      }
+    },
+    {
+      "id": "frontend-release",
+      "title": {
+        "zh": "HSNPhira Frontend v1.1.0发布",
+        "zh-TW": "HSNPhira Frontend v1.1.0 發佈",
+        "en": "HSNPhira Frontend v1.1.0 Released",
+        "ja": "HSNPhira Frontend v1.1.0 リリース"
+      },
+      "time": "2026-02-27",
+      "content": {
+        "zh": "新增文档中心、深色模式、高对比度模式、关于我们页面、404页面、PWA支持、SEO优化等多项功能，大幅提升用户体验。",
+        "zh-TW": "新增文件中心、深色模式、高對比度模式、關於我們頁面、404頁面、PWA支援、SEO優化等多項功能，大幅提升用戶體驗。",
+        "en": "Added documentation center, dark mode, high contrast mode, about us page, 404 page, PWA support, SEO optimization and many other features, greatly improving user experience.",
+        "ja": "ドキュメントセンター、ダークモード、ハイコントラストモード、私たちについてページ、404ページ、PWAサポート、SEO最適化など多くの機能を追加し、ユーザーエクスペリエンスを大幅に向上させました。"
+      }
+    },
+    {
+      "id": "phira-mp-release",
+      "title": {
+        "zh": "Rust Phira-mp改版，C++ Phira-mp，Lua/C++ Phira-mp发布",
+        "zh-TW": "Rust Phira-mp改版，C++ Phira-mp，Lua/C++ Phira-mp 發佈",
+        "en": "Rust Phira-mp Revamp, C++ Phira-mp, Lua/C++ Phira-mp Released",
+        "ja": "Rust Phira-mp改版、C++ Phira-mp、Lua/C++ Phira-mp リリース"
+      },
+      "time": "2026-02-18",
+      "content": {
+        "zh": "HSNPhira-mp项目发布了Rust、C++和Lua/C++版本的多人在线服务器实现，提供高性能、跨平台支持。 https://github.com/HyperSynapseNetwork/phira-mp",
+        "zh-TW": "HSNPhira-mp項目發佈了Rust、C++和Lua/C++版本的多人連線伺服器實現，提供高效能、跨平台支援。 https://github.com/HyperSynapseNetwork/phira-mp",
+        "en": "HSNPhira-mp project has released Rust, C++, and Lua/C++ versions of multiplayer online server implementations, providing high performance and cross-platform support. https://github.com/HyperSynapseNetwork/phira-mp",
+        "ja": "HSNPhira-mpプロジェクトは、Rust、C++、Lua/C++バージョンのマルチプレイオンラインサーバー実装をリリースし、高性能とクロスプラットフォームサポートを提供します。 https://github.com/HyperSynapseNetwork/phira-mp"
+      }
+    }
+  ]
+}

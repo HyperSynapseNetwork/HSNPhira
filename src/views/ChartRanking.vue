@@ -11,7 +11,7 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span>当前显示: {{ timeRanges.find(r => r.value === selectedRange)?.label || '最近1天' }}</span>
+        <span>{{ t('chartRanking.currentDisplay') }}: {{ timeRanges.find(r => r.value === selectedRange)?.label || t('chartRanking.day') }}</span>
       </div>
     </div>
 
@@ -280,12 +280,12 @@ function openChartWindow(chartId: number) {
 }
 
 function copyChartId(chartId: number) {
-  copyToClipboard(`#${chartId}`, '谱面ID已复制')
+  copyToClipboard(`#${chartId}`, t('chartRanking.idCopied'))
 }
 
 function viewImage(imageUrl: string) {
   if (imageUrl) {
-    eventBus.emit('open-lightbox', { url: imageUrl, alt: '谱面曲绘' })
+    eventBus.emit('open-lightbox', { url: imageUrl, alt: t('chartRanking.chartIllustration') })
   }
 }
 

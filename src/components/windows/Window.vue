@@ -3,14 +3,15 @@
     <transition name="window">
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-[9998] flex items-center justify-center p-4 bg-transparent"
+        class="fixed inset-0 flex items-center justify-center p-4 bg-transparent"
+        :style="{ zIndex: windowZIndex }"
         @click="handleBackdropClick"
       >
         <div
           ref="windowRef"
           class="relative glass rounded-2xl shadow-2xl transition-all duration-300"
           :style="windowStyle"
-          @click.stop
+          @click="handleWindowClick"
           @mousemove="handleMouseMove"
           @mouseleave="resetTilt"
         >
@@ -38,8 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import type { CSSProperties } from 'vue'
+import { windowManager } from '@/utils/windowManager'
 
 interface Props {
   modelValue: boolean
@@ -63,6 +65,22 @@ const emit = defineEmits<{
 const windowRef = ref<HTMLElement>()
 const closeButtonRef = ref<HTMLElement>()
 const isNearButton = ref(false)
+const windowId = ref<string>('')
+const windowZIndex = ref<number>(9998)
+
+// 激活窗口（点击时）
+function activateWindow() {
+  if (windowId.value) {
+    windowManager.activateWindow(windowId.value)
+    windowZIndex.value = windowManager.getZIndex(windowId.value)
+  }
+}
+
+// 处理窗口点击
+function handleWindowClick(event: MouseEvent) {
+  event.stopPropagation()
+  activateWindow()
+}
 
 const windowStyle = computed<CSSProperties>(() => ({
   width: props.width,
@@ -99,9 +117,9 @@ function handleMouseMove(event: MouseEvent) {
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
 
-    const maxTilt = 5 // 最大倾斜角度
-    const angleX = Math.max(-maxTilt, Math.min(maxTilt, (centerY - mouseY) / 40))
-    const angleY = Math.max(-maxTilt, Math.min(maxTilt, (mouseX - centerX) / 40))
+    const maxTilt = 3 // 最大倾斜角度（减小幅度）
+    const angleX = Math.max(-maxTilt, Math.min(maxTilt, (centerY - mouseY) / 50))
+    const angleY = Math.max(-maxTilt, Math.min(maxTilt, (mouseX - centerX) / 50))
 
     window.style.transform = `perspective(1200px) rotateX(${angleX}deg) rotateY(${angleY}deg) scale(1.02)`
   } else {
@@ -124,11 +142,21 @@ function handleBackdropClick() {
   close()
 }
 
-// 禁止body滚动
+// 窗口管理
 watch(() => props.modelValue, (newVal) => {
   if (newVal) {
+    // 窗口打开时注册
+    windowId.value = windowManager.createWindow(null)
+    windowZIndex.value = windowManager.getZIndex(windowId.value)
+    // 激活窗口
+    activateWindow()
     document.body.style.overflow = 'hidden'
   } else {
+    // 窗口关闭时注销
+    if (windowId.value) {
+      windowManager.removeWindow(windowId.value)
+      windowId.value = ''
+    }
     document.body.style.overflow = ''
   }
 })
@@ -146,6 +174,14 @@ watch(() => props.modelValue, (newVal) => {
   } else {
     window.removeEventListener('keydown', handleEsc)
   }
+})
+
+// 组件卸载时清理窗口
+onUnmounted(() => {
+  if (windowId.value) {
+    windowManager.removeWindow(windowId.value)
+  }
+  window.removeEventListener('keydown', handleEsc)
 })
 </script>
 

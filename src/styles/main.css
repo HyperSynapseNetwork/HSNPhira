@@ -279,3 +279,207 @@ body {
 .fixed.inset-0.z-0 {
   z-index: -1 !important;
 }
+
+/* ===== 主题系统 ===== */
+:root {
+  /* 浅色主题变量（默认） */
+  --primary-color: #00F7FF;
+  --primary-color-hover: #33FFFF;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --link-glow: rgba(0, 247, 255, 0.6);
+  --bg-color: #0a0a0a; /* 默认深色背景 */
+  --card-bg-1: rgba(30, 30, 30, 0.9); /* 一级卡片背景 */
+  --card-bg-2: rgba(40, 40, 40, 0.9); /* 二级卡片背景 */
+  --card-bg-3: rgba(50, 50, 50, 0.9); /* 三级卡片背景 */
+}
+
+/* 深色主题 */
+.theme-dark {
+  --primary-color: #00F7FF;
+  --primary-color-hover: #33FFFF;
+  --glass-bg: rgba(30, 30, 30, 0.9); /* 深色模式下使用不透明背景 */
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --link-glow: rgba(0, 247, 255, 0.6);
+  --bg-color: #0a0a0a;
+  --card-bg-1: rgba(30, 30, 30, 0.95);
+  --card-bg-2: rgba(40, 40, 40, 0.95);
+  --card-bg-3: rgba(50, 50, 50, 0.95);
+}
+
+/* 高对比度主题 */
+.theme-high-contrast {
+  --primary-color: #00FFFF;
+  --primary-color-hover: #33FFFF;
+  --glass-bg: rgba(0, 0, 255, 0.95);
+  --glass-border: rgba(255, 255, 0, 0.6);
+  --text-primary: #FFFF00;
+  --text-secondary: #CCCC00;
+  --link-glow: rgba(0, 255, 255, 0.8);
+  --bg-color: #FF0000;
+  --card-bg-1: rgba(0, 0, 255, 1);
+  --card-bg-2: rgba(0, 0, 200, 1);
+  --card-bg-3: rgba(0, 0, 150, 1);
+}
+
+/* 浅色主题 */
+.theme-light {
+  --primary-color: #00F7FF;
+  --primary-color-hover: #33FFFF;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --link-glow: rgba(0, 247, 255, 0.6);
+  --bg-color: #0a0a0a;
+  --card-bg-1: rgba(255, 255, 255, 0.1);
+  --card-bg-2: rgba(255, 255, 255, 0.15);
+  --card-bg-3: rgba(255, 255, 255, 0.2);
+}
+
+/* 当没有毛玻璃效果时（深色模式或高对比度模式） */
+.no-glass-effect .glass,
+.no-glass-effect .glass-dark,
+.no-glass-effect .liquid-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* 深色模式下的卡片层级背景 */
+.theme-dark .glass,
+.theme-dark .glass-dark,
+.theme-dark .liquid-glass {
+  background: var(--card-bg-1) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* 深色模式下嵌套卡片层级 */
+.theme-dark .glass .glass,
+.theme-dark .glass .glass-dark,
+.theme-dark .glass .liquid-glass,
+.theme-dark .glass-dark .glass,
+.theme-dark .glass-dark .glass-dark,
+.theme-dark .glass-dark .liquid-glass,
+.theme-dark .liquid-glass .glass,
+.theme-dark .liquid-glass .glass-dark,
+.theme-dark .liquid-glass .liquid-glass {
+  background: var(--card-bg-2) !important;
+}
+
+.theme-dark .glass .glass .glass,
+.theme-dark .glass .glass .glass-dark,
+.theme-dark .glass .glass .liquid-glass,
+.theme-dark .glass .glass-dark .glass,
+.theme-dark .glass .glass-dark .glass-dark,
+.theme-dark .glass .glass-dark .liquid-glass,
+.theme-dark .glass .liquid-glass .glass,
+.theme-dark .glass .liquid-glass .glass-dark,
+.theme-dark .glass .liquid-glass .liquid-glass,
+.theme-dark .glass-dark .glass .glass,
+.theme-dark .glass-dark .glass .glass-dark,
+.theme-dark .glass-dark .glass .liquid-glass,
+.theme-dark .glass-dark .glass-dark .glass,
+.theme-dark .glass-dark .glass-dark .glass-dark,
+.theme-dark .glass-dark .glass-dark .liquid-glass,
+.theme-dark .glass-dark .liquid-glass .glass,
+.theme-dark .glass-dark .liquid-glass .glass-dark,
+.theme-dark .glass-dark .liquid-glass .liquid-glass,
+.theme-dark .liquid-glass .glass .glass,
+.theme-dark .liquid-glass .glass .glass-dark,
+.theme-dark .liquid-glass .glass .liquid-glass,
+.theme-dark .liquid-glass .glass-dark .glass,
+.theme-dark .liquid-glass .glass-dark .glass-dark,
+.theme-dark .liquid-glass .glass-dark .liquid-glass,
+.theme-dark .liquid-glass .liquid-glass .glass,
+.theme-dark .liquid-glass .liquid-glass .glass-dark,
+.theme-dark .liquid-glass .liquid-glass .liquid-glass {
+  background: var(--card-bg-3) !important;
+}
+
+/* 根据卡片层级应用不同背景 */
+.glass-depth-1 {
+  background: var(--card-bg-1) !important;
+}
+
+.glass-depth-2 {
+  background: var(--card-bg-2) !important;
+}
+
+.glass-depth-3 {
+  background: var(--card-bg-3) !important;
+}
+
+/* 高对比度模式下的纯色背景 */
+.theme-high-contrast .glass,
+.theme-high-contrast .glass-dark,
+.theme-high-contrast .liquid-glass {
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: 0 0 0 1px var(--glass-border);
+}
+
+/* 应用背景色 */
+body {
+  background-color: var(--bg-color);
+}
+
+/* ===== 平滑动画 ===== */
+/* 为所有交互元素添加平滑过渡 */
+.glass,
+.glass-dark,
+.liquid-glass,
+button,
+a {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* 缩放动画使用更平滑的缓动 */
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 连续动画 - 脉冲效果 */
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+.pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
+
+/* 悬浮动画 */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* 窗口动画优化 */
+.window-enter-active > div,
+.window-leave-active > div {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+
+/* 按钮点击动画 */
+.btn-press:active {
+  transform: scale(0.98);
+}
