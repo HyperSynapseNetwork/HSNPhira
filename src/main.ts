@@ -13,8 +13,15 @@ export const createApp = ViteSSG(
     const pinia = createPinia()
     app.use(pinia)
 
-    if (isClient) {
+    // 在SSR和客户端都加载配置
+    try {
       await loadAllConfigs()
+    } catch (error) {
+      console.warn('Failed to load configs in SSR:', error)
+      // 在SSR中继续，配置可能在客户端重新加载
+    }
+    
+    if (isClient) {
       initializeUserPreferences()
 
       const i18nStore = useI18nStore()

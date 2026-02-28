@@ -14,6 +14,7 @@ import type { Language } from '@/i18n'
 
 // SSR 环境判断工具
 const isBrowser = typeof window !== 'undefined'
+const isSSR = !isBrowser
 
 let appConfig: AppConfig | null = null
 let preferencesConfig: PreferencesConfig | null = null
@@ -24,9 +25,57 @@ let announcementConfig: AnnouncementConfig | null = null
 let aboutConfig: AboutConfig | null = null
 let docConfig: DocConfig | null = null
 
+// SSR环境配置文件加载辅助函数
+async function loadConfigFileSSR<T>(configName: string, defaultValue: T): Promise<T> {
+  try {
+    const fs = await import('fs')
+    const path = await import('path')
+    // 尝试多种可能的路径
+    const possiblePaths = [
+      path.join(process.cwd(), 'public/config', `${configName}.json`),
+      path.join(process.cwd(), 'dist/public/config', `${configName}.json`),
+      path.join(process.cwd(), 'config', `${configName}.json`),
+    ]
+    
+    for (const configPath of possiblePaths) {
+      try {
+        if (fs.existsSync(configPath)) {
+          const data = fs.readFileSync(configPath, 'utf-8')
+          return JSON.parse(data)
+        }
+      } catch (error) {
+        continue
+      }
+    }
+    
+    console.warn(`Failed to load ${configName} in SSR, using default`)
+    return defaultValue
+  } catch (error) {
+    console.warn(`Failed to load ${configName} in SSR:`, error)
+    return defaultValue
+  }
+}
+
 // 主配置加载
 export async function loadAppConfig(): Promise<AppConfig> {
   if (appConfig) return appConfig
+
+  if (isSSR) {
+    const defaultAppConfig = {
+      apiMode: 'remote',
+      remoteBaseURL: '',
+      localBaseURL: '',
+      routes: {},
+      externalAPI: { phiraBaseURL: '' },
+      header: { visiblePages: [] },
+      background: { defaultImageURL: '' },
+      particleEffects: { snow: '', rain: '' },
+      versionFileURL: '',
+      meta: {}
+    } as AppConfig
+    appConfig = await loadConfigFileSSR<AppConfig>('app.config', defaultAppConfig)
+    return appConfig!
+  }
 
   const response = await fetch('/config/app.config.json')
   appConfig = await response.json()
@@ -35,6 +84,17 @@ export async function loadAppConfig(): Promise<AppConfig> {
 
 export async function loadPreferencesConfig(): Promise<PreferencesConfig> {
   if (preferencesConfig) return preferencesConfig
+
+  if (isSSR) {
+    const defaultPreferencesConfig = {
+      version: '1.0.0',
+      appId: 'hsnphira-frontend',
+      groups: [],
+      preferences: []
+    } as PreferencesConfig
+    preferencesConfig = await loadConfigFileSSR<PreferencesConfig>('preferences.config', defaultPreferencesConfig)
+    return preferencesConfig!
+  }
 
   const response = await fetch('/config/preferences.config.json')
   preferencesConfig = await response.json()
@@ -45,6 +105,16 @@ export async function loadPreferencesConfig(): Promise<PreferencesConfig> {
 export async function loadGlobalConfig(): Promise<GlobalConfig> {
   if (globalConfig) return globalConfig
 
+  if (isSSR) {
+    const defaultGlobalConfig = {
+      serverAddress: '',
+      qqGroup: '',
+      contactEmail: ''
+    } as any as GlobalConfig
+    globalConfig = await loadConfigFileSSR<GlobalConfig>('global.config', defaultGlobalConfig)
+    return globalConfig!
+  }
+
   const response = await fetch('/config/global.config.json')
   globalConfig = await response.json()
   return globalConfig!
@@ -52,6 +122,15 @@ export async function loadGlobalConfig(): Promise<GlobalConfig> {
 
 export async function loadDownloadConfig(): Promise<DownloadConfig> {
   if (downloadConfig) return downloadConfig
+
+  if (isSSR) {
+    const defaultDownloadConfig = {
+      latestVersion: '',
+      cards: []
+    } as any as DownloadConfig
+    downloadConfig = await loadConfigFileSSR<DownloadConfig>('download.config', defaultDownloadConfig)
+    return downloadConfig!
+  }
 
   const response = await fetch('/config/download.config.json')
   downloadConfig = await response.json()
@@ -61,6 +140,15 @@ export async function loadDownloadConfig(): Promise<DownloadConfig> {
 export async function loadNavigationConfig(): Promise<NavigationConfig> {
   if (navigationConfig) return navigationConfig
 
+  if (isSSR) {
+    const defaultNavigationConfig = {
+      groups: [],
+      cards: []
+    } as any as NavigationConfig
+    navigationConfig = await loadConfigFileSSR<NavigationConfig>('navigation.config', defaultNavigationConfig)
+    return navigationConfig!
+  }
+
   const response = await fetch('/config/navigation.config.json')
   navigationConfig = await response.json()
   return navigationConfig!
@@ -68,6 +156,14 @@ export async function loadNavigationConfig(): Promise<NavigationConfig> {
 
 export async function loadAnnouncementConfig(): Promise<AnnouncementConfig> {
   if (announcementConfig) return announcementConfig
+
+  if (isSSR) {
+    const defaultAnnouncementConfig = {
+      announcements: []
+    } as any as AnnouncementConfig
+    announcementConfig = await loadConfigFileSSR<AnnouncementConfig>('announcement.config', defaultAnnouncementConfig)
+    return announcementConfig!
+  }
 
   const response = await fetch('/config/announcement.config.json')
   announcementConfig = await response.json()
@@ -77,6 +173,16 @@ export async function loadAnnouncementConfig(): Promise<AnnouncementConfig> {
 export async function loadAboutConfig(): Promise<AboutConfig> {
   if (aboutConfig) return aboutConfig
 
+  if (isSSR) {
+    const defaultAboutConfig = {
+      teamDescription: {},
+      teamMembers: [],
+      acknowledgments: []
+    } as any as AboutConfig
+    aboutConfig = await loadConfigFileSSR<AboutConfig>('about.config', defaultAboutConfig)
+    return aboutConfig!
+  }
+
   const response = await fetch('/config/about.config.json')
   aboutConfig = await response.json()
   return aboutConfig!
@@ -84,6 +190,16 @@ export async function loadAboutConfig(): Promise<AboutConfig> {
 
 export async function loadDocConfig(): Promise<DocConfig> {
   if (docConfig) return docConfig
+
+  if (isSSR) {
+    const defaultDocConfig = {
+      cards: [],
+      pages: {},
+      categories: {}
+    } as any as DocConfig
+    docConfig = await loadConfigFileSSR<DocConfig>('docs.config', defaultDocConfig)
+    return docConfig!
+  }
 
   const response = await fetch('/config/docs.config.json')
   docConfig = await response.json()
@@ -93,56 +209,80 @@ export async function loadDocConfig(): Promise<DocConfig> {
 // 获取配置函数
 export function getAppConfig(): AppConfig {
   if (!appConfig) {
-    throw new Error('App config not loaded')
+    console.warn('App config not loaded, returning empty config')
+    return {
+      apiMode: 'remote',
+      remoteBaseURL: '',
+      localBaseURL: '',
+      routes: {},
+      externalAPI: { phiraBaseURL: '' },
+      header: { visiblePages: [] },
+      background: { defaultImageURL: '' },
+      particleEffects: { snow: '', rain: '' },
+      versionFileURL: '',
+      meta: {}
+    } as AppConfig
   }
   return appConfig as AppConfig
 }
 
 export function getPreferencesConfig(): PreferencesConfig {
   if (!preferencesConfig) {
-    throw new Error('Preferences config not loaded')
+    console.warn('Preferences config not loaded, returning empty config')
+    return { 
+      version: '1.0.0',
+      appId: 'hsnphira-frontend',
+      groups: [],
+      preferences: [] 
+    } as PreferencesConfig
   }
   return preferencesConfig as PreferencesConfig
 }
 
 export function getGlobalConfig(): GlobalConfig {
   if (!globalConfig) {
-    throw new Error('Global config not loaded')
+    console.warn('Global config not loaded, returning empty config')
+    return { serverAddress: '', qqGroup: '', contactEmail: '' } as any as GlobalConfig
   }
   return globalConfig as GlobalConfig
 }
 
 export function getDownloadConfig(): DownloadConfig {
   if (!downloadConfig) {
-    throw new Error('Download config not loaded')
+    console.warn('Download config not loaded, returning empty config')
+    return { latestVersion: '', cards: [] } as any as DownloadConfig
   }
   return downloadConfig as DownloadConfig
 }
 
 export function getNavigationConfig(): NavigationConfig {
   if (!navigationConfig) {
-    throw new Error('Navigation config not loaded')
+    console.warn('Navigation config not loaded, returning empty config')
+    return { groups: [], cards: [] } as any as NavigationConfig
   }
   return navigationConfig as NavigationConfig
 }
 
 export function getAnnouncementConfig(): AnnouncementConfig {
   if (!announcementConfig) {
-    throw new Error('Announcement config not loaded')
+    console.warn('Announcement config not loaded, returning empty config')
+    return { announcements: [] } as any as AnnouncementConfig
   }
   return announcementConfig as AnnouncementConfig
 }
 
 export function getAboutConfig(): AboutConfig {
   if (!aboutConfig) {
-    throw new Error('About config not loaded')
+    console.warn('About config not loaded, returning empty config')
+    return { teamDescription: {}, teamMembers: [], acknowledgments: [] } as any as AboutConfig
   }
   return aboutConfig as AboutConfig
 }
 
 export function getDocConfig(): DocConfig {
   if (!docConfig) {
-    throw new Error('Doc config not loaded')
+    console.warn('Doc config not loaded, returning empty config')
+    return { cards: [], pages: {}, categories: {} } as any as DocConfig
   }
   return docConfig as DocConfig
 }
