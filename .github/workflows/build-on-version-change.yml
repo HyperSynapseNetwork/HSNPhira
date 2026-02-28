@@ -33,7 +33,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '20.x'
         cache: 'pnpm'
 
     - name: Setup pnpm
@@ -47,7 +47,7 @@ jobs:
         echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
 
     - name: Setup pnpm cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.STORE_PATH }}
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -146,7 +146,7 @@ jobs:
 
     - name: Upload SPA artifacts
       if: steps.check-version.outputs.should_build == 'true'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: spa-dist
         path: spa-dist/
@@ -154,7 +154,7 @@ jobs:
 
     - name: Upload SSG artifacts
       if: steps.check-version.outputs.should_build == 'true'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ssg-dist
         path: ssg-dist/

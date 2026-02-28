@@ -17,8 +17,7 @@ jobs:
       contents: write  # 需要权限来创建release和tag
       id-token: write
     
-    # 仅在版本变更时运行，避免重复release
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'release') == false
+    # 版本检测在步骤中完成，避免重复release
     
     steps:
     - name: Checkout repository
@@ -29,7 +28,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '20.x'
     
     - name: Check if version actually changed
       id: check-version
@@ -161,7 +160,7 @@ jobs:
     - name: Create GitHub Release
       id: create-release
       if: steps.check-version.outputs.should_release == 'true'
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.determine-version.outputs.tag_name }}
         name: v${{ steps.determine-version.outputs.release_version }}
