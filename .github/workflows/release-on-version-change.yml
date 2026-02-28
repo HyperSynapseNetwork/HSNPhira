@@ -25,6 +25,11 @@ jobs:
       with:
         fetch-depth: 0  # 获取完整历史记录用于生成changelog
     
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+    
     - name: Setup Node.js
       id: setup-node
       uses: actions/setup-node@v4
@@ -32,13 +37,14 @@ jobs:
         node-version: '20.x'
         check-latest: true
     
-    - name: Verify Node.js installation
+    - name: Verify installation
       shell: bash
       run: |
-        echo "Checking Node.js installation..."
+        echo "Checking installations..."
         node --version
         npm --version
-        echo "Node.js installation verified."
+        pnpm --version || echo "pnpm not required for release workflow"
+        echo "Installations verified."
     
     - name: Check if version actually changed
       id: check-version

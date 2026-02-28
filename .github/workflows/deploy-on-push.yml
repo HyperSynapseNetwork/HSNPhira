@@ -18,6 +18,11 @@ jobs:
       with:
         fetch-depth: 0
     
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+    
     - name: Setup Node.js
       id: setup-node
       uses: actions/setup-node@v4
@@ -26,18 +31,14 @@ jobs:
         cache: 'pnpm'
         check-latest: true
     
-    - name: Verify Node.js installation
+    - name: Verify installation
       shell: bash
       run: |
-        echo "Checking Node.js installation..."
+        echo "Checking installations..."
         node --version
         npm --version
-        echo "Node.js installation verified."
-    
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 9
+        pnpm --version
+        echo "All installations verified."
     
     - name: Get pnpm store directory
       shell: bash
