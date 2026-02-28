@@ -42,7 +42,7 @@
 
 在Phira的设置页面中，你会看到多人游戏功能，打开它即可使用多人游戏功能（会有一个悬浮球）。
 
-在连接之前，你需要一个服务器地址，.a{background:#000;color:#000;transition:.2s;}.a:hover{color:#fff;}因为默认的服务器地址是不可用的（
+在连接之前，你需要一个服务器地址，因为默认的服务器地址是不可用的（
 
 这里有以下免费<style>.a{background:#000;color:#000;transition:.2s;}.a:hover{color:#fff;};</style><span class=a title='你知道的太多了'>其实也没有付费的啦～</span>服务器可选
 

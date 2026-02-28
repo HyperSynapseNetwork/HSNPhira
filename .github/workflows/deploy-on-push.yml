@@ -1,0 +1,178 @@
+name: Deploy on Push
+
+on:
+  push:
+    branches:
+      - frontend-remake
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+    
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+    
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
+    
+    - name: Setup pnpm cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+    
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+    
+    - name: Build SSG version with SEO files
+      run: pnpm run build:ssg
+    
+    - name: Verify build output
+      shell: bash
+      run: |
+        echo "构建输出目录内容:"
+        ls -la dist/
+        echo ""
+        echo "检查SEO文件:"
+        if [ -f dist/sitemap.xml ]; then
+          echo "✅ sitemap.xml 存在"
+          head -5 dist/sitemap.xml
+        else
+          echo "❌ sitemap.xml 不存在"
+        fi
+        
+        if [ -f dist/robots.txt ]; then
+          echo "✅ robots.txt 存在"
+          cat dist/robots.txt
+        else
+          echo "❌ robots.txt 不存在"
+        fi
+        
+        echo ""
+        echo "构建完成，准备部署..."
+    
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
+    - name: Add server to known hosts
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Deploy to server
+      shell: bash
+      run: |
+        echo "开始部署到服务器..."
+        echo "服务器: ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}"
+        echo "目标目录: /www/wwwroot/phira.htadiy.cc"
+        
+        # 创建临时目录并压缩构建产物
+        mkdir -p deploy_temp
+        cp -r dist/* deploy_temp/
+        
+        # 确保BingSiteAuth.xml文件不被删除（如果存在）
+        if ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} "[ -f /www/wwwroot/phira.htadiy.cc/BingSiteAuth.xml ]"; then
+          echo "检测到BingSiteAuth.xml，将保留此文件"
+          scp ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/phira.htadiy.cc/BingSiteAuth.xml deploy_temp/BingSiteAuth.xml 2>/dev/null || echo "无法获取BingSiteAuth.xml，将使用现有版本"
+        fi
+        
+        # 压缩文件以便传输
+        tar -czf deploy.tar.gz -C deploy_temp .
+        
+        # 传输到服务器并解压
+        echo "传输文件到服务器..."
+        scp deploy.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}:/tmp/deploy.tar.gz
+        
+        echo "在服务器上解压并部署..."
+        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          DEPLOY_DIR="/www/wwwroot/phira.htadiy.cc"
+          TMP_DIR="/tmp/deploy_$(date +%s)"
+          
+          echo "创建临时目录: $TMP_DIR"
+          mkdir -p "$TMP_DIR"
+          
+          echo "解压文件..."
+          tar -xzf /tmp/deploy.tar.gz -C "$TMP_DIR"
+          
+          # 备份现有BingSiteAuth.xml（如果存在）
+          if [ -f "$DEPLOY_DIR/BingSiteAuth.xml" ]; then
+            echo "备份BingSiteAuth.xml..."
+            cp "$DEPLOY_DIR/BingSiteAuth.xml" "$TMP_DIR/BingSiteAuth.xml"
+          fi
+          
+          echo "清理目标目录（保留BingSiteAuth.xml）..."
+          # 删除除了BingSiteAuth.xml之外的所有文件
+          find "$DEPLOY_DIR" -mindepth 1 -maxdepth 1 \
+            -not -name "BingSiteAuth.xml" \
+            -exec rm -rf {} + 2>/dev/null || true
+          
+          echo "复制新文件..."
+          cp -r "$TMP_DIR"/* "$DEPLOY_DIR"/
+          
+          echo "设置权限..."
+          chmod -R 755 "$DEPLOY_DIR"
+          chown -R www-data:www-data "$DEPLOY_DIR" 2>/dev/null || echo "无法更改所有者，继续..."
+          
+          echo "清理临时文件..."
+          rm -rf "$TMP_DIR"
+          rm -f /tmp/deploy.tar.gz
+          
+          echo "部署完成！"
+          echo "部署目录内容:"
+          ls -la "$DEPLOY_DIR" | head -20
+        EOF
+        
+        # 清理本地临时文件
+        rm -rf deploy_temp deploy.tar.gz
+        
+        echo "✅ 部署完成！"
+    
+    - name: Verify deployment
+      shell: bash
+      run: |
+        echo "验证部署..."
+        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          DEPLOY_DIR="/www/wwwroot/phira.htadiy.cc"
+          echo "检查部署目录:"
+          ls -la "$DEPLOY_DIR" | head -10
+          echo ""
+          echo "检查关键文件:"
+          for file in index.html sitemap.xml robots.txt; do
+            if [ -f "$DEPLOY_DIR/$file" ]; then
+              echo "✅ $file 存在"
+            else
+              echo "❌ $file 不存在"
+            fi
+          done
+          echo ""
+          echo "检查BingSiteAuth.xml:"
+          if [ -f "$DEPLOY_DIR/BingSiteAuth.xml" ]; then
+            echo "✅ BingSiteAuth.xml 已保留"
+          else
+            echo "⚠️ BingSiteAuth.xml 不存在（可能是首次部署）"
+          fi
+        EOF

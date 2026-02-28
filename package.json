@@ -5,11 +5,12 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-icons.js && vue-tsc && vite build",
-    "build:ssg": "node scripts/generate-icons.js && vue-tsc && vite-ssg build",
+    "build": "node scripts/generate-icons.js && vue-tsc && vite build && node scripts/generate-seo-files.js",
+    "build:ssg": "node scripts/generate-icons.js && vue-tsc && vite-ssg build && node scripts/generate-seo-files.js",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "generate-seo": "node scripts/generate-seo-files.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
