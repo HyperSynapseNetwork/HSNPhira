@@ -26,6 +26,12 @@ export const createApp = ViteSSG(
 
       const i18nStore = useI18nStore()
       i18nStore.initLanguage()
+
+      // 初始路由的 meta 更新
+      router.isReady().then(async () => {
+        const { updatePageMeta, getPageNameFromRoute } = await import('@/utils/meta')
+        await updatePageMeta(getPageNameFromRoute(router.currentRoute.value.path))
+      })
     }
 
     router.beforeEach(async (to, _from, next) => {

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  hsnpm-notification:
+    build: .
+    container_name: hsnpm-notification
+    ports:
+      - "3030:3030"
+    environment:
+      - PORT=3030
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_SUBJECT=${VAPID_SUBJECT}
+      - MAIN_SERVER_URL=${MAIN_SERVER_URL:-https://phira.htadiy.com}
+      - RUST_LOG=${RUST_LOG:-info}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hsn-network
+
+networks:
+  hsn-network:
+    driver: bridge

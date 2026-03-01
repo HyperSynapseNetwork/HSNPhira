@@ -57,7 +57,10 @@ export async function getPageMeta(routeName: string): Promise<PageMeta | null> {
   }
 
   const meta = config.meta?.[routeName]
-  if (!meta) return null
+  if (!meta) {
+    console.warn(`No meta found for route "${routeName}" in config.meta`)
+    return null
+  }
   return meta as PageMeta
 }
 

@@ -430,6 +430,90 @@ server {
 }
 ```
 
+### 压缩优化
+
+项目构建时会自动生成 Brotli (`.br`) 和 Gzip (`.gz`) 压缩文件。要启用服务器端预压缩文件支持，请更新 Nginx 配置：
+
+```nginx
+# 在 http 或 server 块中添加以下配置
+gzip_static on;          # 启用预压缩的 .gz 文件
+brotli_static on;        # 启用预压缩的 .br 文件（需要 ngx_brotli 模块）
+gzip_vary on;            # 添加 Vary: Accept-Encoding 响应头
+
+# 如果未安装 ngx_brotli 模块，可以启用动态压缩
+# gzip on;
+# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+# brotli on;
+# brotli_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+```
+
+完整的 Nginx 配置示例（支持预压缩文件）：
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /path/to/dist;
+    index index.html;
+
+    # 压缩优化配置
+    gzip_static on;
+    brotli_static on;
+    gzip_vary on;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://backend-server:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+**注意**：
+- 预压缩文件由 `vite-plugin-compression` 在构建时生成，无需实时压缩开销
+- 确保 Nginx 编译时包含 `--with-http_gzip_static_module` 和 `--add-module=/path/to/ngx_brotli`（如需 Brotli 支持）
+- 浏览器会自动根据 `Accept-Encoding` 请求头接收合适的压缩格式
+
+### TWA 构建（Android 应用）
+
+HSNPhira 支持通过 Trusted Web Activity (TWA) 技术打包为 Android 应用，提供原生应用体验。
+
+#### 环境准备
+
+1. 安装 Java 11+ 和 Node.js
+2. 全局安装 `@bubblewrap/cli`：
+   ```bash
+   npm install -g @bubblewrap/cli
+   ```
+3. 确保已完成前端构建（`pnpm build`）
+
+#### 构建步骤
+
+1. 运行 TWA 构建脚本：
+   ```bash
+   ./scripts/build-twa.sh
+   ```
+   脚本会自动初始化 bubblewrap 项目、更新 manifest 并生成签名的 APK 和 App Bundle。
+
+2. 部署数字资产链接：
+   - 将 `twa/assetlinks.json` 部署到 `https://phira.htadiy.com/.well-known/assetlinks.json`
+   - 确保 JSON 中的 SHA256 指纹与您的签名密钥匹配。
+
+#### 注意事项
+
+- TWA 要求网站支持 HTTPS。
+- 首次构建需要输入签名密钥信息，请妥善保管密钥。
+- 更新应用版本时，需同时更新 `manifest.json` 中的版本号。
+
+更多细节请参考 [Google TWA 文档](https://developers.google.com/web/android/trusted-web-activity)。
+
 ## 开发指南
 
 ### 添加新页面

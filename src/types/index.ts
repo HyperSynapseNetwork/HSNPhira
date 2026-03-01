@@ -233,6 +233,7 @@ export interface DownloadCard {
 export interface DownloadConfig {
   latestVersion: string
   downloadCards: DownloadCard[]
+  hsnphiraApps?: DownloadCard[]
 }
 
 // 导航配置

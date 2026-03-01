@@ -58,184 +58,220 @@
   "meta": {
     "home": {
       "title": {
-        "zh": "HSN Phira多人游戏服务器",
-        "zh-TW": "HSN Phira多人遊戲伺服器",
-        "en": "HSN Phira Multiplayer Server",
-        "ja": "HSN Phiraマルチプレイサーバー"
+        "zh": "HSN Phira多人游戏服务器 | 免费稳定低延迟的Phira联机音游服务器 - 超弦网络",
+        "zh-TW": "HSN Phira多人遊戲伺服器 | 免費穩定低延遲的Phira聯機音遊伺服器 - 超弦網絡",
+        "en": "HSN Phira Multiplayer Server | Free, Stable, Low-Latency Phira Online Rhythm Game Server - HyperSynapse Network",
+        "ja": "HSN Phiraマルチプレイサーバー | 無料・安定・低遅延のPhiraオンライン音ゲーサーバー - 超弦ネットワーク"
       },
       "description": {
-        "zh": "免费·多功能·稳定·低延迟的Phira多人游戏服务器",
-        "zh-TW": "免費·多功能·穩定·低延遲的Phira多人遊戲伺服器",
-        "en": "Free, feature-rich, stable, low-latency Phira multiplayer server",
-        "ja": "無料・多機能・安定・低遅延のPhiraマルチプレイサーバー"
+        "zh": "HSN Phira多人游戏服务器提供免费、稳定、低延迟的Phira联机服务，支持房间列表查看、谱面排行榜、用户游玩时间排行、谱面下载工具、Phira客户端下载、社区导航、公告通知、用户协议等功能。超弦网络打造的音游联机平台。",
+        "zh-TW": "HSN Phira多人遊戲伺服器提供免費、穩定、低延遲的Phira聯機服務，支援房間列表查看、譜面排行榜、用戶遊玩時間排行、譜面下載工具、Phira客戶端下載、社群導航、公告通知、用戶協議等功能。超弦網絡打造的音遊聯機平台。",
+        "en": "HSN Phira multiplayer server provides free, stable, low-latency Phira online services, including room list viewing, chart rankings, user playtime rankings, chart download tools, Phira client downloads, community navigation, announcements, user agreements, and more. An online rhythm game platform built by HyperSynapse Network.",
+        "ja": "HSN Phiraマルチプレイサーバーは、無料、安定、低遅延のPhiraオンラインサービスを提供し、ルーム一覧表示、譜面ランキング、ユーザープレイ時間ランキング、譜面ダウンロードツール、Phiraクライアントダウンロード、コミュニティナビゲーション、お知らせ、利用規約などを含みます。超弦ネットワークが構築したオンライン音ゲープラットフォーム。"
+      },
+      "keywords": {
+        "zh": "Phira,多人游戏,音游,联机服务器,HSN,HyperSynapse,超弦网络,谱面下载,房间列表,排行榜,用户协议,公告,导航",
+        "zh-TW": "Phira,多人遊戲,音遊,聯機伺服器,HSN,HyperSynapse,超弦網絡,譜面下載,房間列表,排行榜,用戶協議,公告,導航",
+        "en": "Phira,multiplayer,rhythm game,online server,HSN,HyperSynapse,chart download,room list,ranking,user agreement,announcement,navigation",
+        "ja": "Phira,マルチプレイ,音ゲー,オンラインサーバー,HSN,HyperSynapse,譜面ダウンロード,ルームリスト,ランキング,利用規約,お知らせ,ナビゲーション"
       }
     },
     "rooms": {
       "title": {
-        "zh": "房间列表 - HSN Phira",
-        "zh-TW": "房間列表 - HSN Phira",
-        "en": "Room List - HSN Phira",
-        "ja": "ルームリスト - HSN Phira"
+        "zh": "HSN Phira房间列表 - 查看和加入多人游戏房间，实时在线玩家状态 - 超弦网络",
+        "zh-TW": "HSN Phira房間列表 - 查看和加入多人遊戲房間，實時在線玩家狀態 - 超弦網絡",
+        "en": "HSN Phira Room List - View and Join Multiplayer Rooms, Real-Time Player Status - HyperSynapse Network",
+        "ja": "HSN Phiraルームリスト - マルチプレイルームの表示・参加、リアルタイムプレイヤー状況 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "查看和加入HSNPhira多人游戏房间",
-        "zh-TW": "查看和加入HSNPhira多人遊戲房間",
-        "en": "View and join HSNPhira multiplayer rooms",
-        "ja": "HSNPhiraマルチプレイルームを表示・参加"
+        "zh": "HSN Phira房间列表页面提供实时在线的多人游戏房间信息，包括房主、玩家数量、游戏状态、谱面选择等。快速加入房间，与全球Phira玩家一起游玩。",
+        "zh-TW": "HSN Phira房間列表頁面提供實時在線的多人遊戲房間資訊，包括房主、玩家數量、遊戲狀態、譜面選擇等。快速加入房間，與全球Phira玩家一起遊玩。",
+        "en": "HSN Phira room list page provides real-time multiplayer room information, including host, player count, game status, chart selection, etc. Quickly join rooms and play with Phira players worldwide.",
+        "ja": "HSN Phiraルームリストページは、ホスト、プレイヤー数、ゲームステータス、譜面選択などを含むリアルタイムマルチプレイルーム情報を提供します。すばやくルームに参加し、世界中のPhiraプレイヤーと一緒にプレイできます。"
+      },
+      "keywords": {
+        "zh": "HSN Phira房间列表,多人游戏房间,联机房间,实时房间,玩家状态,Phira联机",
+        "zh-TW": "HSN Phira房間列表,多人遊戲房間,聯機房間,實時房間,玩家狀態,Phira聯機",
+        "en": "HSN Phira room list,multiplayer rooms,online rooms,real-time rooms,player status,Phira online",
+        "ja": "HSN Phiraルームリスト,マルチプレイルーム,オンラインルーム,リアルタイムルーム,プレイヤーステータス,Phiraオンライン"
       }
     },
     "chart-ranking": {
       "title": {
-        "zh": "谱面排行榜 - HSN Phira",
-        "zh-TW": "譜面排行榜 - HSN Phira",
-        "en": "Chart Ranking - HSN Phira",
-        "ja": "譜面ランキング - HSN Phira"
+        "zh": "HSN Phira谱面排行榜 - 热门Phira谱面排名，查看最新流行谱面 - 超弦网络",
+        "zh-TW": "HSN Phira譜面排行榜 - 熱門Phira譜面排名，查看最新流行譜面 - 超弦網絡",
+        "en": "HSN Phira Chart Ranking - Popular Phira Chart Rankings, View Latest Trend Charts - HyperSynapse Network",
+        "ja": "HSN Phira譜面ランキング - 人気Phira譜面ランキング、最新トレンド譜面を表示 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "查看热门Phira谱面排行榜，查看热门Phira铺面排行榜",
-        "zh-TW": "查看熱門Phira譜面排行榜，查看熱門Phira譜面排行榜",
-        "en": "View popular Phira chart rankings",
-        "ja": "人気Phira譜面ランキングを表示"
+        "zh": "HSN Phira谱面排行榜提供热门Phira谱面的实时排名，包括最近1小时、1天、1周、1月的热度数据。发现最受欢迎的谱面，提升你的游戏体验。",
+        "zh-TW": "HSN Phira譜面排行榜提供熱門Phira譜面的實時排名，包括最近1小時、1天、1週、1月的熱度データ。發現最受歡迎的譜面，提升你的遊戲體驗。",
+        "en": "HSN Phira chart ranking provides real-time rankings of popular Phira charts, including heat data for the last 1 hour, 1 day, 1 week, and 1 month. Discover the most popular charts and enhance your gaming experience.",
+        "ja": "HSN Phira譜面ランキングは、過去1時間、1日、1週間、1ヶ月の熱度データを含む人気Phira譜面のリアルタイムランキングを提供します。最も人気のある譜面を発見し、ゲーム体験を向上させます。"
+      },
+      "keywords": {
+        "zh": "HSN Phira谱面排行榜,热门谱面排名,实时排名,热度数据,Phira谱面,音游排行榜",
+        "zh-TW": "HSN Phira譜面排行榜,熱門譜面排名,實時排名,熱度數據,Phira譜面,音遊排行榜",
+        "en": "HSN Phira chart ranking,popular chart rankings,real-time rankings,heat data,Phira charts,rhythm game rankings",
+        "ja": "HSN Phira譜面ランキング,人気譜面ランキング,リアルタイムランキング,熱度データ,Phira譜面,音ゲーランキング"
       }
     },
     "user-ranking": {
       "title": {
-        "zh": "用户排行榜 - HSN Phira",
-        "zh-TW": "用戶排行榜 - HSN Phira",
-        "en": "User Ranking - HSN Phira",
-        "ja": "ユーザーランキング - HSN Phira"
+        "zh": "HSN Phira用户排行榜 - 玩家游玩时间排名，查看活跃玩家 - 超弦网络",
+        "zh-TW": "HSN Phira用戶排行榜 - 玩家遊玩時間排名，查看活躍玩家 - 超弦網絡",
+        "en": "HSN Phira User Ranking - Player Playtime Rankings, View Active Players - HyperSynapse Network",
+        "ja": "HSN Phiraユーザーランキング - プレイヤープレイ時間ランキング、アクティブプレイヤーを表示 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "查看HSNPhira用户游玩时间排行榜",
-        "zh-TW": "查看HSNPhira用戶遊玩時間排行榜",
-        "en": "View HSNPhira user playtime rankings",
-        "ja": "HSNPhiraユーザープレイ時間ランキングを表示"
+        "zh": "HSN Phira用户排行榜显示玩家的游玩时间排名，帮助你了解最活跃的Phira玩家。查看排行榜，与其他玩家比较游戏时长。",
+        "zh-TW": "HSN Phira用戶排行榜顯示玩家的遊玩時間排名，幫助你了解最活躍的Phira玩家。查看排行榜，與其他玩家比較遊戲時長。",
+        "en": "HSN Phira user ranking displays player playtime rankings, helping you understand the most active Phira players. View rankings and compare playtime with other players.",
+        "ja": "HSN Phiraユーザーランキングはプレイヤーのプレイ時間ランキングを表示し、最もアクティブなPhiraプレイヤーを理解するのに役立ちます。ランキングを表示し、他のプレイヤーとプレイ時間を比較します。"
+      },
+      "keywords": {
+        "zh": "HSN Phira用户排行榜,玩家游玩时间排名,活跃玩家,游戏时长比较,Phira玩家排行",
+        "zh-TW": "HSN Phira用戶排行榜,玩家遊玩時間排名,活躍玩家,遊戲時長比較,Phira玩家排行",
+        "en": "HSN Phira user ranking,player playtime rankings,active players,playtime comparison,Phira player rankings",
+        "ja": "HSN Phiraユーザーランキング,プレイヤープレイ時間ランキング,アクティブプレイヤー,プレイ時間比較,Phiraプレイヤーランキング"
       }
     },
     "chart-download": {
       "title": {
-        "zh": "谱面下载 - HSN Phira",
-        "zh-TW": "譜面下載 - HSN Phira",
-        "en": "Chart Download - HSN Phira",
-        "ja": "譜面ダウンロード - HSN Phira"
+        "zh": "HSN Phira谱面下载 - 下载Phira谱面文件，提供谱面下载和铺面下载工具 - 超弦网络",
+        "zh-TW": "HSN Phira譜面下載 - 下載Phira譜面檔案，提供譜面下載和鋪面下載工具 - 超弦網絡",
+        "en": "HSN Phira Chart Download - Download Phira Chart Files, Providing Chart Download and Sheet Download Tools - HyperSynapse Network",
+        "ja": "HSN Phira譜面ダウンロード - Phira譜面ファイルをダウンロード、譜面ダウンロードと譜面ダウンロードツールを提供 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "下载Phira谱面文件，下载Phira铺面文件",
-        "zh-TW": "下載Phira譜面檔案，下載Phira譜面檔案",
-        "en": "Download Phira chart files",
-        "ja": "Phira譜面ファイルをダウンロード"
+        "zh": "HSN Phira谱面下载页面提供方便的Phira谱面下载工具，支持谱面下载和铺面下载。输入谱面ID即可下载对应的谱面文件、曲绘和预览音频。提供谱面下载和铺面下载两种表述。",
+        "zh-TW": "HSN Phira譜面下載頁面提供方便的Phira譜面下載工具，支援譜面下載和鋪面下載。輸入譜面ID即可下載對應的譜面檔案、曲繪和預覽音頻。提供譜面下載和鋪面下載兩種表述。",
+        "en": "HSN Phira chart download page provides convenient Phira chart download tools, supporting chart download and sheet download. Enter chart ID to download corresponding chart files, illustrations, and preview audio. Provides both chart download and sheet download descriptions.",
+        "ja": "HSN Phira譜面ダウンロードページは、便利なPhira譜面ダウンロードツールを提供し、譜面ダウンロードと譜面ダウンロードをサポートします。譜面IDを入力して対応する譜面ファイル、イラスト、プレビューオーディオをダウンロードします。譜面ダウンロードと譜面ダウンロードの両方の説明を提供します。"
+      },
+      "keywords": {
+        "zh": "HSN Phira谱面下载,谱面下载工具,铺面下载,Phira谱面下载,曲绘下载,预览音频下载,谱面ID查询",
+        "zh-TW": "HSN Phira譜面下載,譜面下載工具,鋪面下載,Phira譜面下載,曲繪下載,預覽音頻下載,譜面ID查詢",
+        "en": "HSN Phira chart download,chart download tool,sheet download,Phira chart download,illustration download,preview audio download,chart ID query",
+        "ja": "HSN Phira譜面ダウンロード,譜面ダウンロードツール,譜面ダウンロード,Phira譜面ダウンロード,イラストダウンロード,プレビューオーディオダウンロード,譜面IDクエリ"
       }
     },
     "phira-download": {
       "title": {
-        "zh": "Phira客户端下载 - HSN Phira",
-        "zh-TW": "Phira客戶端下載 - HSN Phira",
-        "en": "Phira Client Download - HSN Phira",
-        "ja": "Phiraクライアントダウンロード - HSN Phira"
+        "zh": "HSN Phira客户端下载 - 下载Phira游戏客户端，支持Android、Windows、Linux平台 - 超弦网络",
+        "zh-TW": "HSN Phira客戶端下載 - 下載Phira遊戲客戶端，支援Android、Windows、Linux平台 - 超弦網絡",
+        "en": "HSN Phira Client Download - Download Phira Game Client, Supports Android, Windows, Linux Platforms - HyperSynapse Network",
+        "ja": "HSN Phiraクライアントダウンロード - Phiraゲームクライアントをダウンロード、Android、Windows、Linuxプラットフォームをサポート - 超弦ネットワーク"
       },
       "description": {
-        "zh": "下载Phira游戏客户端",
-        "zh-TW": "下載Phira遊戲客戶端",
-        "en": "Download Phira game client",
-        "ja": "Phiraゲームクライアントをダウンロード"
+        "zh": "HSN Phira客户端下载页面提供Phira游戏客户端的官方下载链接，支持Android、Windows、Linux等多个平台。获取最新版本，享受最佳音游体验。",
+        "zh-TW": "HSN Phira客戶端下載頁面提供Phira遊戲客戶端的官方下載連結，支援Android、Windows、Linux等多個平台。獲取最新版本，享受最佳音遊體驗。",
+        "en": "HSN Phira client download page provides official download links for Phira game client, supporting multiple platforms including Android, Windows, Linux. Get the latest version and enjoy the best rhythm game experience.",
+        "ja": "HSN Phiraクライアントダウンロードページは、Android、Windows、Linuxなどの複数のプラットフォームをサポートするPhiraゲームクライアントの公式ダウンロードリンクを提供します。最新バージョンを入手し、最高の音ゲー体験をお楽しみください。"
+      },
+      "keywords": {
+        "zh": "HSN Phira客户端下载,Phira游戏客户端下载,Android APK下载,Windows ZIP下载,Linux下载,音游客户端,最新版本下载",
+        "zh-TW": "HSN Phira客戶端下載,Phira遊戲客戶端下載,Android APK下載,Windows ZIP下載,Linux下載,音遊客戶端,最新版本下載",
+        "en": "HSN Phira client download,Phira game client download,Android APK download,Windows ZIP download,Linux download,rhythm game client,latest version download",
+        "ja": "HSN Phiraクライアントダウンロード,Phiraゲームクライアントダウンロード,Android APKダウンロード,Windows ZIPダウンロード,Linuxダウンロード,音ゲークライアント,最新バージョンダウンロード"
       }
     },
     "navigation": {
       "title": {
-        "zh": "导航 - HSN Phira",
-        "zh-TW": "導航 - HSN Phira",
-        "en": "Navigation - HSN Phira",
-        "ja": "ナビゲーション - HSN Phira"
+        "zh": "HSN Phira导航 - Phira社区网站导航，相关资源链接大全 - 超弦网络",
+        "zh-TW": "HSN Phira導航 - Phira社群網站導航，相關資源連結大全 - 超弦網絡",
+        "en": "HSN Phira Navigation - Phira Community Website Navigation, Comprehensive Resource Links - HyperSynapse Network",
+        "ja": "HSN Phiraナビゲーション - Phiraコミュニティウェブサイトナビゲーション、関連リソースリンク大全 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "Phira社区网站导航页面",
-        "zh-TW": "Phira社群網站導航頁面",
-        "en": "Phira Community Website navigation page",
-        "ja": "Phiraコミュニティウェブサイトナビゲーションページ"
+        "zh": "HSN Phira导航页面汇集了Phira社区相关的各种资源链接，包括官方仓库、联机服务器、开源项目、文档等。快速找到你需要的内容。",
+        "zh-TW": "HSN Phira導航頁面彙集了Phira社群相關的各種資源連結，包括官方倉庫、聯機伺服器、開源項目、文檔等。快速找到你需要的內容。",
+        "en": "HSN Phira navigation page aggregates various resource links related to the Phira community, including official repositories, multiplayer servers, open-source projects, documentation, etc. Quickly find what you need.",
+        "ja": "HSN Phiraナビゲーションページは、公式リポジトリ、マルチプレイサーバー、オープンソースプロジェクト、ドキュメントなど、Phiraコミュニティ関連のさまざまなリソースリンクを集約しています。必要なものをすばやく見つけます。"
       }
     },
     "announcement": {
       "title": {
-        "zh": "公告 - HSN Phira",
-        "zh-TW": "公告 - HSN Phira",
-        "en": "Announcement - HSN Phira",
-        "ja": "お知らせ - HSN Phira"
+        "zh": "HSN Phira公告 - 服务器公告和更新通知，最新动态一览 - 超弦网络",
+        "zh-TW": "HSN Phira公告 - 伺服器公告和更新通知，最新動態一覽 - 超弦網絡",
+        "en": "HSN Phira Announcement - Server Announcements and Update Notifications, Latest News Overview - HyperSynapse Network",
+        "ja": "HSN Phiraお知らせ - サーバーお知らせと更新通知、最新ニュース概要 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "查看HSNPhira服务器公告和更新",
-        "zh-TW": "查看HSNPhira伺服器公告和更新",
-        "en": "View HSNPhira server announcements and updates",
-        "ja": "HSNPhiraサーバーのお知らせと更新を確認する"
+        "zh": "HSN Phira公告页面提供服务器的最新公告、更新通知和联系方式。了解服务器状态、维护计划和新功能发布。",
+        "zh-TW": "HSN Phira公告頁面提供伺服器的最新公告、更新通知和聯繫方式。了解伺服器狀態、維護計劃和新功能發佈。",
+        "en": "HSN Phira announcement page provides the latest server announcements, update notifications, and contact information. Learn about server status, maintenance plans, and new feature releases.",
+        "ja": "HSN Phiraお知らせページは、最新のサーバーお知らせ、更新通知、連絡先情報を提供します。サーバーステータス、メンテナンス計画、新機能リリースについて学びます。"
       }
     },
     "agreement": {
       "title": {
-        "zh": "用户协议 - HSN Phira",
-        "zh-TW": "用戶協議 - HSN Phira",
-        "en": "User Agreement - HSN Phira",
-        "ja": "利用規約 - HSN Phira"
+        "zh": "HSN Phira用户协议 - 用户协议和隐私政策，服务条款说明 - 超弦网络",
+        "zh-TW": "HSN Phira用戶協議 - 用戶協議和隱私政策，服務條款說明 - 超弦網絡",
+        "en": "HSN Phira User Agreement - User Agreement and Privacy Policy, Terms of Service Description - HyperSynapse Network",
+        "ja": "HSN Phira利用規約 - 利用規約とプライバシーポリシー、サービス条項説明 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "阅读HSNPhira用户协议和隐私政策",
-        "zh-TW": "閱讀HSNPhira用戶協議和隱私政策",
-        "en": "Read user agreement and privacy policy",
-        "ja": "HSNPhira利用規約とプライバシーポリシーを読む"
+        "zh": "HSN Phira用户协议页面详细说明了服务条款、用户协议和隐私政策。使用前请仔细阅读，了解您的权利和义务。",
+        "zh-TW": "HSN Phira用戶協議頁面詳細說明了服務條款、用戶協議和隱私政策。使用前請仔細閱讀，了解您的權利和義務。",
+        "en": "HSN Phira user agreement page details terms of service, user agreement, and privacy policy. Please read carefully before using to understand your rights and obligations.",
+        "ja": "HSN Phira利用規約ページは、サービス条項、利用規約、プライバシーポリシーを詳細に説明しています。使用前に慎重にお読みいただき、お客様の権利と義務をご理解ください。"
       }
     },
     "about": {
       "title": {
-        "zh": "关于我们 - HSN Phira",
-        "zh-TW": "關於我們 - HSN Phira",
-        "en": "About Us - HSN Phira",
-        "ja": "私たちについて - HSN Phira"
+        "zh": "HSN Phira关于我们 - HyperSynapse Network团队介绍和项目信息 - 超弦网络",
+        "zh-TW": "HSN Phira關於我們 - HyperSynapse Network團隊介紹和項目資訊 - 超弦網絡",
+        "en": "HSN Phira About Us - HyperSynapse Network Team Introduction and Project Information - HyperSynapse Network",
+        "ja": "HSN Phira私たちについて - HyperSynapse Networkチーム紹介とプロジェクト情報 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "了解HyperSynapse Network团队和项目信息",
-        "zh-TW": "了解HyperSynapse Network團隊和項目信息",
-        "en": "Learn about HyperSynapse Network team and project information",
-        "ja": "HyperSynapse Networkチームとプロジェクト情報について"
+        "zh": "HSN Phira关于我们页面介绍HyperSynapse Network团队背景、项目信息和联系方式。了解我们的使命、愿景和价值观。",
+        "zh-TW": "HSN Phira關於我們頁面介紹HyperSynapse Network團隊背景、項目資訊和聯繫方式。了解我們的使命、願景和價值觀。",
+        "en": "HSN Phira about us page introduces HyperSynapse Network team background, project information, and contact details. Learn about our mission, vision, and values.",
+        "ja": "HSN Phira私たちについてページは、HyperSynapse Networkチームの背景、プロジェクト情報、連絡先を紹介します。私たちのミッション、ビジョン、価値観について学びます。"
       }
     },
     "account": {
       "title": {
-        "zh": "账户管理 - HSN Phira",
-        "zh-TW": "帳戶管理 - HSN Phira",
-        "en": "Account Management - HSN Phira",
-        "ja": "アカウント管理 - HSN Phira"
+        "zh": "HSN Phira账户管理 - 管理您的HSN账户信息和个人设置 - 超弦网络",
+        "zh-TW": "HSN Phira帳戶管理 - 管理您的HSN帳戶資訊和個人設定 - 超弦網絡",
+        "en": "HSN Phira Account Management - Manage Your HSN Account Information and Personal Settings - HyperSynapse Network",
+        "ja": "HSN Phiraアカウント管理 - HSNアカウント情報と個人設定を管理 - 超弦ネットワーク"
       },
       "description": {
-        "zh": "管理您的HSN账户信息和设置",
-        "zh-TW": "管理您的HSN帳戶資訊和設定",
-        "en": "Manage your HSN account information and settings",
-        "ja": "HSNアカウント情報と設定を管理する"
+        "zh": "HSN Phira账户管理页面允许您查看和修改个人账户信息、密码和安全设置。保护您的账户安全，个性化您的体验。",
+        "zh-TW": "HSN Phira帳戶管理頁面允許您查看和修改個人帳戶資訊、密碼和安全設定。保護您的帳戶安全，個性化您的體驗。",
+        "en": "HSN Phira account management page allows you to view and modify personal account information, passwords, and security settings. Protect your account security and personalize your experience.",
+        "ja": "HSN Phiraアカウント管理ページでは、個人アカウント情報、パスワード、セキュリティ設定を表示および変更できます。アカウントのセキュリティを保護し、体験をパーソナライズします。"
       }
     },
     "notFound": {
       "title": {
-        "zh": "页面未找到 - HSN Phira",
-        "zh-TW": "頁面未找到 - HSN Phira",
-        "en": "Page Not Found - HSN Phira",
-        "ja": "ページが見つかりません - HSN Phira"
+        "zh": "HSN Phira页面未找到 - 404错误，您访问的页面不存在 - 超弦网络",
+        "zh-TW": "HSN Phira頁面未找到 - 404錯誤，您訪問的頁面不存在 - 超弦網絡",
+        "en": "HSN Phira Page Not Found - 404 Error, The Page You Visited Does Not Exist - HyperSynapse Network",
+        "ja": "HSN Phiraページが見つかりません - 404エラー、アクセスしたページは存在しません - 超弦ネットワーク"
       },
       "description": {
-        "zh": "您访问的页面不存在",
-        "zh-TW": "您訪問的頁面不存在",
-        "en": "The page you visited does not exist",
-        "ja": "アクセスしたページは存在しません"
+        "zh": "HSN Phira页面未找到（404错误），您访问的页面可能已被移除或暂时不可用。请检查URL或返回首页。",
+        "zh-TW": "HSN Phira頁面未找到（404錯誤），您訪問的頁面可能已被移除或暫時不可用。請檢查URL或返回首頁。",
+        "en": "HSN Phira page not found (404 error). The page you visited may have been removed or is temporarily unavailable. Please check the URL or return to the homepage.",
+        "ja": "HSN Phiraページが見つかりません（404エラー）。アクセスしたページは削除されたか、一時的に利用できない可能性があります。URLを確認するか、ホームページに戻ってください。"
       }
     },
     "docs": {
       "title": {
-        "zh": "文档中心 - HSN Phira",
-        "zh-TW": "文檔中心 - HSN Phira",
-        "en": "Documentation Center - HSN Phira",
-        "ja": "ドキュメントセンター - HSN Phira"
+        "zh": "HSN Phira文档中心 - 服务器文档和用户指南，帮助与FAQ - 超弦网络",
+        "zh-TW": "HSN Phira文檔中心 - 伺服器文檔和用戶指南，幫助與FAQ - 超弦網絡",
+        "en": "HSN Phira Documentation Center - Server Documentation and User Guides, Help & FAQ - HyperSynapse Network",
+        "ja": "HSN Phiraドキュメントセンター - サーバードキュメントとユーザーガイド、ヘルプとFAQ - 超弦ネットワーク"
       },
       "description": {
-        "zh": "HSNPhira服务器文档和用户指南",
-        "zh-TW": "HSNPhira伺服器文檔和用戶指南",
-        "en": "HSNPhira server documentation and user guides",
-        "ja": "HSNPhiraサーバードキュメントとユーザーガイド"
+        "zh": "HSN Phira文档中心提供完整的服务器文档、用户指南、常见问题解答和教程。帮助您更好地使用HSNPhira服务。",
+        "zh-TW": "HSN Phira文檔中心提供完整的伺服器文檔、用戶指南、常見問題解答和教程。幫助您更好地使用HSNPhira服務。",
+        "en": "HSN Phira documentation center provides complete server documentation, user guides, FAQs, and tutorials. Help you better use HSNPhira services.",
+        "ja": "HSN Phiraドキュメントセンターは、完全なサーバードキュメント、ユーザーガイド、FAQ、チュートリアルを提供します。HSNPhiraサービスをよりよく利用できるよう支援します。"
       }
     },
     "docPage": {

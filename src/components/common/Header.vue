@@ -231,6 +231,17 @@
               </div>
             </button>
 
+            <!-- 安装按钮 -->
+            <button
+              v-if="shouldShowInstallButton"
+              class="w-full px-4 py-2 rounded-lg glass hover:bg-white/10 text-white transition-colors text-sm flex items-center justify-between"
+              @click="handleInstallClick"
+            >
+              <span>{{ t('common.installApp') }}</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
 
             <!-- 登录或用户菜单 -->
             <template v-if="!userStore.isLoggedIn">
@@ -272,17 +283,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store'
 import { useI18nStore } from '@/stores/i18n'
 import { useThemeStore } from '@/stores/theme'
 import { eventBus } from '@/utils/eventBus'
+import { storeToRefs } from 'pinia'
 import type { Language } from '@/i18n'
 
 const userStore = useUserStore()
 const i18nStore = useI18nStore()
 const themeStore = useThemeStore()
-const { t, currentLanguage } = i18nStore
+const router = useRouter()
+const { currentLanguage } = storeToRefs(i18nStore)
+const t = i18nStore.t
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
@@ -293,6 +308,9 @@ const langMenuRef = ref<HTMLElement>()
 // PWA 安装
 const installPrompt = ref<any>(null)
 const showInstallButton = ref(false)
+
+// 是否显示安装按钮（总是显示）
+const shouldShowInstallButton = computed(() => true)
 
 const navRoutes = [
   { path: '/', nameKey: 'nav.home' },
@@ -371,6 +389,27 @@ async function handleInstall() {
 
   installPrompt.value = null
   showInstallButton.value = false
+}
+
+// 处理安装按钮点击（支持PWA安装和应用安装选择）
+async function handleInstallClick() {
+  closeMobileMenu()
+  
+  if (installPrompt.value) {
+    // 支持PWA安装，让用户选择安装方式
+    const userChoice = confirm('选择安装方式：\n\n"确定" - 安装为PWA应用（浏览器内）\n"取消" - 前往下载页面（下载独立应用）')
+    
+    if (userChoice) {
+      // 用户选择PWA安装
+      await handleInstall()
+    } else {
+      // 用户选择应用安装，跳转到下载页面
+      router.push('/phira-download')
+    }
+  } else {
+    // 不支持PWA安装，直接跳转到下载页面
+    router.push('/phira-download')
+  }
 }
 
 function getThemeLabel() {

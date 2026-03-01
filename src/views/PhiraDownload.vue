@@ -7,7 +7,9 @@
         {{ t('phiraDownload.versionInfo', { version: latestVersion }) }}
       </p>
 
+      <!-- Phira 客户端下载 -->
       <div class="space-y-4">
+        <h3 class="text-2xl font-bold text-white mb-4">Phira 客户端下载</h3>
         <!-- 动态生成下载卡片 -->
         <div
           v-for="card in downloadCards"
@@ -16,11 +18,32 @@
         >
           <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex-1">
-              <h3 class="text-xl font-bold text-white mb-2">{{ card.title }}</h3>
+              <h4 class="text-xl font-bold text-white mb-2">{{ card.title }}</h4>
               <p class="text-white/60 text-sm">{{ card.description }}</p>
             </div>
             <Button @click="download(card.id, card.buttonLink)">
               {{ card.buttonText }}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HSNPhira 应用下载 -->
+      <div class="space-y-4 mt-12">
+        <h3 class="text-2xl font-bold text-white mb-4">HSNPhira 应用下载</h3>
+        <div
+          v-for="app in hsnphiraApps"
+          :key="app.id"
+          class="glass-dark rounded-2xl p-6 border border-primary/30"
+        >
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex-1">
+              <h4 class="text-xl font-bold text-white mb-2">{{ app.title }}</h4>
+              <p class="text-white/60 text-sm">{{ app.description }}</p>
+            </div>
+            <Button @click="app.buttonLink.startsWith('/md/') ? router.push(app.buttonLink) : download(app.id, app.buttonLink)" 
+                    :variant="app.buttonLink.startsWith('/md/') ? 'secondary' : 'primary'">
+              {{ app.buttonText }}
             </Button>
           </div>
         </div>
@@ -53,11 +76,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18nStore } from '@/stores/i18n'
 import { showSuccess } from '@/utils/message'
 import { getDownloadConfig, getLocalizedText } from '@/utils/config'
 import Button from '@/components/common/Button.vue'
+import type { DownloadCard } from '@/types'
 
+const router = useRouter()
 const { t } = useI18nStore()
 
 // 从配置加载下载信息
@@ -67,7 +93,20 @@ const latestVersion = computed(() => downloadConfig.value.latestVersion)
 // 处理多语言文本的下载卡片
 const downloadCards = computed(() => {
   const config = downloadConfig.value
-  return config.downloadCards.map(card => ({
+  return config.downloadCards.map((card: DownloadCard) => ({
+    id: card.id,
+    title: getLocalizedText(card.title),
+    description: getLocalizedText(card.description),
+    buttonText: getLocalizedText(card.buttonText),
+    buttonLink: card.buttonLink
+  }))
+})
+
+// HSNPhira 应用卡片
+const hsnphiraApps = computed(() => {
+  const config = downloadConfig.value
+  if (!config.hsnphiraApps) return []
+  return config.hsnphiraApps.map((card: DownloadCard) => ({
     id: card.id,
     title: getLocalizedText(card.title),
     description: getLocalizedText(card.description),

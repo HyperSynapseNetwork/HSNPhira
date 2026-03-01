@@ -44,3 +44,22 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+# TWA signing keystore
+twa-release.keystore
+
+# HSNPM environment files (production)
+HSNPM/.env
+
+# Local development environment files (except .env.development)
+.env
+.env.local
+.env.production
+
+# Build outputs
+dist/
+build/
+
+# Testing
+coverage/
+.nyc_output/
