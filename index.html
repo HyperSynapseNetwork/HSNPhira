@@ -5,24 +5,50 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Core -->
     <meta name="description" content="HyperSynapse Network Phira多人游戏服务器 - 免费·多功能·稳定·低延迟" />
-    <meta name="keywords" content="Phira,多人游戏,音游,联机服务器" />
+    <meta name="keywords" content="Phira,多人游戏,音游,联机服务器,HSN,HyperSynapse" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="author" content="HyperSynapse Network" />
+    <meta name="generator" content="vite-ssg" />
+
+    <!-- PWA / App -->
     <meta name="theme-color" content="#1a1a1a" />
-    <link rel="manifest" href="/manifest.json" />
     <meta name="application-name" content="HSNPhira" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="HSNPhira" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Canonical (dynamic, updated by meta.ts) -->
+    <link rel="canonical" id="canonical-link" href="https://phira.htadiy.com" />
+
+    <!-- hreflang (dynamic, updated by meta.ts) -->
+    <link rel="alternate" hreflang="zh-CN" id="hreflang-zh" href="https://phira.htadiy.com" />
+    <link rel="alternate" hreflang="zh-TW" id="hreflang-zh-TW" href="https://phira.htadiy.com" />
+    <link rel="alternate" hreflang="en" id="hreflang-en" href="https://phira.htadiy.com" />
+    <link rel="alternate" hreflang="ja" id="hreflang-ja" href="https://phira.htadiy.com" />
+    <link rel="alternate" hreflang="x-default" id="hreflang-default" href="https://phira.htadiy.com" />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="HSNPhira" />
     <meta property="og:title" content="HSN Phira多人游戏服务器" />
     <meta property="og:description" content="HyperSynapse Network Phira多人游戏服务器 - 免费·多功能·稳定·低延迟" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://phira.htadiy.com" />
     <meta property="og:image" content="https://phira.htadiy.com/logo.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="HSN Phira多人游戏服务器" />
-    <meta name="twitter:description" content="HyperSynapse Network Phira多人游戏服务器 - 免费·多功能·稳定·低延迟" />
-    <meta name="twitter:image" content="https://phira.htadiy.com/logo.png" />
-    <title>HSN Phira多人游戏服务器</title>
-    <!-- 结构化数据占位符 -->
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="HSNPhira Logo" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="zh_TW" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
+
+    <!-- Twitter Card -->
     <script type="application/ld+json" id="website-schema">
       {
         "@context": "https://schema.org",
@@ -31,9 +57,7 @@
         "name": "HSN Phira多人游戏服务器",
         "description": "HyperSynapse Network Phira多人游戏服务器 - 免费·多功能·稳定·低延迟",
         "url": "https://phira.htadiy.com",
-        "sameAs": [
-          "https://github.com/HyperSynapseNetwork"
-        ],
+        "sameAs": ["https://github.com/HyperSynapseNetwork"],
         "potentialAction": {
           "@type": "SearchAction",
           "target": "https://phira.htadiy.com/search?q={search_term_string}",
@@ -49,15 +73,30 @@
         "name": "HyperSynapse Network",
         "alternateName": "超弦网络",
         "url": "https://phira.htadiy.com",
-        "logo": "https://phira.htadiy.com/logo.png",
-        "sameAs": [
-          "https://github.com/HyperSynapseNetwork"
-        ],
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://phira.htadiy.com/logo.png",
+          "width": 512,
+          "height": 512
+        },
+        "sameAs": ["https://github.com/HyperSynapseNetwork"],
         "description": "开源项目开发组织，致力于提供Phira多人游戏服务器"
       }
     </script>
     <script type="application/ld+json" id="current-page-schema"></script>
     <script type="application/ld+json" id="breadcrumb-schema"></script>
+
+    <!-- Early PWA install event capture (before Vue mounts) -->
+    <script>
+      window.__pwaInstallPrompt = null;
+      window.__pwaInstallReady = false;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__pwaInstallPrompt = e;
+        window.__pwaInstallReady = true;
+        window.dispatchEvent(new CustomEvent('pwa-install-ready', { detail: e }));
+      });
+    </script>
   </head>
   <body>
     <div id="app"></div>

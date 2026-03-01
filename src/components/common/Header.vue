@@ -409,15 +409,32 @@ function handleBeforeInstallPrompt(e: Event) {
   console.log('PWA安装提示已准备就绪')
 }
 
+function handlePwaInstallReady(e: Event) {
+  const customEvent = e as CustomEvent
+  if (customEvent.detail) {
+    installPrompt.value = customEvent.detail
+    showInstallButton.value = true
+  }
+}
+
 function handleAppInstalled() {
   installPrompt.value = null
   showInstallButton.value = false
+  window.__pwaInstallPrompt = null
   console.log('PWA已成功安装')
 }
 
 onMounted(() => {
-  // 监听PWA安装提示
+  // Check if PWA install prompt was already captured before Vue mounted
+  if (window.__pwaInstallPrompt) {
+    installPrompt.value = window.__pwaInstallPrompt
+    showInstallButton.value = true
+  }
+
+  // Listen for future beforeinstallprompt events
   window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+  // Listen for the custom event dispatched by the early capture script
+  window.addEventListener('pwa-install-ready', handlePwaInstallReady)
 
   // 监听PWA安装完成
   window.addEventListener('appinstalled', handleAppInstalled)
@@ -428,6 +445,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+  window.removeEventListener('pwa-install-ready', handlePwaInstallReady)
   window.removeEventListener('appinstalled', handleAppInstalled)
   eventBus.off('login-success', handleLoginSuccess)
   document.removeEventListener('click', handleClickOutside)

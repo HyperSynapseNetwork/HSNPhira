@@ -34,10 +34,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { getUserPreference } from './utils/config'
+import { useRoute } from 'vue-router'
 import { useUserStore } from '@/store'
 import { useThemeStore } from '@/stores/theme'
+import { useI18nStore } from '@/stores/i18n'
 import Header from './components/common/Header.vue'
 import Footer from './components/common/Footer.vue'
 import Message from './components/common/Message.vue'
@@ -53,9 +55,20 @@ import PageUpdate from './components/PageUpdate.vue'
 
 const userStore = useUserStore()
 const themeStore = useThemeStore()
+const i18nStore = useI18nStore()
+const route = useRoute()
 const particlesEnabled = computed(() => getUserPreference('particle_enabled', false))
 
-// 应用启动时自动获取用户信息，恢复登录状态
+// Watch language changes: sync HTML lang attr + re-apply page meta
+watch(
+  () => i18nStore.currentLanguage,
+  async (newLang) => {
+    const { refreshMetaForLanguageChange, getPageNameFromRoute } = await import('@/utils/meta')
+    const pageName = getPageNameFromRoute(route.path)
+    await refreshMetaForLanguageChange(pageName, newLang)
+  }
+)
+
 onMounted(async () => {
   await userStore.fetchUser()
   themeStore.initTheme()

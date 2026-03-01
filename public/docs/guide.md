@@ -79,6 +79,6 @@
 
 ## 7.Phira社区
 
-Phira有自己的[官方QQ频道](https://pd.qq.com/s/z5rk3efd?b=9)，当然如果你喜欢HSN服务器有或是他的小功能，也欢迎加入HSN的官方QQ群：1049578201
+Phira有自己的[官方QQ频道](https://pd.qq.com/s/z5rk3efd?b=9)，当然如果你喜欢HSN服务器，也欢迎加入HSN的官方QQ群：1049578201
 
 <style>.a{background:#000;color:#000;transition:.2s;}.a:hover{color:#fff;};</style><span class=a title='你知道的太多了'>（如果你有加入HSN的开发意向，欢迎向HSN开发团队招募[https://v.wjx.cn/vm/rCUAXVd.aspx]提交问卷。）</span>

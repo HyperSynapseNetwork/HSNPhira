@@ -1,138 +1,114 @@
 #!/usr/bin/env node
+// scripts/generate-seo-files.js
+// Generates sitemap.xml, sitemap-multilang.xml, robots.txt after build
 
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// 路由配置路径
 const ROUTER_PATH = join(__dirname, '../src/router/index.ts')
-
-// 文档配置路径  
 const DOCS_CONFIG_PATH = join(__dirname, '../public/config/docs.config.json')
-
-// 基础URL
+const DIST_DIR = join(__dirname, '../dist')
+const PUBLIC_DIR = join(__dirname, '../public')
 const BASE_URL = 'https://phira.htadiy.com'
 
-// 从路由配置中提取路径
+const PRIORITIES = {
+  '/': '1.0', '/rooms': '0.9', '/chart-ranking': '0.85', '/user-ranking': '0.85',
+  '/announcement': '0.8', '/about': '0.75', '/phira-download': '0.8',
+  '/chart-download': '0.75', '/navigation': '0.7', '/agreement': '0.6', '/md': '0.7',
+}
+const CHANGEFREQS = {
+  '/': 'daily', '/rooms': 'always', '/chart-ranking': 'hourly', '/user-ranking': 'daily',
+  '/announcement': 'weekly',
+}
+
 function getRoutes() {
   try {
-    const routerContent = readFileSync(ROUTER_PATH, 'utf-8')
-    
-    // 简单解析路由配置中的路径
-    // 查找所有 path: '...' 模式
-    const pathRegex = /path:\s*['"]([^'"]+)['"]/g
+    const content = readFileSync(ROUTER_PATH, 'utf-8')
+    const re = /path:\s*['"]([^'"]+)['"]/g
     const routes = []
-    let match
-    
-    while ((match = pathRegex.exec(routerContent)) !== null) {
-      const path = match[1]
-      
-      // 排除动态路径（包含:的路径）和通配符路径
-      if (!path.includes(':') && !path.includes('*') && !path.includes('?')) {
-        // 排除404页面（它已经包含在SSG构建中）
-        if (path !== '/:pathMatch(.*)*') {
-          routes.push(path)
-        }
-      }
+    let m
+    while ((m = re.exec(content)) !== null) {
+      const p = m[1]
+      if (!p.includes(':') && !p.includes('*') && !p.includes('?')) routes.push(p)
     }
-    
-    // 确保首页在列表中
-    if (!routes.includes('/')) {
-      routes.push('/')
+    if (!routes.includes('/')) routes.push('/')
+    if (existsSync(DOCS_CONFIG_PATH)) {
+      try {
+        const docs = JSON.parse(readFileSync(DOCS_CONFIG_PATH, 'utf-8'))
+        for (const id in docs.pages) routes.push(`/md/${id}`)
+      } catch (e) { console.warn('Cannot read docs config:', e.message) }
     }
-    
-    // 添加文档路由
-    try {
-      const docsConfig = JSON.parse(readFileSync(DOCS_CONFIG_PATH, 'utf-8'))
-      for (const pageId in docsConfig.pages) {
-        routes.push(`/md/${pageId}`)
-      }
-    } catch (err) {
-      console.warn('无法读取文档配置:', err.message)
-    }
-    
-    // 去重和排序
-    const uniqueRoutes = [...new Set(routes)].sort()
-    
-    console.log(`找到 ${uniqueRoutes.length} 个静态路由:`)
-    uniqueRoutes.forEach(route => console.log(`  ${route}`))
-    
-    return uniqueRoutes
-  } catch (err) {
-    console.error('读取路由配置失败:', err)
-    // 返回默认路由列表作为后备
-    return [
-      '/',
-      '/rooms',
-      '/chart-ranking', 
-      '/user-ranking',
-      '/agreement',
-      '/announcement',
-      '/chart-download',
-      '/phira-download',
-      '/navigation',
-      '/about',
-      '/md'
-    ]
+    const unique = [...new Set(routes)].sort()
+    console.log(`Found ${unique.length} routes:`)
+    unique.forEach(r => console.log(`  ${r}`))
+    return unique
+  } catch (e) {
+    console.error('Failed to read routes:', e)
+    return ['/', '/rooms', '/chart-ranking', '/user-ranking', '/agreement',
+      '/announcement', '/chart-download', '/phira-download', '/navigation', '/about', '/md']
   }
 }
 
-// 生成sitemap.xml
+const getPriority = r => PRIORITIES[r] || (r.startsWith('/md/') ? '0.65' : '0.7')
+const getChangefreq = r => CHANGEFREQS[r] || 'weekly'
+
 function generateSitemap(routes) {
-  const urls = routes.map(route => {
-    // 为不同页面设置不同的优先级
-    let priority = '0.8'
-    if (route === '/') priority = '1.0'
-    else if (route === '/rooms') priority = '0.9'
-    else if (route === '/chart-ranking' || route === '/user-ranking') priority = '0.85'
-    else if (route.startsWith('/md/')) priority = '0.7'
-    
-    return `  <url>
-    <loc>${BASE_URL}${route}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>${priority}</priority>
-  </url>`
+  const now = new Date().toISOString().split('T')[0]
+  const urls = routes.map(r => {
+    const loc = r === '/' ? BASE_URL : `${BASE_URL}${r}`
+    return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>${getChangefreq(r)}</changefreq>\n    <priority>${getPriority(r)}</priority>\n  </url>`
   }).join('\n')
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`
 }
 
-// 生成robots.txt
-function generateRobotsTxt() {
-  return `User-agent: *
-Disallow: /404
-Disallow: /account
-Disallow: /api/
-Disallow: /auth/
-
-Sitemap: ${BASE_URL}/sitemap.xml`
+function generateMultilangSitemap(routes) {
+  const now = new Date().toISOString().split('T')[0]
+  const langs = [['zh-CN','zh-CN'],['zh-TW','zh-TW'],['en','en'],['ja','ja'],['x-default','x-default']]
+  const urls = routes.map(r => {
+    const loc = r === '/' ? BASE_URL : `${BASE_URL}${r}`
+    const alts = langs.map(([,hreflang]) =>
+      `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${loc}"/>`
+    ).join('\n')
+    return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>${getChangefreq(r)}</changefreq>\n    <priority>${getPriority(r)}</priority>\n${alts}\n  </url>`
+  }).join('\n')
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>`
 }
 
-// 主函数
+function generateRobots() {
+  return `User-agent: *\nAllow: /\nDisallow: /account\nDisallow: /api/\nDisallow: /auth/\n\nSitemap: ${BASE_URL}/sitemap.xml\nSitemap: ${BASE_URL}/sitemap-multilang.xml`
+}
+
+function write(dir, filename, content) {
+  const p = join(dir, filename)
+  writeFileSync(p, content, 'utf-8')
+  console.log(`  ✅ ${filename} → ${p}`)
+}
+
 function main() {
-  console.log('正在生成SEO文件...')
-  
+  console.log('\n📄 Generating SEO files...\n')
   const routes = getRoutes()
-  
-  // 生成sitemap.xml
   const sitemap = generateSitemap(routes)
-  const sitemapPath = join(__dirname, '../dist/sitemap.xml')
-  writeFileSync(sitemapPath, sitemap, 'utf-8')
-  console.log(`✅ 已生成 sitemap.xml (${sitemapPath})`)
-  
-  // 生成robots.txt
-  const robots = generateRobotsTxt()
-  const robotsPath = join(__dirname, '../dist/robots.txt')
-  writeFileSync(robotsPath, robots, 'utf-8')
-  console.log(`✅ 已生成 robots.txt (${robotsPath})`)
-  
-  console.log('🎉 SEO文件生成完成！')
+  const multilang = generateMultilangSitemap(routes)
+  const robots = generateRobots()
+
+  const distExists = existsSync(DIST_DIR)
+  if (distExists) {
+    console.log('\nWriting to dist/:')
+    write(DIST_DIR, 'sitemap.xml', sitemap)
+    write(DIST_DIR, 'sitemap-multilang.xml', multilang)
+    write(DIST_DIR, 'robots.txt', robots)
+  }
+
+  console.log('\nWriting to public/ (for static serving):')
+  write(PUBLIC_DIR, 'sitemap.xml', sitemap)
+  write(PUBLIC_DIR, 'sitemap-multilang.xml', multilang)
+  write(PUBLIC_DIR, 'robots.txt', robots)
+
+  console.log('\n🎉 SEO files generated!\n')
 }
 
 main()

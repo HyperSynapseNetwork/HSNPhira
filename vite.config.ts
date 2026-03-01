@@ -13,38 +13,9 @@ export default defineConfig(({ mode }) => {
       vue(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.png', 'logo.png'],
-        manifest: {
-          name: 'HSNPhira',
-          short_name: 'HSNPhira',
-          description: 'HyperSynapse Network Phira Multiplayer Server',
-          theme_color: '#1a1a1a',
-          background_color: '#1a1a1a',
-          display: 'standalone',
-          orientation: 'portrait',
-          scope: '/',
-          start_url: '/',
-          lang: 'zh-CN',
-          categories: ['games', 'entertainment', 'social'],
-          icons: [
-            {
-              src: '/pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            },
-            {
-              src: '/pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png'
-            },
-            {
-              src: '/pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any maskable'
-            }
-          ]
-        },
+        // Use public/manifest.json directly (manifest: false)
+        manifest: false,
+        includeAssets: ['favicon.png', 'logo.png', 'apple-touch-icon.png', 'robots.txt', 'sitemap.xml'],
         workbox: {
           globPatterns: ['**/*.{js,css,html,png,jpg,jpeg,svg,gif,ico,woff,woff2,ttf,eot}'],
           runtimeCaching: [
@@ -53,13 +24,8 @@ export default defineConfig(({ mode }) => {
               handler: 'CacheFirst',
               options: {
                 cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 一年
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] }
               }
             },
             {
@@ -67,13 +33,8 @@ export default defineConfig(({ mode }) => {
               handler: 'CacheFirst',
               options: {
                 cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] }
               }
             },
             {
@@ -82,20 +43,13 @@ export default defineConfig(({ mode }) => {
               options: {
                 cacheName: 'api-cache',
                 networkTimeoutSeconds: 10,
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 // 一天
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
+                expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+                cacheableResponse: { statuses: [0, 200] }
               }
             }
           ]
         },
-        devOptions: {
-          enabled: false
-        }
+        devOptions: { enabled: false }
       })
     ],
     resolve: {
@@ -104,12 +58,10 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    // SSG 配置（vite-ssg）
-    // 仅在执行 build:ssg 时生效，普通 build 忽略此项
+    // SSG 配置（vite-ssg）- 仅在执行 build:ssg 时生效
     ssgOptions: {
       script: 'async',
       formatting: 'minify',
-      // 只预渲染不含动态参数的静态路由
       includedRoutes(paths: string[]) {
         return paths.filter((p) => !p.includes(':'))
       },
@@ -121,35 +73,13 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       proxy: env.VITE_USE_PROXY === 'true' ? {
-        '/api': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-          // rewrite: (path) => path.replace(/^\/api/, ''),
-        },
-        '/rankapi': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/chart': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/topchart/hot_rank': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/topchart/chart_rank': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/chart_rank': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-        },
-        '/user_rank': {
-          target: env.VITE_API_TARGET || 'http://localhost:8080',
-          changeOrigin: true,
-        },
+        '/api': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
+        '/rankapi': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
+        '/chart': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
+        '/topchart/hot_rank': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
+        '/topchart/chart_rank': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
+        '/chart_rank': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
+        '/user_rank': { target: env.VITE_API_TARGET || 'http://localhost:8080', changeOrigin: true },
       } : undefined,
     },
   }

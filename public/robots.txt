@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /api/
+Disallow: /auth/
+
+Sitemap: https://phira.htadiy.com/sitemap.xml
+Sitemap: https://phira.htadiy.com/sitemap-multilang.xml

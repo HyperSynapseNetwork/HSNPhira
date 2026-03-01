@@ -17,3 +17,9 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+// PWA install prompt global
+interface Window {
+  __pwaInstallPrompt: any | null
+  __pwaInstallReady: boolean
+}
