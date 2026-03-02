@@ -1,11 +1,9 @@
 [
-	  {
-		      "relation": ["delegate_permission/common.handle_all_urls"],
-		          "target": {
-				        "namespace": "web",
-					      "site": "https://phira.htadiy.com",
-					            "sha256_cert_fingerprints": [                                                               "28:E9:B9:C0:AC:BB:C9:AA:A8:2D:5D:AB:FD:2F:09:E0:96:94:4B:51:0D:71:D3:AD:BA:E9:A5:5D:C9:9B:28:FB"
-							          ]
-								      }
-								        }
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "web",
+      "site": "https://phira.htadiy.com"
+    }
+  }
 ]

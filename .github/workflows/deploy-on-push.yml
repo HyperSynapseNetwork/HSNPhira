@@ -31,14 +31,14 @@ jobs:
           cache: 'pnpm'
           check-latest: true
 
-      - name: Setup Java for TWA
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      # - name: Setup Java for TWA
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '17'
 
-      - name: Install bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
+      # - name: Install bubblewrap CLI
+      #   run: npm install -g @bubblewrap/cli
 
       - name: Setup Rust for HSNPM
         uses: dtolnay/rust-toolchain@stable
@@ -95,72 +95,72 @@ jobs:
           [ -f dist/sitemap.xml ] && echo "✅ sitemap.xml 存在" || echo "❌ sitemap.xml 不存在"
           [ -f dist/robots.txt ] && echo "✅ robots.txt 存在" || echo "❌ robots.txt 不存在"
 
-      - name: Build TWA Android APK (Auto Version)
-        env:
-          TWA_KEYSTORE_BASE64: ${{ secrets.TWA_KEYSTORE_BASE64 }}
-          TWA_KEYSTORE_PASSWORD: ${{ secrets.TWA_KEYSTORE_PASSWORD }}
-          TWA_KEY_ALIAS: ${{ secrets.TWA_KEY_ALIAS }}
-          TWA_KEY_PASSWORD: ${{ secrets.TWA_KEY_PASSWORD }}
-          TWA_SHA256_FINGERPRINT: ${{ secrets.TWA_SHA256_FINGERPRINT }}
-          # Bubblewrap 非交互式构建环境变量
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.TWA_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.TWA_KEY_PASSWORD }}
-        run: |
-          echo "🚀 开始自动化构建 TWA Android APK..."
-          # 检查是否安装了 Java 和 bubblewrap
-          if command -v java &> /dev/null && npm list -g @bubblewrap/cli &> /dev/null; then
-            echo "环境就绪，开始构建 TWA APK..."
-            echo "🔑 使用环境变量: BUBBLEWRAP_KEYSTORE_PASSWORD 和 BUBBLEWRAP_KEY_PASSWORD"
-            chmod +x ./scripts/build-twa-auto.sh
-            ./scripts/build-twa-auto.sh
+      # - name: Build TWA Android APK (Auto Version)
+      #   env:
+      #     TWA_KEYSTORE_BASE64: ${{ secrets.TWA_KEYSTORE_BASE64 }}
+      #     TWA_KEYSTORE_PASSWORD: ${{ secrets.TWA_KEYSTORE_PASSWORD }}
+      #     TWA_KEY_ALIAS: ${{ secrets.TWA_KEY_ALIAS }}
+      #     TWA_KEY_PASSWORD: ${{ secrets.TWA_KEY_PASSWORD }}
+      #     TWA_SHA256_FINGERPRINT: ${{ secrets.TWA_SHA256_FINGERPRINT }}
+      #     # Bubblewrap 非交互式构建环境变量
+      #     BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.TWA_KEYSTORE_PASSWORD }}
+      #     BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.TWA_KEY_PASSWORD }}
+      #   run: |
+      #     echo "🚀 开始自动化构建 TWA Android APK..."
+      #     # 检查是否安装了 Java 和 bubblewrap
+      #     if command -v java &> /dev/null && npm list -g @bubblewrap/cli &> /dev/null; then
+      #       echo "环境就绪，开始构建 TWA APK..."
+      #       echo "🔑 使用环境变量: BUBBLEWRAP_KEYSTORE_PASSWORD 和 BUBBLEWRAP_KEY_PASSWORD"
+      #       chmod +x ./scripts/build-twa-auto.sh
+      #       ./scripts/build-twa-auto.sh
+      #
+      #       # 检查构建结果
+      #       if [ -d "dist/apps" ] && [ "$(ls -A dist/apps 2>/dev/null)" ]; then
+      #         echo "✅ TWA APK 构建成功"
+      #         ls -la dist/apps/
+      #       else
+      #         echo "⚠️  TWA 构建可能未生成 APK 文件"
+      #       fi
+      #     else
+      #       echo "跳过 TWA 构建：缺少 Java 或 bubblewrap"
+      #       echo "要启用 TWA 构建，请在工作流中安装："
+      #       echo "  - Java 11+"
+      #       echo "  - npm install -g @bubblewrap/cli"
+      #     fi
 
-            # 检查构建结果
-            if [ -d "dist/apps" ] && [ "$(ls -A dist/apps 2>/dev/null)" ]; then
-              echo "✅ TWA APK 构建成功"
-              ls -la dist/apps/
-            else
-              echo "⚠️  TWA 构建可能未生成 APK 文件"
-            fi
-          else
-            echo "跳过 TWA 构建：缺少 Java 或 bubblewrap"
-            echo "要启用 TWA 构建，请在工作流中安装："
-            echo "  - Java 11+"
-            echo "  - npm install -g @bubblewrap/cli"
-          fi
-
-      - name: Update Download Configuration
-        env:
-          GITHUB_RUN_NUMBER: ${{ github.run_number }}
-        run: |
-          echo "🔄 更新下载配置文件..."
-          chmod +x ./scripts/update-download-config.js
-          node ./scripts/update-download-config.js
-          
-          # 验证配置文件已更新
-          echo "📋 验证配置文件:"
-          cat ./public/config/download.config.json | grep -A 5 "hsnphira-android"
-          
-          # 检查版本文件
-          if [ -f "./public/config/twa-version.json" ]; then
-            echo "✅ TWA 版本文件已生成"
-            cat ./public/config/twa-version.json
-          fi
-          
-          # 将更新后的配置文件复制到构建目录
-          echo "📂 复制配置文件到构建目录..."
-          if [ -d "dist/config" ]; then
-            cp -r ./public/config/*.json dist/config/
-            echo "✅ 配置文件已复制到 dist/config/"
-          else
-            echo "⚠️  dist/config 目录不存在，跳过复制"
-          fi
-          
-          # 复制数字资产链接文件
-          if [ -f "./public/.well-known/assetlinks.json" ]; then
-            mkdir -p dist/.well-known
-            cp ./public/.well-known/assetlinks.json dist/.well-known/
-            echo "✅ 数字资产链接文件已复制"
-          fi
+      # - name: Update Download Configuration
+      #   env:
+      #     GITHUB_RUN_NUMBER: ${{ github.run_number }}
+      #   run: |
+      #     echo "🔄 更新下载配置文件..."
+      #     chmod +x ./scripts/update-download-config.js
+      #     node ./scripts/update-download-config.js
+      #
+      #     # 验证配置文件已更新
+      #     echo "📋 验证配置文件:"
+      #     cat ./public/config/download.config.json | grep -A 5 "hsnphira-android"
+      #
+      #     # 检查版本文件
+      #     if [ -f "./public/config/twa-version.json" ]; then
+      #       echo "✅ TWA 版本文件已生成"
+      #       cat ./public/config/twa-version.json
+      #     fi
+      #
+      #     # 将更新后的配置文件复制到构建目录
+      #     echo "📂 复制配置文件到构建目录..."
+      #     if [ -d "dist/config" ]; then
+      #       cp -r ./public/config/*.json dist/config/
+      #       echo "✅ 配置文件已复制到 dist/config/"
+      #     else
+      #       echo "⚠️  dist/config 目录不存在，跳过复制"
+      #     fi
+      #
+      #     # 复制数字资产链接文件
+      #     if [ -f "./public/.well-known/assetlinks.json" ]; then
+      #       mkdir -p dist/.well-known
+      #       cp ./public/.well-known/assetlinks.json dist/.well-known/
+      #       echo "✅ 数字资产链接文件已复制"
+      #     fi
 
       # 安装 sshpass（用于密码认证）
       - name: Install sshpass
