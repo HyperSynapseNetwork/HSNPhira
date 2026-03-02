@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "🚀 开始自动化构建 HSNPhira TWA Android 应用"
@@ -14,7 +13,6 @@ if ! command -v java &> /dev/null; then
     echo "❌ Java 未安装，请安装 Java 11+"
     exit 1
 fi
-
 if ! command -v npm &> /dev/null; then
     echo "❌ npm 未安装，请安装 Node.js"
     exit 1
@@ -41,7 +39,7 @@ if [ -z "$JAVA_HOME" ]; then
     JAVA_PATH=$(which java 2>/dev/null || true)
     if [ -n "$JAVA_PATH" ]; then
         JAVA_HOME=$(dirname "$(dirname "$JAVA_PATH")")
-        echo "⚠️  JAVA_HOME 未设置，推断为: $JAVA_HOME"
+        echo "⚠️ JAVA_HOME 未设置，推断为: $JAVA_HOME"
         export JAVA_HOME
     else
         echo "❌ Java 未安装，请安装 Java 11+"
@@ -64,104 +62,81 @@ else
     VERSION_NAME="0.0.1"
     VERSION_CODE="1"
 fi
-
 echo "📱 版本信息:"
-echo "  - 构建号: $BUILD_NUMBER"
-echo "  - 版本名称: $VERSION_NAME"
-echo "  - 版本代码: $VERSION_CODE"
+echo " - 构建号: $BUILD_NUMBER"
+echo " - 版本名称: $VERSION_NAME"
+echo " - 版本代码: $VERSION_CODE"
 
-# 处理密钥库
+cd "$TWA_DIR"
+
+# 处理密钥库和初始化项目
 if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
    [ -z "$TWA_KEY_ALIAS" ] || [ -z "$TWA_KEY_PASSWORD" ]; then
-    echo "⚠️  缺少 TWA 密钥配置，使用默认调试密钥"
-    echo "⚠️  生产环境请配置 GitHub Secrets:"
-    echo "    - TWA_KEYSTORE_BASE64"
-    echo "    - TWA_KEYSTORE_PASSWORD"
-    echo "    - TWA_KEY_ALIAS"
-    echo "    - TWA_KEY_PASSWORD"
-    
+    echo "⚠️ 缺少 TWA 密钥配置，使用默认调试密钥"
+    echo "⚠️ 生产环境请配置 GitHub Secrets:"
+    echo " - TWA_KEYSTORE_BASE64"
+    echo " - TWA_KEYSTORE_PASSWORD"
+    echo " - TWA_KEY_ALIAS"
+    echo " - TWA_KEY_PASSWORD"
+
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
-        echo "🛠️  使用默认密钥初始化 bubblewrap 项目（非交互式）..."
-        cd "$TWA_DIR"
-        # 使用 --jdkPath 和管道输入双重保障
+        echo "🛠️ 使用默认密钥初始化 bubblewrap 项目（非交互式）..."
+        # 在非交互式模式下，使用 --jdkPath 参数指定路径，无需交互输入
         bubblewrap init \
             --manifest="$DIST_DIR/manifest.json" \
             --directory="$TWA_DIR" \
-            --jdkPath="$JAVA_HOME" \
-            --accept-license << EOF
-n
-$JAVA_HOME
-EOF
+            --jdkPath="$JAVA_HOME"
     fi
 else
     echo "🔐 使用 GitHub Secrets 中的生产密钥"
-    
     echo "正在解码 base64 密钥库..."
-    CLEAN_BASE64=$(echo "$TWA_KEYSTORE_BASE64" | tr -d '\n' | tr -d ' ')
-    echo "清理后的 base64 长度: ${#CLEAN_BASE64} 字符"
-    
+
+    # 清理 base64 字符串中的换行和空格
+    CLEAN_BASE64=$(echo "$TWA_KEYSTORE_BASE64" | tr -d '\n\r' | tr -d ' ')
+
     if echo "$CLEAN_BASE64" | base64 -d > /dev/null 2>&1; then
         echo "✅ base64 格式有效"
         echo "$CLEAN_BASE64" | base64 -d > "$TWA_DIR/production.keystore"
         echo "✅ 密钥库文件已解码: $TWA_DIR/production.keystore"
     else
         echo "❌ base64 格式无效，无法解码"
-        echo "⚠️  使用调试密钥继续构建..."
+        echo "⚠️ 将回退到使用调试密钥初始化。"
+        # 如果解码失败，确保没有残留的无效密钥库文件
+        rm -f "$TWA_DIR/production.keystore"
+        # 清除相关变量，使逻辑回退到使用调试密钥
+        unset TWA_KEYSTORE_BASE64
+    fi
+
+    # 根据是否成功解码密钥库来决定初始化方式
+    if [ -f "$TWA_DIR/production.keystore" ]; then
         if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
-            echo "🛠️  使用默认密钥初始化 bubblewrap 项目（非交互式）..."
-            cd "$TWA_DIR"
+            echo "🛠️ 使用生产密钥初始化 bubblewrap 项目（非交互式）..."
             bubblewrap init \
                 --manifest="$DIST_DIR/manifest.json" \
                 --directory="$TWA_DIR" \
-                --jdkPath="$JAVA_HOME" \
-                --accept-license << EOF
-n
-$JAVA_HOME
-EOF
-        fi
-        exit 0
-    fi
-    
-    if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
-        echo "🛠️  使用生产密钥初始化 bubblewrap 项目（非交互式）..."
-        cd "$TWA_DIR"
-        bubblewrap init \
-            --manifest="$DIST_DIR/manifest.json" \
-            --directory="$TWA_DIR" \
-            --keystorePath="production.keystore" \
-            --keystorePass="$TWA_KEYSTORE_PASSWORD" \
-            --keyPass="$TWA_KEY_PASSWORD" \
-            --alias="$TWA_KEY_ALIAS" \
-            --jdkPath="$JAVA_HOME" \
-            --accept-license << EOF
-n
-$JAVA_HOME
-EOF
-    else
-        echo "📁 使用现有的 bubblewrap 项目配置"
-        cd "$TWA_DIR"
-        
-        # 更新密钥库文件
-        if [ -f "production.keystore" ]; then
-            rm -f "production.keystore"
-        fi
-        
-        echo "更新密钥库配置..."
-        CLEAN_BASE64=$(echo "$TWA_KEYSTORE_BASE64" | tr -d '\n' | tr -d ' ')
-        echo "清理后的 base64 长度: ${#CLEAN_BASE64} 字符"
-        
-        if echo "$CLEAN_BASE64" | base64 -d > /dev/null 2>&1; then
-            echo "✅ base64 格式有效"
-            echo "$CLEAN_BASE64" | base64 -d > "production.keystore"
-            echo "✅ 密钥库文件已更新"
+                --keystorePath="production.keystore" \
+                --keystorePass="$TWA_KEYSTORE_PASSWORD" \
+                --keyPass="$TWA_KEY_PASSWORD" \
+                --alias="$TWA_KEY_ALIAS" \
+                --jdkPath="$JAVA_HOME"
         else
-            echo "❌ base64 格式无效，无法更新密钥库"
-            echo "⚠️  跳过密钥库更新，使用现有文件"
+            echo "📁 使用现有的 bubblewrap 项目配置，但将更新为生产密钥签名配置。"
+            # 注意：bubblewrap 项目初始化后，更新签名信息可能需要修改 twa-manifest.json 或重新初始化。
+            # 为简化，此处假设如果已初始化，则使用现有配置，但构建时会用新密钥。
+            # 更稳妥的做法是备份后重新初始化，但会丢失手动修改。此处选择提示。
+            echo "⚠️ 项目已存在。构建时将使用提供的生产密钥，但包名等配置可能基于旧文件。"
+        fi
+    else
+        # 如果没有有效的生产密钥库文件，则使用调试密钥初始化（如果项目不存在）
+        if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
+            echo "🛠️ 回退：使用默认密钥初始化 bubblewrap 项目（非交互式）..."
+            bubblewrap init \
+                --manifest="$DIST_DIR/manifest.json" \
+                --directory="$TWA_DIR" \
+                --jdkPath="$JAVA_HOME"
         fi
     fi
 fi
-
-cd "$TWA_DIR"
 
 # 更新版本信息
 echo "🔄 更新版本信息..."
@@ -173,8 +148,9 @@ if command -v jq &> /dev/null; then
     fi
 else
     if [ -f "twa-manifest.json" ]; then
-        sed -i "s/\"versionCode\": \"[^\"]*\"/\"versionCode\": \"$VERSION_CODE\"/g" twa-manifest.json
-        sed -i "s/\"versionName\": \"[^\"]*\"/\"versionName\": \"$VERSION_NAME\"/g" twa-manifest.json
+        sed -i.bak "s/\"versionCode\": \"[^\"]*\"/\"versionCode\": \"$VERSION_CODE\"/g" twa-manifest.json
+        sed -i.bak "s/\"versionName\": \"[^\"]*\"/\"versionName\": \"$VERSION_NAME\"/g" twa-manifest.json
+        rm -f twa-manifest.json.bak
         echo "✅ 更新版本: $VERSION_NAME ($VERSION_CODE)"
     fi
 fi
@@ -188,26 +164,28 @@ fi
 
 # 构建 APK（非交互式）
 echo "🔨 构建 APK (非交互式)..."
-echo "🔑 使用环境变量: BUBBLEWRAP_KEYSTORE_PASSWORD 和 BUBBLEWRAP_KEY_PASSWORD"
+echo "🔑 使用环境变量控制密钥库密码。"
+# 为构建命令临时设置密码环境变量
+export BUBBLEWRAP_KEYSTORE_PASSWORD="$TWA_KEYSTORE_PASSWORD"
+export BUBBLEWRAP_KEY_PASSWORD="$TWA_KEY_PASSWORD"
+
 bubblewrap build --skipPwaValidation
 
 # 构建 App Bundle（可选）
 echo "🔨 构建 App Bundle..."
-bubblewrap build --bundle --skipPwaValidation || echo "⚠️  App Bundle 构建失败，跳过"
+bubblewrap build --bundle --skipPwaValidation || echo "⚠️ App Bundle 构建失败，跳过"
 
 # 复制 APK 文件
 echo "📦 复制 APK 文件..."
 if [ -f "app-release-signed.apk" ]; then
     APK_FILENAME="hsnphira-v$VERSION_NAME.apk"
     LATEST_APK="hsnphira-latest.apk"
-    
     cp app-release-signed.apk "$APPS_DIR/$APK_FILENAME"
     cp app-release-signed.apk "$APPS_DIR/$LATEST_APK"
-    
     echo "✅ APK 已复制:"
-    echo "   - $APPS_DIR/$APK_FILENAME"
-    echo "   - $APPS_DIR/$LATEST_APK"
-    
+    echo " - $APPS_DIR/$APK_FILENAME"
+    echo " - $APPS_DIR/$LATEST_APK"
+
     # 创建版本信息文件
     echo "📝 创建版本信息文件..."
     cat > "$APPS_DIR/version-info.json" << EOF
@@ -230,16 +208,29 @@ fi
 # 生成数字资产链接文件（如果提供了指纹）
 if [ -n "$TWA_SHA256_FINGERPRINT" ]; then
     echo "🔗 生成数字资产链接文件..."
+    # 尝试从 manifest.json 获取启动网址
+    START_URL="https://phira.htadiy.com" # 默认值，建议从 $DIST_DIR/manifest.json 中解析
+    if command -v jq &> /dev/null && [ -f "$DIST_DIR/manifest.json" ]; then
+        MANIFEST_START_URL=$(jq -r '.start_url // empty' "$DIST_DIR/manifest.json" 2>/dev/null)
+        if [[ -n "$MANIFEST_START_URL" ]]; then
+            # 确保是完整的URL
+            if [[ $MANIFEST_START_URL == http* ]]; then
+                START_URL="$MANIFEST_START_URL"
+            fi
+        fi
+    fi
+    # 提取站点的 origin (协议+主机+端口)
+    SITE_ORIGIN=$(echo "$START_URL" | sed -E 's|^([^:/]+://[^/]+).*$|\1|')
+
     ASSETLINKS_DIR="$PROJECT_ROOT/public/.well-known"
     mkdir -p "$ASSETLINKS_DIR"
-    
     cat > "$ASSETLINKS_DIR/assetlinks.json" << EOF
 [
   {
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "web",
-      "site": "https://phira.htadiy.com",
+      "site": "$SITE_ORIGIN",
       "sha256_cert_fingerprints": [
         "$TWA_SHA256_FINGERPRINT"
       ]
@@ -247,8 +238,8 @@ if [ -n "$TWA_SHA256_FINGERPRINT" ]; then
   }
 ]
 EOF
-    
     echo "✅ 数字资产链接文件已生成: $ASSETLINKS_DIR/assetlinks.json"
+    echo "   关联的网站: $SITE_ORIGIN"
 fi
 
 echo ""
@@ -256,12 +247,14 @@ echo "🎉 TWA 自动化构建完成！"
 echo ""
 echo "📱 版本: $VERSION_NAME (Code: $VERSION_CODE)"
 echo "📦 APK 文件:"
-echo "   - $APPS_DIR/hsnphira-v$VERSION_NAME.apk"
-echo "   - $APPS_DIR/hsnphira-latest.apk"
+echo " - $APPS_DIR/hsnphira-v$VERSION_NAME.apk"
+echo " - $APPS_DIR/hsnphira-latest.apk"
 echo ""
-echo "📄 数字资产链接: https://phira.htadiy.com/.well-known/assetlinks.json"
-echo ""
+if [ -n "$TWA_SHA256_FINGERPRINT" ]; then
+    echo "📄 数字资产链接: /.well-known/assetlinks.json"
+    echo ""
+fi
 echo "🚀 下一步:"
-echo "   1. APK 将自动部署到服务器"
-echo "   2. 下载页面将自动更新"
-echo "   3. 用户可以下载最新版本"
+echo " 1. APK 将自动部署到服务器"
+echo " 2. 下载页面将自动更新"
+echo " 3. 用户可以下载最新版本"
