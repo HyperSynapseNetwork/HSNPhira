@@ -92,7 +92,7 @@ if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
         echo "🛠️  使用默认密钥初始化 bubblewrap 项目..."
         cd "$TWA_DIR"
-        echo "n" | bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --jdkPath="$JAVA_HOME" --accept-license
+        printf "n\n%s\n" "$JAVA_HOME" | bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --accept-license
     fi
 else
     echo "🔐 使用 GitHub Secrets 中的生产密钥"
@@ -115,7 +115,7 @@ else
         if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
             echo "🛠️  使用默认密钥初始化 bubblewrap 项目..."
             cd "$TWA_DIR"
-            echo "n" | bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --jdkPath="$JAVA_HOME" --accept-license
+            printf "n\n%s\n" "$JAVA_HOME" | bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --accept-license
         fi
         exit 0
     fi
@@ -124,14 +124,13 @@ else
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
         echo "🛠️  使用生产密钥初始化 bubblewrap 项目..."
         cd "$TWA_DIR"
-        echo "n" | bubblewrap init \
+        printf "n\n%s\n" "$JAVA_HOME" | bubblewrap init \
             --manifest="$DIST_DIR/manifest.json" \
             --directory="$TWA_DIR" \
             --keystorePath="production.keystore" \
             --keystorePass="$TWA_KEYSTORE_PASSWORD" \
             --keyPass="$TWA_KEY_PASSWORD" \
             --alias="$TWA_KEY_ALIAS" \
-            --jdkPath="$JAVA_HOME" \
             --accept-license
     else
         echo "📁 使用现有的 bubblewrap 项目配置"
