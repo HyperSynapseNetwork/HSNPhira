@@ -45,10 +45,10 @@ sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=accept-new deploy.tar.gz
 # 4. 远程部署逻辑
 echo "在服务器上执行原子替换与服务重启..."
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$SERVER_HOST" "
-    # 转换为 sudo 环境（如果需要），此处假设 DEPLOY_USER 有 sudo 权限或直接是 root
+    # 设置 sudo 命令
     SUDO=\"sudo\"
-    if [ \"\$(whoami)\" = \"root\" ]; then SUDO=\"\"; fi
-
+    [ \"\$(whoami)\" = \"root\" ] && SUDO=\"\"
+    
     DEPLOY_DIR=\"$DEPLOY_DIR\"
     TMP_DIR=\"/tmp/deploy_\$(date +%s)\"
     SERVICE_NAME=\"hsnpm-notification.service\"
