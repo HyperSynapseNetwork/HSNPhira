@@ -148,24 +148,6 @@ fi
 
 echo "✅ 前端环境配置完成"
 
-# 生成部署用的 assetlinks.json 文件（用于 TWA 数字资产链接）
-echo "🔗 生成 TWA 数字资产链接配置..."
-ASSETLINKS_DIR="$PROJECT_ROOT/public/.well-known"
-mkdir -p "$ASSETLINKS_DIR"
-
-cat > "$ASSETLINKS_DIR/assetlinks.json" << 'EOF'
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "web",
-      "site": "https://phira.htadiy.com"
-    }
-  }
-]
-EOF
-
-echo "✅ 数字资产链接文件已生成: $ASSETLINKS_DIR/assetlinks.json"
 
 # 创建部署配置说明
 echo "📋 创建部署说明..."
@@ -189,11 +171,6 @@ cat > "$DEPLOY_README" << 'EOF'
 - 开发环境: `.env.development` (需手动添加 VAPID 公钥)
 - VAPID 公钥: 已配置到生产环境
 
-### 3. TWA 数字资产链接
-- 文件: `public/.well-known/assetlinks.json`
-- 用途: Android TWA 应用验证
-- 需要部署到: `https://phira.htadiy.com/.well-known/assetlinks.json`
-
 ## 部署步骤
 
 ### 方案 A: 一体化部署（推荐）
@@ -214,7 +191,6 @@ cat > "$DEPLOY_README" << 'EOF'
    /www/wwwroot/phira.htadiy.com/
    ├── index.html
    ├── assets/
-   ├── .well-known/assetlinks.json
    └── hsnpm/ (HSNPM 二进制和配置)
    ```
 
@@ -234,11 +210,6 @@ cat > "$DEPLOY_README" << 'EOF'
        proxy_set_header Connection 'upgrade';
        proxy_set_header Host $host;
        proxy_cache_bypass $http_upgrade;
-   }
-
-   # 数字资产链接
-   location /.well-known/assetlinks.json {
-       alias /www/wwwroot/phira.htadiy.com/.well-known/assetlinks.json;
    }
    ```
 
@@ -260,11 +231,6 @@ cat > "$DEPLOY_README" << 'EOF'
    - 应返回 "OK"
    - 检查日志是否成功连接远程 SSE
 
-3. **TWA 验证**:
-   - 访问 https://phira.htadiy.com/.well-known/assetlinks.json
-   - 应返回正确的 JSON 内容
-   - 使用 Play Console 验证数字资产链接
-
 ## 故障排除
 
 ### 问题1: WebPush 订阅失败
@@ -276,11 +242,6 @@ cat > "$DEPLOY_README" << 'EOF'
 - 检查网络连接
 - 检查远程服务器地址是否正确
 - 查看 HSNPM 日志
-
-### 问题3: TWA 验证失败
-- 确保 assetlinks.json 可公开访问
-- 检查 JSON 格式是否正确
-- 验证网站与应用的关联关系
 
 ## 安全注意事项
 

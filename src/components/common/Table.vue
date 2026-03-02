@@ -111,7 +111,7 @@ function handleMouseMove(event: MouseEvent) {
   const centerX = rect.width / 2
   const centerY = rect.height / 2
   
-  const maxTilt = 4 // 最大倾斜角度（减小幅度）
+  const maxTilt = 2 // 最大倾斜角度（减半幅度）
   const rotateX = Math.max(-maxTilt, Math.min(maxTilt, (centerY - y) / 30))
   const rotateY = Math.max(-maxTilt, Math.min(maxTilt, (x - centerX) / 30))
   

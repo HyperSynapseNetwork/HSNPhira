@@ -67,29 +67,5 @@
       },
       "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-v0.6.7-linux-x64.zip"
     }
-  ],
-  "hsnphiraApps": [
-    {
-      "id": "hsnphira-android",
-      "title": {
-        "zh": "HSNPhira (Android)",
-        "zh-TW": "HSNPhira (Android)",
-        "en": "HSNPhira (Android)",
-        "ja": "HSNPhira (Android)"
-      },
-      "description": {
-        "zh": "HSNPhira安卓应用，通过TWA技术打包，提供原生应用体验",
-        "zh-TW": "HSNPhira安卓應用，通過TWA技術打包，提供原生應用體驗",
-        "en": "HSNPhira Android app, packaged with TWA technology, provides native app experience",
-        "ja": "HSNPhira Androidアプリ、TWA技術でパッケージ化、ネイティブアプリ体験を提供"
-      },
-      "buttonText": {
-        "zh": "下载 APK",
-        "zh-TW": "下載 APK",
-        "en": "Download APK",
-        "ja": "APKをダウンロード"
-      },
-      "buttonLink": "/apps/hsnphira.apk"
-    }
   ]
 }

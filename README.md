@@ -111,12 +111,7 @@ HSNPhira/
 │   ├── docker-compose.yml    # Docker Compose配置
 │   ├── Dockerfile            # Docker构建配置
 │   └── README.md             # HSNPM使用文档
-├── twa/                       # TWA（Android应用）配置
-│   └── twa-manifest.json     # TWA应用配置
 ├── scripts/                   # 构建和部署脚本
-│   ├── setup-twa.sh          # TWA一键安装配置脚本（推荐）
-│   ├── build-twa.sh          # TWA构建脚本（手动）
-│   ├── build-twa-auto.sh     # TWA自动化构建脚本（CI/CD）
 │   ├── update-download-config.js # 更新下载配置脚本
 │   ├── setup-webpush.sh      # WebPush配置脚本
 │   ├── generate-icons.js     # PWA图标生成脚本
@@ -129,7 +124,6 @@ HSNPhira/
 │   └── deploy-result.jpg     # 部署效果截图
 ├── .github/workflows/        # GitHub Actions工作流
 │   ├── build-on-push.yml     # 构建工作流
-│   └── deploy-on-push.yml    # 部署工作流（已禁用TWA构建）
 ├── package.json              # Node.js项目依赖和脚本
 ├── pnpm-lock.yaml            # pnpm依赖锁定文件
 ├── tsconfig.json             # TypeScript配置
@@ -152,17 +146,12 @@ HSNPhira/
 - 样式基于Tailwind CSS，支持响应式设计
 - 新增的配置文件系统支持动态页面内容管理
 - 新增PWA支持，可将页面安装为独立应用
-- 新增TWA支持，可通过Trusted Web Activity技术打包为Android应用
 - 新增深色模式、高对比度模式主题切换
 - 新增文档中心，支持Markdown格式文档渲染
 - 新增Schema结构化数据，优化SEO
 - 新增移动端全屏菜单，支持滚动条
 
-**TWA相关目录**：
-- `twa/` - TWA配置文件目录，包含`twa-manifest.json`等配置
 - `public/.well-known/` - 数字资产链接文件目录，包含`assetlinks.json`
-- `dist/apps/` - TWA构建输出目录，存放生成的APK文件
-- `scripts/` - 包含TWA构建和配置脚本，特别是`setup-twa.sh`一键安装脚本
 
 ## 快速开始
 
@@ -520,101 +509,6 @@ server {
 - 确保 Nginx 编译时包含 `--with-http_gzip_static_module` 和 `--add-module=/path/to/ngx_brotli`（如需 Brotli 支持）
 - 浏览器会自动根据 `Accept-Encoding` 请求头接收合适的压缩格式
 
-### TWA 构建（Android 应用）
-
-HSNPhira 支持通过 Trusted Web Activity (TWA) 技术打包为 Android 应用，提供原生应用体验。
-
-#### 使用一键安装脚本（推荐）
-
-项目提供了 `setup-twa.sh` 一键安装脚本，支持自动检测文件、生成所需文件、共享密钥库等签名文件。
-
-##### 功能特性
-
-- **自动检测**：检测 Java、Node.js、bubblewrap 等依赖
-- **智能配置**：自动创建/更新 TWA manifest 配置文件
-- **密钥库管理**：支持导入现有密钥库或创建新的调试密钥库
-- **数字资产链接**：自动生成并配置 `assetlinks.json`
-- **下载配置**：更新下载页面配置文件
-- **一键构建**：支持配置完成后自动构建 APK
-
-##### 使用方法
-
-1. **交互式配置**（推荐初次使用）：
-   ```bash
-   ./scripts/setup-twa.sh
-   ```
-   脚本会引导您完成所有配置步骤，包括密钥库设置、数字资产链接配置等。
-
-2. **自动模式**：
-   ```bash
-   ./scripts/setup-twa.sh --auto --build
-   ```
-   自动完成所有配置并构建 APK，使用默认值。
-
-3. **使用现有密钥库**：
-   ```bash
-   ./scripts/setup-twa.sh --keystore path/to/keystore \
-                         --password your_password \
-                         --alias key_alias \
-                         --fingerprint sha256_fingerprint \
-                         --build
-   ```
-
-4. **仅构建**（在配置完成后）：
-   ```bash
-   ./scripts/setup-twa.sh --build
-   ```
-
-##### 脚本选项
-
-| 选项 | 说明 |
-|------|------|
-| `-h, --help` | 显示帮助信息 |
-| `-a, --auto` | 自动模式（非交互式） |
-| `-k, --keystore <文件>` | 指定密钥库文件路径 |
-| `-p, --password <密码>` | 指定密钥库密码 |
-| `-A, --alias <别名>` | 指定密钥别名 |
-| `-f, --fingerprint <指纹>` | 指定 SHA256 证书指纹 |
-| `-d, --domain <域名>` | 指定数字资产链接域名 |
-| `-b, --build` | 构建 TWA APK |
-| `-s, --skip-deps` | 跳过依赖检查 |
-
-#### 手动构建步骤（备用方案）
-
-如果您需要手动控制构建过程，可以按照以下步骤操作：
-
-1. **环境准备**
-   - 安装 Java 11+ 和 Node.js
-   - 全局安装 `@bubblewrap/cli`：
-     ```bash
-     npm install -g @bubblewrap/cli
-     ```
-   - 确保已完成前端构建：`pnpm build`
-
-2. **构建步骤**
-   - 运行原始构建脚本：
-     ```bash
-     ./scripts/build-twa.sh
-     ```
-     或使用自动化脚本：
-     ```bash
-     ./scripts/build-twa-auto.sh
-     ```
-
-3. **部署数字资产链接**
-   - 将 `public/.well-known/assetlinks.json` 部署到网站根目录
-   - 确保 JSON 中的 SHA256 指纹与您的签名密钥匹配
-   - 数字资产链接必须可通过 `https://your-domain.com/.well-known/assetlinks.json` 访问
-
-#### 注意事项
-
-- **HTTPS 要求**：TWA 要求网站支持 HTTPS
-- **密钥安全**：妥善保管生产环境签名密钥
-- **版本管理**：更新应用版本时，需更新 `twa/twa-manifest.json` 中的版本号
-- **数字资产链接**：必须正确配置数字资产链接才能通过 Android 验证
-- **浏览器支持**：TWA 需要 Chrome 72+ 或支持 Trusted Web Activities 的浏览器
-
-更多细节请参考 [Google TWA 文档](https://developers.google.com/web/android/trusted-web-activity)。
 
 ## 开发指南
 
