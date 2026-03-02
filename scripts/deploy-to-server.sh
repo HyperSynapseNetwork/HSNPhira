@@ -44,7 +44,7 @@ sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=accept-new deploy.tar.gz
 
 # 4. 远程部署逻辑
 echo "在服务器上执行原子替换与服务重启..."
-sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$SERVER_HOST" "
+sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o ServerAliveCountMax=3 "$DEPLOY_USER@$SERVER_HOST" "
     # 设置 sudo 命令
     SUDO=\"sudo\"
     [ \"\$(whoami)\" = \"root\" ] && SUDO=\"\"
@@ -55,17 +55,18 @@ sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER
 
     echo \"创建临时目录并解压...\"
     mkdir -p \"\$TMP_DIR\"
-    tar -xzf /tmp/deploy.tar.gz -C \"\$TMP_DIR\"
+    tar -xzf /tmp/deploy.tar.gz -C \"\$TMP_DIR\" || { echo '❌ 解压失败'; exit 1; }
 
-    # --- 关键修复：处理运行中的 HSNPM ---
-    echo \"停止旧服务以释放文件锁...\"
-    # 修改1：增加超时，避免 systemctl stop 卡住
-    timeout 10s \$SUDO systemctl stop \$SERVICE_NAME 2>/dev/null || true
-    
-    # 强制兜底：如果 systemctl 没杀掉，使用 pkill
-    echo \"强制终止残留进程...\"
-    \$SUDO pkill -9 -f hsnpm-notification-service 2>/dev/null || true
-    sleep 2  # 给进程终止留一点时间
+    # --- 停止 HSNPM 服务 ---
+    echo \"停止 HSNPM 服务...\"
+    if \$SUDO systemctl is-active --quiet \"\$SERVICE_NAME\" 2>/dev/null; then
+        echo \"服务正在运行，正在停止...\"
+        \$SUDO systemctl stop \"\$SERVICE_NAME\"
+        echo \"等待服务完全停止...\"
+        sleep 2
+    else
+        echo \"服务未运行或不存在\"
+    fi
 
     # 备份现有 BingSiteAuth.xml
     if [ -f \"\$DEPLOY_DIR/BingSiteAuth.xml\" ]; then
@@ -74,8 +75,12 @@ sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER
 
     echo \"清理旧文件并部署新文件...\"
     # 保留目录结构，清空内容（避开 BingSiteAuth.xml）
-    find \"\$DEPLOY_DIR\" -mindepth 1 -maxdepth 1 -not -name \"BingSiteAuth.xml\" -exec rm -rf {} +
-    cp -r \"\$TMP_DIR\"/* \"\$DEPLOY_DIR\"/
+    if [ -d \"\$DEPLOY_DIR\" ]; then
+        find \"\$DEPLOY_DIR\" -mindepth 1 -maxdepth 1 -not -name \"BingSiteAuth.xml\" -exec rm -rf {} +
+    else
+        mkdir -p \"\$DEPLOY_DIR\"
+    fi
+    cp -r \"\$TMP_DIR\"/* \"\$DEPLOY_DIR\"/ || { echo '❌ 复制文件失败'; exit 1; }
 
     echo \"配置权限...\"
     chmod -R 755 \"\$DEPLOY_DIR\"
@@ -87,20 +92,25 @@ sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER
         echo \"更新 systemd 配置...\"
         \$SUDO cp \"\$DEPLOY_DIR/hsnpm/systemd/\$SERVICE_NAME\" \"/etc/systemd/system/\$SERVICE_NAME\"
         \$SUDO systemctl daemon-reload
-        \$SUDO systemctl enable \$SERVICE_NAME
+        \$SUDO systemctl enable \"\$SERVICE_NAME\"
         
         echo \"启动 HSNPM 服务...\"
-        \$SUDO systemctl start \$SERVICE_NAME
-        
-        # 检查是否成功启动
-        sleep 2
-        if \$SUDO systemctl is-active --quiet \$SERVICE_NAME; then
-            echo \"✅ HSNPM 服务启动成功\"
+        if \$SUDO systemctl start \"\$SERVICE_NAME\"; then
+            # 检查是否成功启动
+            sleep 2
+            if \$SUDO systemctl is-active --quiet \"\$SERVICE_NAME\"; then
+                echo \"✅ HSNPM 服务启动成功\"
+            else
+                echo \"❌ HSNPM 服务启动失败，请检查日志\"
+                \$SUDO journalctl -u \"\$SERVICE_NAME\" -n 20 --no-pager
+                exit 1
+            fi
         else
-            echo \"❌ HSNPM 服务启动失败，请检查日志\"
-            \$SUDO journalctl -u \$SERVICE_NAME -n 20 --no-pager
+            echo \"❌ 启动命令执行失败\"
             exit 1
         fi
+    else
+        echo \"⚠️  未找到 systemd 服务文件，跳过服务部署\"
     fi
 
     echo \"清理临时文件...\"
