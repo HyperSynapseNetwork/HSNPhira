@@ -10,6 +10,8 @@
       <button
         class="md:hidden p-2 rounded-lg glass hover:bg-white/10 transition-colors"
         @click="toggleMobileMenu"
+        :aria-label="t('common.menu')"
+        :title="t('common.menu')"
       >
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -23,8 +25,8 @@
             v-for="route in navRoutes"
             :key="route.path"
             :to="route.path"
-            class="px-4 py-1.5 rounded-xl glass hover:bg-white/10 text-white text-sm whitespace-nowrap transition-all"
-            :class="{ 'bg-primary/40 ring-1 ring-primary shadow-lg': $route.path === route.path }"
+            class="px-4 py-1.5 rounded-xl glass-thin hover:bg-white/5 text-white text-sm whitespace-nowrap transition-all"
+            :class="{ 'bg-primary/30 ring-1 ring-primary/60 shadow-lg': $route.path === route.path }"
           >
             {{ t(route.nameKey) }}
           </router-link>
@@ -170,120 +172,149 @@
     </div>
 
     <!-- 移动端菜单 -->
-    <transition name="mobile-menu">
-      <div v-if="showMobileMenu" class="md:hidden glass-dark" @click.self="closeMobileMenu">
-        <div class="p-4 max-h-[calc(100vh-120px)] overflow-y-auto">
-          <!-- 导航链接 -->
-          <div class="space-y-2 mb-4">
-            <router-link
-              v-for="route in navRoutes"
-              :key="route.path"
-              :to="route.path"
-              class="block px-4 py-2 rounded-lg hover:bg-white/10 text-white transition-colors text-sm"
-              :class="{ 'bg-primary/40': $route.path === route.path }"
-              @click="closeMobileMenu"
-            >
-              {{ t(route.nameKey) }}
-            </router-link>
-          </div>
-
-          <div class="pt-4 border-t border-white/20 space-y-2">
-            <!-- 语言切换 -->
-            <div class="px-4 py-2 text-white/60 text-xs">{{ t('common.language') }}</div>
-            <select
-              v-model="currentLanguage"
-              @change="changeLang(currentLanguage); closeMobileMenu()"
-              class="w-full px-4 py-2 rounded-lg glass text-white bg-transparent border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="zh">简体中文</option>
-              <option value="zh-TW">繁體中文</option>
-              <option value="en">English</option>
-              <option value="ja">日本語</option>
-            </select>
-
-            <!-- 主题切换 -->
-            <div class="px-4 py-2 text-white/60 text-xs">{{ t('common.theme') }}</div>
-            <button
-              class="w-full px-4 py-2 rounded-lg glass hover:bg-white/10 text-white transition-colors text-sm flex items-center justify-between"
-              @click="themeStore.toggleDarkMode(); closeMobileMenu()"
-            >
-              <span>{{ getThemeLabel() }}</span>
-              <div class="flex items-center">
-                <svg v-if="themeStore.themeMode === 'light'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg v-else-if="themeStore.themeMode === 'dark'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-                <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                  <defs>
-                    <linearGradient id="hc-glass-mobile" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
-                      <stop offset="100%" stop-color="#F0F0F0" stop-opacity="0.2" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="12" cy="12" r="10" fill="url(#hc-glass-mobile)" stroke="#B0B0B0" stroke-width="0.5" />
-                  <path d="M12,4 A8,8 0 0 0 12,20" fill="#2B2B2B" />
-                  <path d="M12,4 A8,8 0 0 1 12,20" fill="#E0E0E0" />
-                  <circle cx="15" cy="9" r="1.5" fill="#FFFFFF" fill-opacity="0.9" />
-                  <circle cx="12" cy="12" r="9" fill="none" stroke="#4A4A4A" stroke-width="0.6" stroke-opacity="0.3" />
-                </svg>
-              </div>
-            </button>
-
-            <!-- 安装按钮 -->
-            <button
-              v-if="shouldShowInstallButton"
-              class="w-full px-4 py-2 rounded-lg glass hover:bg-white/10 text-white transition-colors text-sm flex items-center justify-between"
-              @click="handleInstallClick"
-            >
-              <span>{{ t('common.installApp') }}</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
-
-            <!-- 登录或用户菜单 -->
-            <template v-if="!userStore.isLoggedIn">
+    <Teleport to="body">
+      <transition name="mobile-menu">
+        <div v-if="showMobileMenu" class="md:hidden fixed inset-0 z-[100] bg-black/60" @click.self="closeMobileMenu">
+          <div class="fixed inset-0 glass-dark mobile-menu-content">
+            <!-- 顶部标题栏 -->
+            <div class="fixed top-0 left-0 right-0 h-16 glass flex items-center justify-between px-6 z-10">
+              <div class="text-white font-medium text-lg">{{ t('common.menu') }}</div>
               <button
-                class="w-full px-4 py-2 rounded-lg glass hover:bg-white/10 text-white transition-colors text-sm"
-                @click="showAuthWindow(); closeMobileMenu()"
-              >
-                {{ t('common.login') }}
-              </button>
-            </template>
-
-            <template v-else>
-              <router-link
-                to="/account"
-                class="block px-4 py-2 rounded-lg hover:bg-white/10 text-white transition-colors text-sm"
+                class="p-2 rounded-lg hover:bg-white/10 transition-colors"
                 @click="closeMobileMenu"
+                :aria-label="t('common.closeMenu')"
+                :title="t('common.closeMenu')"
               >
-                {{ t('common.account') }}
-              </router-link>
-              <a
-                :href="`https://phira.moe/user/${userStore.user?.phira_id}`"
-                target="_blank"
-                class="block px-4 py-2 rounded-lg hover:bg-white/10 text-white transition-colors text-sm"
-              >
-                Phira{{ t('common.homepage') }}
-              </a>
-              <button
-                class="w-full text-left px-4 py-2 rounded-lg hover:bg-white/10 text-red-400 transition-colors text-sm"
-                @click="handleLogout(); closeMobileMenu()"
-              >
-                {{ t('common.logout') }}
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-            </template>
+            </div>
+            
+            <!-- 可滚动内容区域 -->
+            <div class="h-full overflow-y-auto pt-16 pb-6 px-6">
+              <!-- 导航链接 -->
+              <div class="space-y-2 mb-6">
+                <router-link
+                  v-for="route in navRoutes"
+                  :key="route.path"
+                  :to="route.path"
+                  class="block px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-white transition-colors text-base"
+                  :class="{ 'bg-primary/40 ring-1 ring-primary/60 shadow-lg': $route.path === route.path }"
+                  @click="closeMobileMenu"
+                >
+                  {{ t(route.nameKey) }}
+                </router-link>
+              </div>
+
+              <div class="pt-6 border-t border-white/20 space-y-4">
+                <!-- 语言切换 -->
+                <div>
+                  <div class="px-4 py-2 text-white/60 text-sm mb-1">{{ t('common.language') }}</div>
+                  <select
+                    v-model="currentLanguage"
+                    @change.stop="changeLang(currentLanguage)"
+                    @click.stop
+                    @mousedown.stop
+                    @focus.stop
+                    @blur.stop
+                    class="w-full px-6 py-3 rounded-xl glass-thin text-white bg-transparent border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="zh">简体中文</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                  </select>
+                </div>
+
+                <!-- 主题切换 -->
+                <div>
+                  <div class="px-4 py-2 text-white/60 text-sm mb-1">{{ t('common.theme') }}</div>
+                  <button
+                    class="w-full px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-white transition-colors flex items-center justify-between"
+                    @click="themeStore.toggleDarkMode(); closeMobileMenu()"
+                  >
+                    <span>{{ getThemeLabel() }}</span>
+                    <div class="flex items-center">
+                      <svg v-if="themeStore.themeMode === 'light'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      <svg v-else-if="themeStore.themeMode === 'dark'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                      <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <defs>
+                          <linearGradient id="hc-glass-mobile" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8" />
+                            <stop offset="100%" stop-color="#F0F0F0" stop-opacity="0.2" />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="12" cy="12" r="10" fill="url(#hc-glass-mobile)" stroke="#B0B0B0" stroke-width="0.5" />
+                        <path d="M12,4 A8,8 0 0 0 12,20" fill="#2B2B2B" />
+                        <path d="M12,4 A8,8 0 0 1 12,20" fill="#E0E0E0" />
+                        <circle cx="15" cy="9" r="1.5" fill="#FFFFFF" fill-opacity="0.9" />
+                        <circle cx="12" cy="12" r="9" fill="none" stroke="#4A4A4A" stroke-width="0.6" stroke-opacity="0.3" />
+                      </svg>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- 安装按钮 -->
+                <div v-if="showInstallButton">
+                  <button
+                    class="w-full px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-white transition-colors flex items-center justify-between"
+                    @click="handleInstallClick"
+                  >
+                    <span>{{ t('common.installApp') }}</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- 登录或用户菜单 -->
+                <template v-if="!userStore.isLoggedIn">
+                  <button
+                    class="w-full px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-white transition-colors"
+                    @click="showAuthWindow(); closeMobileMenu()"
+                  >
+                    {{ t('common.login') }}
+                  </button>
+                </template>
+
+                <template v-else>
+                  <router-link
+                    to="/account"
+                    class="block px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-white transition-colors"
+                    @click="closeMobileMenu"
+                  >
+                    {{ t('common.account') }}
+                  </router-link>
+                  <a
+                    :href="`https://phira.moe/user/${userStore.user?.phira_id}`"
+                    target="_blank"
+                    class="block px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-white transition-colors"
+                  >
+                    Phira{{ t('common.homepage') }}
+                  </a>
+                  <button
+                    class="w-full text-left px-6 py-3 rounded-xl glass-thin hover:bg-white/10 text-red-400 transition-colors"
+                    @click="handleLogout(); closeMobileMenu()"
+                  >
+                    {{ t('common.logout') }}
+                  </button>
+                </template>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </Teleport>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store'
 import { useI18nStore } from '@/stores/i18n'
@@ -309,8 +340,6 @@ const langMenuRef = ref<HTMLElement>()
 const installPrompt = ref<any>(null)
 const showInstallButton = ref(false)
 
-// 是否显示安装按钮（总是显示）
-const shouldShowInstallButton = computed(() => true)
 
 const navRoutes = [
   { path: '/', nameKey: 'nav.home' },
@@ -394,20 +423,12 @@ async function handleInstall() {
 // 处理安装按钮点击（支持PWA安装和应用安装选择）
 async function handleInstallClick() {
   closeMobileMenu()
-  
+
   if (installPrompt.value) {
-    // 支持PWA安装，让用户选择安装方式
-    const userChoice = confirm('选择安装方式：\n\n"确定" - 安装为PWA应用（浏览器内）\n"取消" - 前往下载页面（下载独立应用）')
-    
-    if (userChoice) {
-      // 用户选择PWA安装
-      await handleInstall()
-    } else {
-      // 用户选择应用安装，跳转到下载页面
-      router.push('/phira-download')
-    }
+    // 支持PWA安装，直接触发PWA安装
+    await handleInstall()
   } else {
-    // 不支持PWA安装，直接跳转到下载页面
+    // 不支持PWA安装，跳转到下载页面
     router.push('/phira-download')
   }
 }
@@ -522,12 +543,21 @@ onUnmounted(() => {
 
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {
-  transition: opacity 0.3s, transform 0.3s;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-enter-active .mobile-menu-content,
+.mobile-menu-leave-active .mobile-menu-content {
+  transition: transform 0.3s ease;
 }
 
 .mobile-menu-enter-from,
 .mobile-menu-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+}
+
+.mobile-menu-enter-from .mobile-menu-content,
+.mobile-menu-leave-to .mobile-menu-content {
+  transform: translateX(100%);
 }
 </style>

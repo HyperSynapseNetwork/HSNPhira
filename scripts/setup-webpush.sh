@@ -32,43 +32,74 @@ else
     echo "✅ web-push 工具已安装"
 fi
 
-# 生成 VAPID 密钥
-echo "🔑 生成 VAPID 密钥..."
-KEYS_OUTPUT=$(web-push generate-vapid-keys 2>&1)
-
-# 提取公钥和私钥
-VAPID_PUBLIC_KEY=$(echo "$KEYS_OUTPUT" | grep -oP 'Public Key:\s*\K[^ \n]*' | head -1)
-VAPID_PRIVATE_KEY=$(echo "$KEYS_OUTPUT" | grep -oP 'Private Key:\s*\K[^ \n]*' | head -1)
-
-if [ -z "$VAPID_PUBLIC_KEY" ] || [ -z "$VAPID_PRIVATE_KEY" ]; then
-    echo "❌ 无法提取 VAPID 密钥，尝试其他方式..."
-    # 尝试手动生成
-    TEMP_DIR=$(mktemp -d)
-    cd "$TEMP_DIR"
+# 检查是否已提供VAPID密钥环境变量
+USE_ENV_VARS=false
+if [ -n "$VAPID_PUBLIC_KEY" ] && [ -n "$VAPID_PRIVATE_KEY" ]; then
+    echo "🔑 检测到环境变量 VAPID 密钥"
+    echo "公钥长度: ${#VAPID_PUBLIC_KEY}"
     
-    # 生成 ECDSA 密钥对
-    openssl ecparam -genkey -name prime256v1 -out private_key.pem 2>/dev/null || {
-        echo "❌ OpenSSL 未安装或生成密钥失败"
+    # 验证公钥格式
+    if [[ "$VAPID_PUBLIC_KEY" =~ ^[A-Za-z0-9_-]+$ ]] && [ ${#VAPID_PUBLIC_KEY} -eq 87 ]; then
+        echo "✅ 环境变量公钥格式正确 (URL-safe base64, 87字符)"
+        USE_ENV_VARS=true
+    else
+        echo "⚠️  环境变量公钥格式不正确，将生成新密钥"
+        echo "⚠️  期望: 87字符 URL-safe base64 (仅包含字母、数字、-、_)"
+        echo "⚠️  实际: ${#VAPID_PUBLIC_KEY}字符"
+    fi
+fi
+
+if [ "$USE_ENV_VARS" = false ]; then
+    # 生成 VAPID 密钥
+    echo "🔑 生成新的 VAPID 密钥..."
+    KEYS_OUTPUT=$(web-push generate-vapid-keys 2>&1)
+
+    # 提取公钥和私钥
+    VAPID_PUBLIC_KEY=$(echo "$KEYS_OUTPUT" | grep -oP 'Public Key:\s*\K[^ \n]*' | head -1)
+    VAPID_PRIVATE_KEY=$(echo "$KEYS_OUTPUT" | grep -oP 'Private Key:\s*\K[^ \n]*' | head -1)
+
+    # 确保公钥是URL-safe base64格式（替换+为-，/为_，删除填充=）
+    if [ -n "$VAPID_PUBLIC_KEY" ]; then
+        VAPID_PUBLIC_KEY=$(echo "$VAPID_PUBLIC_KEY" | tr '+' '-' | tr '/' '_' | sed 's/=*$//')
+    fi
+
+    if [ -z "$VAPID_PUBLIC_KEY" ] || [ -z "$VAPID_PRIVATE_KEY" ]; then
+        echo "❌ 无法提取 VAPID 密钥，尝试其他方式..."
+        # 尝试手动生成
+        TEMP_DIR=$(mktemp -d)
+        cd "$TEMP_DIR"
+
+        # 生成 ECDSA 密钥对
+        openssl ecparam -genkey -name prime256v1 -out private_key.pem 2>/dev/null || {
+            echo "❌ OpenSSL 未安装或生成密钥失败"
+            exit 1
+        }
+
+        # 提取私钥（PEM格式）
+        VAPID_PRIVATE_KEY=$(cat private_key.pem)
+
+        # 提取公钥（Base64格式）并转换为URL-safe base64
+        # 提取未压缩点坐标（最后65字节）并直接base64编码
+        VAPID_PUBLIC_KEY=$(openssl ec -in private_key.pem -pubout -outform DER 2>/dev/null | tail -c 65 | base64 -w 0 2>/dev/null || openssl ec -in private_key.pem -pubout -outform DER 2>/dev/null | tail -c 65 | base64 | tr -d '\n')
+        # 转换为URL-safe base64
+        VAPID_PUBLIC_KEY=$(echo "$VAPID_PUBLIC_KEY" | tr '+' '-' | tr '/' '_' | sed 's/=*$//')
+
+        cd "$PROJECT_ROOT"
+        rm -rf "$TEMP_DIR"
+    fi
+
+    if [ -z "$VAPID_PUBLIC_KEY" ] || [ -z "$VAPID_PRIVATE_KEY" ]; then
+        echo "❌ 生成 VAPID 密钥失败"
         exit 1
-    }
+    fi
     
-    # 提取私钥（PEM格式）
-    VAPID_PRIVATE_KEY=$(cat private_key.pem)
-    
-    # 提取公钥（Base64格式）
-    VAPID_PUBLIC_KEY=$(openssl ec -in private_key.pem -pubout -outform DER 2>/dev/null | tail -c 65 | xxd -p -c 65 | base64 | tr -d '\n')
-    
-    cd "$PROJECT_ROOT"
-    rm -rf "$TEMP_DIR"
+    echo "✅ 新生成的 VAPID 公钥: ${VAPID_PUBLIC_KEY:0:20}..."
+    echo "✅ 新生成的 VAPID 私钥: ${VAPID_PRIVATE_KEY:0:50}..."
+else
+    echo "✅ 使用环境变量中的 VAPID 密钥"
+    echo "✅ VAPID 公钥: ${VAPID_PUBLIC_KEY:0:20}..."
+    echo "✅ VAPID 私钥: ${VAPID_PRIVATE_KEY:0:50}..."
 fi
-
-if [ -z "$VAPID_PUBLIC_KEY" ] || [ -z "$VAPID_PRIVATE_KEY" ]; then
-    echo "❌ 生成 VAPID 密钥失败"
-    exit 1
-fi
-
-echo "✅ VAPID 公钥: ${VAPID_PUBLIC_KEY:0:20}..."
-echo "✅ VAPID 私钥: ${VAPID_PRIVATE_KEY:0:50}..."
 
 # 配置 HSNPM 后端
 echo "⚙️  配置 HSNPM 后端..."

@@ -69,8 +69,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Configure WebPush VAPID keys
+        env:
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
         run: |
           echo "🔑 配置 WebPush VAPID 密钥..."
+          echo "使用 GitHub Secrets 中的 VAPID 密钥（如果已配置）"
           chmod +x ./scripts/setup-webpush.sh
           ./scripts/setup-webpush.sh
           echo "✅ WebPush 配置完成"
