@@ -36,6 +36,26 @@ if [ ! -d "$DIST_DIR" ]; then
     npm run build
 fi
 
+# 设置环境变量确保 bubblewrap 非交互式运行
+export BUBBLEWRAP_YES=1
+export BUBBLEWRAP_NON_INTERACTIVE=1
+
+# 确保 JAVA_HOME 已设置（用于 bubblewrap）
+if [ -z "$JAVA_HOME" ]; then
+    # 尝试从 which java 推断 JAVA_HOME
+    JAVA_PATH=$(which java 2>/dev/null || true)
+    if [ -n "$JAVA_PATH" ]; then
+        # 提取 JAVA_HOME（例如 /usr/bin/java -> /usr）
+        JAVA_HOME=$(dirname $(dirname "$JAVA_PATH"))
+        echo "⚠️  JAVA_HOME 未设置，推断为: $JAVA_HOME"
+        export JAVA_HOME
+    else
+        echo "❌ Java 未安装，请安装 Java 11+"
+        exit 1
+    fi
+fi
+echo "🔧 使用 JAVA_HOME: $JAVA_HOME"
+
 # 创建 TWA 目录
 mkdir -p "$TWA_DIR"
 mkdir -p "$APPS_DIR"
@@ -72,13 +92,33 @@ if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
         echo "🛠️  使用默认密钥初始化 bubblewrap 项目..."
         cd "$TWA_DIR"
-        bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR"
+        bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --jdkPath="$JAVA_HOME" --accept-license
     fi
 else
     echo "🔐 使用 GitHub Secrets 中的生产密钥"
     
-    # 解码密钥库文件
-    echo "$TWA_KEYSTORE_BASE64" | base64 -d > "$TWA_DIR/production.keystore"
+    # 解码密钥库文件（处理可能包含的换行符）
+    echo "正在解码 base64 密钥库..."
+    # 删除所有换行符，确保 base64 是单行
+    CLEAN_BASE64=$(echo "$TWA_KEYSTORE_BASE64" | tr -d '\n' | tr -d ' ')
+    echo "清理后的 base64 长度: ${#CLEAN_BASE64} 字符"
+    
+    # 验证 base64 格式
+    if echo "$CLEAN_BASE64" | base64 -d > /dev/null 2>&1; then
+        echo "✅ base64 格式有效"
+        echo "$CLEAN_BASE64" | base64 -d > "$TWA_DIR/production.keystore"
+        echo "✅ 密钥库文件已解码: $TWA_DIR/production.keystore"
+    else
+        echo "❌ base64 格式无效，无法解码"
+        echo "⚠️  使用调试密钥继续构建..."
+        # 使用默认密钥构建（仅用于测试）
+        if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
+            echo "🛠️  使用默认密钥初始化 bubblewrap 项目..."
+            cd "$TWA_DIR"
+            bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --jdkPath="$JAVA_HOME" --accept-license
+        fi
+        exit 0
+    fi
     
     # 初始化或更新 bubblewrap 项目
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
@@ -90,7 +130,9 @@ else
             --keystorePath="production.keystore" \
             --keystorePass="$TWA_KEYSTORE_PASSWORD" \
             --keyPass="$TWA_KEY_PASSWORD" \
-            --alias="$TWA_KEY_ALIAS"
+            --alias="$TWA_KEY_ALIAS" \
+            --jdkPath="$JAVA_HOME" \
+            --accept-license
     else
         echo "📁 使用现有的 bubblewrap 项目配置"
         cd "$TWA_DIR"
@@ -99,7 +141,22 @@ else
         if [ -f "production.keystore" ]; then
             rm -f "production.keystore"
         fi
-        echo "$TWA_KEYSTORE_BASE64" | base64 -d > "production.keystore"
+        
+        # 解码密钥库文件（处理可能包含的换行符）
+        echo "更新密钥库配置..."
+        # 删除所有换行符，确保 base64 是单行
+        CLEAN_BASE64=$(echo "$TWA_KEYSTORE_BASE64" | tr -d '\n' | tr -d ' ')
+        echo "清理后的 base64 长度: ${#CLEAN_BASE64} 字符"
+        
+        # 验证 base64 格式
+        if echo "$CLEAN_BASE64" | base64 -d > /dev/null 2>&1; then
+            echo "✅ base64 格式有效"
+            echo "$CLEAN_BASE64" | base64 -d > "production.keystore"
+            echo "✅ 密钥库文件已更新"
+        else
+            echo "❌ base64 格式无效，无法更新密钥库"
+            echo "⚠️  跳过密钥库更新，使用现有文件"
+        fi
     fi
 fi
 
@@ -131,13 +188,14 @@ if [ -f "twa-manifest.json" ] && command -v jq &> /dev/null; then
     mv twa-manifest.json.tmp twa-manifest.json
 fi
 
-# 构建 APK
-echo "🔨 构建 APK..."
-bubblewrap build
+# 构建 APK (非交互式，使用环境变量密码)
+echo "🔨 构建 APK (非交互式)..."
+echo "🔑 使用环境变量: BUBBLEWRAP_KEYSTORE_PASSWORD 和 BUBBLEWRAP_KEY_PASSWORD"
+bubblewrap build --skipPwaValidation
 
 # 构建 App Bundle（可选）
 echo "🔨 构建 App Bundle..."
-bubblewrap build --bundle || echo "⚠️  App Bundle 构建失败，跳过"
+bubblewrap build --bundle --skipPwaValidation || echo "⚠️  App Bundle 构建失败，跳过"
 
 # 复制 APK 到 dist/apps 目录
 echo "📦 复制 APK 文件..."

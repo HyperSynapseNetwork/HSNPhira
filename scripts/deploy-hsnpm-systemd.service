@@ -1,0 +1,24 @@
+[Unit]
+Description=HSNPM Notification Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/www/wwwroot/phira.htadiy.cc/hsnpm
+EnvironmentFile=/www/wwwroot/phira.htadiy.cc/hsnpm/.env
+ExecStart=/www/wwwroot/phira.htadiy.cc/hsnpm/hsnpm-notification-service
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hsnpm-notification
+ProtectSystem=strict
+ReadWritePaths=/www/wwwroot/phira.htadiy.cc/hsnpm
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

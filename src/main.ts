@@ -5,6 +5,7 @@ import { routes } from './router'
 import './styles/main.css'
 import { loadAllConfigs, initializeUserPreferences } from './utils/config'
 import { useI18nStore } from './stores/i18n'
+import './utils/notification' // 导入以初始化通知服务
 
 export const createApp = ViteSSG(
   App,

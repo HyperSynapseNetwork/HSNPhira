@@ -1,28 +1,44 @@
 use std::collections::HashMap;
+use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, SystemTime};
+use std::time::Duration;
 
 use chrono::{DateTime, Utc};
-use futures::StreamExt;
 use reqwest::{Client, Response};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{self, Value};
 use tokio::sync::broadcast;
-use tokio_stream::wrappers::BroadcastStream;
 use uuid::Uuid;
 use warp::{Filter, Reply};
-use web_push::{WebPushClient, WebPushMessageBuilder, SubscriptionInfo, SubscriptionKeys, VapidSignatureBuilder};
+use web_push::{IsahcWebPushClient, WebPushMessageBuilder, SubscriptionInfo, SubscriptionKeys, VapidSignatureBuilder, ContentEncoding, WebPushClient};
 
 type Subscriptions = Arc<Mutex<HashMap<String, Subscription>>>;
 type RoomEventSender = broadcast::Sender<RoomEvent>;
 
 /// Web-Push 订阅信息
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Subscription {
     endpoint: String,
     keys: SubscriptionKeys,
     expires_at: Option<DateTime<Utc>>,
     user_id: Option<u64>,
+}
+
+impl Clone for Subscription {
+    fn clone(&self) -> Self {
+        // SubscriptionKeys 可能没有实现 Clone，所以我们需要手动复制其字段
+        // 假设 SubscriptionKeys 有 p256dh 和 auth 字段
+        // 但我们可以使用序列化和反序列化来克隆
+        let keys_json = serde_json::to_string(&self.keys).expect("Failed to serialize keys");
+        let keys: SubscriptionKeys = serde_json::from_str(&keys_json).expect("Failed to deserialize keys");
+        
+        Subscription {
+            endpoint: self.endpoint.clone(),
+            keys,
+            expires_at: self.expires_at,
+            user_id: self.user_id,
+        }
+    }
 }
 
 /// 房间事件（从远程SSE接收）
@@ -118,7 +134,7 @@ async fn main() {
     let addr = format!("0.0.0.0:{}", port);
     println!("🚀 HSNPM通知服务启动于 http://{}", addr);
     println!("📡 正在连接到远程SSE: {}/api/rooms/listen", state.remote_server_url);
-    warp::serve(routes).run(addr.parse().unwrap()).await;
+    warp::serve(routes).run(addr.parse::<SocketAddr>().unwrap()).await;
 }
 
 /// API路由定义
@@ -300,33 +316,48 @@ async fn send_single_web_push_notification(
     body: &str,
     room_name: &str,
 ) -> Result<(), web_push::WebPushError> {
-    let client = WebPushClient::new()?;
+    let client = IsahcWebPushClient::new()?;
 
     // 构建VAPID签名
-    let signature = VapidSignatureBuilder::from_pem(
-        &state.vapid_private_key,
-        &subscription.endpoint,
-        &state.vapid_subject,
-    )?
-    .build()?;
+    // 首先创建 SubscriptionInfo
+    // 克隆 SubscriptionKeys 通过序列化/反序列化
+    let keys_json = serde_json::to_string(&subscription.keys).expect("Failed to serialize keys");
+    let keys: SubscriptionKeys = serde_json::from_str(&keys_json).expect("Failed to deserialize keys");
+    
+    let subscription_info = SubscriptionInfo {
+        endpoint: subscription.endpoint.clone(),
+        keys,
+    };
+    
+    let mut builder = VapidSignatureBuilder::from_pem(
+        &*state.vapid_private_key,
+        &subscription_info,
+    )?;
+    builder.add_claim("sub", state.vapid_subject.as_str());
+    let signature = builder.build()?;
 
     // 构建通知消息
-    let message = WebPushMessageBuilder::new(subscription)
-        .vapid_signature(signature)
-        .payload(
-            serde_json::json!({
-                "title": title,
-                "body": body,
-                "icon": format!("{}/logo.png", state.remote_server_url),
-                "tag": "room-creation", // 使用相同的tag避免重复通知
-                "data": {
-                    "room": room_name,
-                    "url": format!("{}/rooms", state.remote_server_url)
-                }
-            }).to_string().as_bytes()
-        )
-        .ttl(86400) // 24小时TTL
-        .build()?;
+    let mut message_builder = WebPushMessageBuilder::new(&subscription_info);
+    message_builder.set_vapid_signature(signature);
+    
+    // 构建 payload JSON
+    let payload_json = serde_json::json!({
+        "title": title,
+        "body": body,
+        "icon": format!("{}/logo.png", state.remote_server_url),
+        "tag": "room-creation", // 使用相同的tag避免重复通知
+        "data": {
+            "room": room_name,
+            "url": format!("{}/rooms", state.remote_server_url)
+        }
+    }).to_string();
+    
+    message_builder.set_payload(
+        ContentEncoding::Aes128Gcm,
+        payload_json.as_bytes()
+    );
+    message_builder.set_ttl(86400); // 24小时TTL
+    let message = message_builder.build()?;
 
     client.send(message).await?;
     Ok(())

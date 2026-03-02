@@ -1,4 +1,4 @@
-name: Deploy on Push
+name: "Deploy on Push"
 
 on:
   push:
@@ -102,14 +102,18 @@ jobs:
           TWA_KEY_ALIAS: ${{ secrets.TWA_KEY_ALIAS }}
           TWA_KEY_PASSWORD: ${{ secrets.TWA_KEY_PASSWORD }}
           TWA_SHA256_FINGERPRINT: ${{ secrets.TWA_SHA256_FINGERPRINT }}
+          # Bubblewrap 非交互式构建环境变量
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.TWA_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.TWA_KEY_PASSWORD }}
         run: |
           echo "🚀 开始自动化构建 TWA Android APK..."
           # 检查是否安装了 Java 和 bubblewrap
           if command -v java &> /dev/null && npm list -g @bubblewrap/cli &> /dev/null; then
             echo "环境就绪，开始构建 TWA APK..."
+            echo "🔑 使用环境变量: BUBBLEWRAP_KEYSTORE_PASSWORD 和 BUBBLEWRAP_KEY_PASSWORD"
             chmod +x ./scripts/build-twa-auto.sh
             ./scripts/build-twa-auto.sh
-            
+
             # 检查构建结果
             if [ -d "dist/apps" ] && [ "$(ls -A dist/apps 2>/dev/null)" ]; then
               echo "✅ TWA APK 构建成功"
@@ -169,346 +173,24 @@ jobs:
 
       - name: Deploy to server
         env:
-          SSH_PASSWORD: ${{ secrets.SSH_PRIVATE_KEY }}   # 将密码存入环境变量
+          SSH_PASSWORD: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo "开始部署到服务器..."
-          echo "服务器: ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}"
-          echo "目标目录: /www/wwwroot/phira.htadiy.cc"
-
-          # 创建临时目录并压缩构建产物
-          mkdir -p deploy_temp
-          cp -r dist/* deploy_temp/
-          
-          # 添加 HSNPM 通知服务
-          echo "添加 HSNPM 通知服务文件..."
-          mkdir -p deploy_temp/hsnpm
-          
-          # 复制 HSNPM 二进制文件
-          if [ -f "HSNPM/target/release/hsnpm-notification-service" ]; then
-            cp HSNPM/target/release/hsnpm-notification-service deploy_temp/hsnpm/
-            chmod +x deploy_temp/hsnpm/hsnpm-notification-service
-            echo "✅ HSNPM 二进制文件已添加"
-          fi
-          
-          # 复制 HSNPM 配置文件
-          if [ -f "HSNPM/.env" ]; then
-            cp HSNPM/.env deploy_temp/hsnpm/
-            echo "✅ HSNPM 配置文件已添加"
-          fi
-          
-          # 复制 HSNPM README 和文档
-          if [ -f "HSNPM/README.md" ]; then
-            cp HSNPM/README.md deploy_temp/hsnpm/
-          fi
-          
-          # 创建启动脚本
-          cat > deploy_temp/hsnpm/start.sh << 'EOF2'
-#!/bin/bash
-# HSNPM 通知服务启动脚本 - 支持 systemd 和传统启动方式
-
-set -e
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SERVICE_NAME="hsnpm-notification"
-BINARY="$SCRIPT_DIR/hsnpm-notification-service"
-ENV_FILE="$SCRIPT_DIR/.env"
-SYSTEMD_SERVICE="hsnpm-notification.service"
-SYSTEMD_FILE="/etc/systemd/system/$SYSTEMD_SERVICE"
-
-# 检查二进制文件
-if [ ! -f "$BINARY" ]; then
-    echo "❌ HSNPM 二进制文件不存在: $BINARY"
-    exit 1
-fi
-
-# 设置环境变量
-if [ -f "$ENV_FILE" ]; then
-    echo "📄 加载环境变量: $ENV_FILE"
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
-fi
-
-echo "🔍 检查 HSNPM 服务状态..."
-
-# 检查是否已在运行
-if pgrep -f "$BINARY" > /dev/null; then
-    echo "⚠️  HSNPM 服务已在运行，先停止..."
-    # 尝试使用 systemd 停止
-    if command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet "$SYSTEMD_SERVICE" 2>/dev/null; then
-        echo "使用 systemctl 停止服务..."
-        systemctl stop "$SYSTEMD_SERVICE" || true
-    else
-        # 传统方式停止
-        pkill -f "$BINARY" || true
-    fi
-    sleep 2
-fi
-
-# 优先使用 systemd 启动
-if command -v systemctl >/dev/null 2>&1 && [ -f "$SYSTEMD_FILE" ]; then
-    echo "🚀 使用 systemd 启动 HSNPM 服务..."
-    
-    # 确保服务已启用（开机自启）
-    if ! systemctl is-enabled "$SYSTEMD_SERVICE" >/dev/null 2>&1; then
-        echo "启用 systemd 服务（开机自启）..."
-        systemctl enable "$SYSTEMD_SERVICE" || echo "⚠️  无法启用服务，继续启动..."
-    fi
-    
-    # 启动服务
-    systemctl start "$SYSTEMD_SERVICE"
-    
-    # 等待并检查状态
-    sleep 3
-    if systemctl is-active --quiet "$SYSTEMD_SERVICE"; then
-        echo "✅ HSNPM systemd 服务已启动"
-        systemctl status "$SYSTEMD_SERVICE" --no-pager | head -10
-    else
-        echo "❌ systemd 启动失败，尝试传统方式..."
-        # 回退到传统方式
-        echo "🔄 使用传统方式启动..."
-        cd "$SCRIPT_DIR"
-        nohup "$BINARY" > "$SCRIPT_DIR/hsnpm.log" 2>&1 &
-        PID=$!
-        sleep 2
-        if ps -p $PID > /dev/null; then
-            echo "✅ HSNPM 服务已启动 (PID: $PID)"
-            echo "📝 日志文件: $SCRIPT_DIR/hsnpm.log"
-        else
-            echo "❌ HSNPM 服务启动失败"
-            cat "$SCRIPT_DIR/hsnpm.log" 2>/dev/null || true
-            exit 1
-        fi
-    fi
-else
-    # 传统启动方式
-    echo "🚀 使用传统方式启动 HSNPM 服务..."
-    cd "$SCRIPT_DIR"
-    nohup "$BINARY" > "$SCRIPT_DIR/hsnpm.log" 2>&1 &
-    PID=$!
-    
-    sleep 2
-    if ps -p $PID > /dev/null; then
-        echo "✅ HSNPM 服务已启动 (PID: $PID)"
-        echo "📝 日志文件: $SCRIPT_DIR/hsnpm.log"
-    else
-        echo "❌ HSNPM 服务启动失败"
-        cat "$SCRIPT_DIR/hsnpm.log" 2>/dev/null || true
-        exit 1
-    fi
-fi
-
-echo ""
-echo "📋 服务信息:"
-echo "   - 二进制文件: $BINARY"
-echo "   - 配置文件: $ENV_FILE"
-echo "   - 工作目录: $SCRIPT_DIR"
-echo ""
-echo "🔧 管理命令:"
-if command -v systemctl >/dev/null 2>&1 && [ -f "$SYSTEMD_FILE" ]; then
-    echo "   - 查看状态: systemctl status $SYSTEMD_SERVICE"
-    echo "   - 查看日志: journalctl -u $SYSTEMD_SERVICE -f"
-    echo "   - 重启服务: systemctl restart $SYSTEMD_SERVICE"
-    echo "   - 停止服务: systemctl stop $SYSTEMD_SERVICE"
-else
-    echo "   - 查看日志: tail -f $SCRIPT_DIR/hsnpm.log"
-    echo "   - 停止服务: pkill -f hsnpm-notification-service"
-fi
-EOF2
-          chmod +x deploy_temp/hsnpm/start.sh
-          echo "✅ HSNPM 智能启动脚本已创建"
-
-          # 创建 systemd 服务文件
-          echo "🔧 创建 systemd 服务文件..."
-          mkdir -p deploy_temp/hsnpm/systemd
-          
-          cat > deploy_temp/hsnpm/systemd/hsnpm-notification.service << 'EOF3'
-[Unit]
-Description=HSNPM Notification Service
-After=network.target
-Wants=network.target
-
-[Service]
-Type=simple
-User=www-data
-Group=www-data
-WorkingDirectory=/www/wwwroot/phira.htadiy.cc/hsnpm
-EnvironmentFile=/www/wwwroot/phira.htadiy.cc/hsnpm/.env
-ExecStart=/www/wwwroot/phira.htadiy.cc/hsnpm/hsnpm-notification-service
-Restart=always
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=hsnpm-notification
-ProtectSystem=strict
-ReadWritePaths=/www/wwwroot/phira.htadiy.cc/hsnpm
-NoNewPrivileges=true
-PrivateTmp=true
-
-[Install]
-WantedBy=multi-user.target
-EOF3
-          echo "✅ systemd 服务文件已创建"
-
-          # 复制 APK 文件到部署目录
-          echo "📱 复制 APK 文件..."
-          if [ -d "dist/apps" ] && [ "$(ls -A dist/apps 2>/dev/null)" ]; then
-            mkdir -p deploy_temp/apps
-            cp -r dist/apps/* deploy_temp/apps/
-            echo "✅ APK 文件已复制到 deploy_temp/apps/"
-            ls -la deploy_temp/apps/
-          else
-            echo "⚠️  dist/apps 目录为空或不存在，跳过 APK 复制"
-          fi
-
-          # 检查并备份 BingSiteAuth.xml（使用 sshpass）
-          if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} "[ -f /www/wwwroot/phira.htadiy.cc/BingSiteAuth.xml ]"; then
-            echo "检测到BingSiteAuth.xml，将保留此文件"
-            sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=accept-new ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/phira.htadiy.cc/BingSiteAuth.xml deploy_temp/BingSiteAuth.xml 2>/dev/null || echo "无法获取BingSiteAuth.xml，将使用现有版本"
-          fi
-
-          # 压缩文件
-          tar -czf deploy.tar.gz -C deploy_temp .
-
-          # 传输 tar 包到服务器
-          echo "传输文件到服务器..."
-          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=accept-new deploy.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}:/tmp/deploy.tar.gz
-
-          # 远程执行部署（注意：heredoc 内的命令是在远程执行的，不需要 sshpass）
-          echo "在服务器上解压并部署..."
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            DEPLOY_DIR="/www/wwwroot/phira.htadiy.cc"
-            TMP_DIR="/tmp/deploy_$(date +%s)"
-
-            echo "创建临时目录: $TMP_DIR"
-            mkdir -p "$TMP_DIR"
-
-            echo "解压文件..."
-            tar -xzf /tmp/deploy.tar.gz -C "$TMP_DIR"
-
-            # 备份现有 BingSiteAuth.xml
-            if [ -f "$DEPLOY_DIR/BingSiteAuth.xml" ]; then
-              echo "备份BingSiteAuth.xml..."
-              cp "$DEPLOY_DIR/BingSiteAuth.xml" "$TMP_DIR/BingSiteAuth.xml"
-            fi
-
-            echo "清理目标目录（保留BingSiteAuth.xml）..."
-            find "$DEPLOY_DIR" -mindepth 1 -maxdepth 1 \
-              -not -name "BingSiteAuth.xml" \
-              -exec rm -rf {} + 2>/dev/null || true
-
-            echo "复制新文件..."
-            cp -r "$TMP_DIR"/* "$DEPLOY_DIR"/
-
-            echo "设置权限..."
-            chmod -R 755 "$DEPLOY_DIR"
-            chown -R www-data:www-data "$DEPLOY_DIR" 2>/dev/null || echo "无法更改所有者，继续..."
-
-            # 配置 HSNPM systemd 服务
-            echo "🔧 配置 HSNPM systemd 服务..."
-            SYSTEMD_DIR="/etc/systemd/system"
-            SERVICE_FILE="$SYSTEMD_DIR/hsnpm-notification.service"
-            
-            if [ -f "$DEPLOY_DIR/hsnpm/systemd/hsnpm-notification.service" ]; then
-              echo "复制 systemd 服务文件..."
-              cp "$DEPLOY_DIR/hsnpm/systemd/hsnpm-notification.service" "$SERVICE_FILE"
-              
-              # 重载 systemd 配置
-              systemctl daemon-reload
-              
-              # 启用服务（开机自启）
-              if systemctl enable hsnpm-notification.service; then
-                echo "✅ HSNPM systemd 服务已启用"
-              else
-                echo "⚠️  无法启用 HSNPM systemd 服务，可能 systemd 不可用"
-              fi
-              
-              # 启动或重启服务
-              if systemctl is-active --quiet hsnpm-notification.service; then
-                echo "重启 HSNPM 服务..."
-                systemctl restart hsnpm-notification.service
-              else
-                echo "启动 HSNPM 服务..."
-                systemctl start hsnpm-notification.service
-              fi
-              
-              # 检查服务状态
-              sleep 3
-              systemctl status hsnpm-notification.service --no-pager || echo "⚠️  服务状态检查失败"
-            else
-              echo "⚠️  systemd 服务文件不存在，跳过 systemd 配置"
-            fi
-
-            echo "清理临时文件..."
-            rm -rf "$TMP_DIR"
-            rm -f /tmp/deploy.tar.gz
-
-            echo "部署完成！"
-            ls -la "$DEPLOY_DIR" | head -20
-          EOF
-
-          # 清理本地临时文件
-          rm -rf deploy_temp deploy.tar.gz
-          echo "✅ 部署完成！"
+          chmod +x ./scripts/deploy-to-server.sh
+          ./scripts/deploy-to-server.sh \
+            "${{ secrets.DEPLOY_USER }}" \
+            "${{ secrets.SERVER_HOST }}" \
+            "$SSH_PASSWORD" \
+            "/www/wwwroot/phira.htadiy.cc"
 
       - name: Verify deployment
         env:
           SSH_PASSWORD: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo "验证部署..."
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            DEPLOY_DIR="/www/wwwroot/phira.htadiy.cc"
-            echo "检查部署目录:"
-            ls -la "$DEPLOY_DIR" | head -10
-            echo ""
-            echo "检查关键文件:"
-            for file in index.html sitemap.xml robots.txt; do
-              if [ -f "$DEPLOY_DIR/$file" ]; then
-                echo "✅ $file 存在"
-              else
-                echo "❌ $file 不存在"
-              fi
-            done
-            echo ""
-            echo "检查BingSiteAuth.xml:"
-            if [ -f "$DEPLOY_DIR/BingSiteAuth.xml" ]; then
-              echo "✅ BingSiteAuth.xml 已保留"
-            else
-              echo "⚠️ BingSiteAuth.xml 不存在（可能是首次部署）"
-            fi
-            echo ""
-            echo "检查 HSNPM 服务:"
-            # 检查 systemd 服务
-            if systemctl is-active --quiet hsnpm-notification.service 2>/dev/null; then
-              echo "✅ HSNPM systemd 服务正在运行"
-              systemctl status hsnpm-notification.service --no-pager | head -5
-            elif pgrep -f "hsnpm-notification-service" > /dev/null; then
-              echo "✅ HSNPM 进程正在运行（非 systemd 方式）"
-              ps aux | grep "hsnpm-notification-service" | grep -v grep | head -2
-            else
-              echo "❌ HSNPM 服务未运行"
-              echo "尝试启动 HSNPM..."
-              if [ -f "$DEPLOY_DIR/hsnpm/start.sh" ]; then
-                cd "$DEPLOY_DIR/hsnpm" && chmod +x start.sh && ./start.sh
-                sleep 2
-                if pgrep -f "hsnpm-notification-service" > /dev/null; then
-                  echo "✅ HSNPM 已通过启动脚本启动"
-                else
-                  echo "❌ HSNPM 启动失败"
-                fi
-              fi
-            fi
-            echo ""
-            echo "检查 APK 文件:"
-            if [ -d "$DEPLOY_DIR/apps" ]; then
-              echo "📱 APK 目录内容:"
-              ls -la "$DEPLOY_DIR/apps/"
-            else
-              echo "⚠️  APK 目录不存在"
-            fi
-            echo ""
-            echo "检查 HSNPM 健康状态:"
-            if curl -f -s http://localhost:3030/health >/dev/null 2>&1; then
-              echo "✅ HSNPM 健康检查通过"
-            else
-              echo "⚠️  HSNPM 健康检查失败"
-            fi
-          EOF
+          chmod +x ./scripts/verify-deployment.sh
+          ./scripts/verify-deployment.sh \
+            "${{ secrets.DEPLOY_USER }}" \
+            "${{ secrets.SERVER_HOST }}" \
+            "$SSH_PASSWORD" \
+            "/www/wwwroot/phira.htadiy.cc"
