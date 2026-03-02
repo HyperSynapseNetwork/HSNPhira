@@ -33,6 +33,8 @@ fi
 # 设置非交互式环境变量
 export BUBBLEWRAP_YES=1
 export BUBBLEWRAP_NON_INTERACTIVE=1
+export BUBBLEWRAP_INSTALL_JDK=no
+export DEBIAN_FRONTEND=noninteractive
 
 # 确定 JAVA_HOME
 if [ -z "$JAVA_HOME" ]; then
@@ -81,8 +83,8 @@ if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
 
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
         echo "🛠️ 使用默认密钥初始化 bubblewrap 项目（非交互式）..."
-        # 在非交互式模式下，使用 --jdkPath 参数指定路径，无需交互输入
-        bubblewrap init \
+        # 在非交互式模式下，使用 --jdkPath 参数指定路径，并通过管道传递 "n" 来跳过 JDK 安装提示
+        echo "n" | bubblewrap init \
             --manifest="$DIST_DIR/manifest.json" \
             --directory="$TWA_DIR" \
             --jdkPath="$JAVA_HOME" \
@@ -113,7 +115,7 @@ else
     if [ -f "$TWA_DIR/production.keystore" ]; then
         if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
             echo "🛠️ 使用生产密钥初始化 bubblewrap 项目（非交互式）..."
-            bubblewrap init \
+            echo "n" | bubblewrap init \
                 --manifest="$DIST_DIR/manifest.json" \
                 --directory="$TWA_DIR" \
                 --keystorePath="production.keystore" \
@@ -134,7 +136,7 @@ else
         # 如果没有有效的生产密钥库文件，则使用调试密钥初始化（如果项目不存在）
         if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
             echo "🛠️ 回退：使用默认密钥初始化 bubblewrap 项目（非交互式）..."
-            bubblewrap init \
+            echo "n" | bubblewrap init \
                 --manifest="$DIST_DIR/manifest.json" \
                 --directory="$TWA_DIR" \
                 --jdkPath="$JAVA_HOME" \
