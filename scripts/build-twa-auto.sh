@@ -85,7 +85,9 @@ if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
         bubblewrap init \
             --manifest="$DIST_DIR/manifest.json" \
             --directory="$TWA_DIR" \
-            --jdkPath="$JAVA_HOME"
+            --jdkPath="$JAVA_HOME" \
+            --accept-license \
+            --non-interactive
     fi
 else
     echo "🔐 使用 GitHub Secrets 中的生产密钥"
@@ -118,7 +120,9 @@ else
                 --keystorePass="$TWA_KEYSTORE_PASSWORD" \
                 --keyPass="$TWA_KEY_PASSWORD" \
                 --alias="$TWA_KEY_ALIAS" \
-                --jdkPath="$JAVA_HOME"
+                --jdkPath="$JAVA_HOME" \
+                --accept-license \
+                --non-interactive
         else
             echo "📁 使用现有的 bubblewrap 项目配置，但将更新为生产密钥签名配置。"
             # 注意：bubblewrap 项目初始化后，更新签名信息可能需要修改 twa-manifest.json 或重新初始化。
@@ -133,7 +137,9 @@ else
             bubblewrap init \
                 --manifest="$DIST_DIR/manifest.json" \
                 --directory="$TWA_DIR" \
-                --jdkPath="$JAVA_HOME"
+                --jdkPath="$JAVA_HOME" \
+                --accept-license \
+                --non-interactive
         fi
     fi
 fi
