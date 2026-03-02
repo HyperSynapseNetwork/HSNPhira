@@ -59,10 +59,13 @@ sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=accept-new "$DEPLOY_USER
 
     # --- 关键修复：处理运行中的 HSNPM ---
     echo \"停止旧服务以释放文件锁...\"
-    \$SUDO systemctl stop \$SERVICE_NAME 2>/dev/null || true
+    # 修改1：增加超时，避免 systemctl stop 卡住
+    timeout 10s \$SUDO systemctl stop \$SERVICE_NAME 2>/dev/null || true
     
     # 强制兜底：如果 systemctl 没杀掉，使用 pkill
-    \$SUDO pkill -f hsnpm-notification-service 2>/dev/null || true
+    echo \"强制终止残留进程...\"
+    \$SUDO pkill -9 -f hsnpm-notification-service 2>/dev/null || true
+    sleep 2  # 给进程终止留一点时间
 
     # 备份现有 BingSiteAuth.xml
     if [ -f \"\$DEPLOY_DIR/BingSiteAuth.xml\" ]; then
