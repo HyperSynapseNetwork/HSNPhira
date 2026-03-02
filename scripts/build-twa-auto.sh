@@ -9,6 +9,7 @@ DIST_DIR="$PROJECT_ROOT/dist"
 TWA_DIR="$PROJECT_ROOT/twa"
 APPS_DIR="$DIST_DIR/apps"
 
+# 检查必要工具
 if ! command -v java &> /dev/null; then
     echo "❌ Java 未安装，请安装 Java 11+"
     exit 1
@@ -19,23 +20,27 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
+# 安装 bubblewrap（如果未安装）
 if ! npm list -g @bubblewrap/cli &> /dev/null 2>/dev/null; then
     echo "📦 安装 bubblewrap CLI..."
     npm install -g @bubblewrap/cli
 fi
 
-if [ ! -d "$DIST_DIR" ]; then
+# 确保前端已构建
+if [ ! -d "$DIST_DIR" ] || [ ! -f "$DIST_DIR/manifest.json" ]; then
     echo "📦 构建前端应用..."
     npm run build
 fi
 
+# 设置非交互式环境变量
 export BUBBLEWRAP_YES=1
 export BUBBLEWRAP_NON_INTERACTIVE=1
 
+# 确定 JAVA_HOME
 if [ -z "$JAVA_HOME" ]; then
     JAVA_PATH=$(which java 2>/dev/null || true)
     if [ -n "$JAVA_PATH" ]; then
-        JAVA_HOME=$(dirname $(dirname "$JAVA_PATH"))
+        JAVA_HOME=$(dirname "$(dirname "$JAVA_PATH")")
         echo "⚠️  JAVA_HOME 未设置，推断为: $JAVA_HOME"
         export JAVA_HOME
     else
@@ -45,9 +50,11 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 echo "🔧 使用 JAVA_HOME: $JAVA_HOME"
 
+# 创建必要目录
 mkdir -p "$TWA_DIR"
 mkdir -p "$APPS_DIR"
 
+# 版本信息（从 GitHub Actions 环境获取）
 if [ -n "$GITHUB_RUN_NUMBER" ]; then
     BUILD_NUMBER="$GITHUB_RUN_NUMBER"
     VERSION_NAME="0.0.$BUILD_NUMBER"
@@ -63,6 +70,7 @@ echo "  - 构建号: $BUILD_NUMBER"
 echo "  - 版本名称: $VERSION_NAME"
 echo "  - 版本代码: $VERSION_CODE"
 
+# 处理密钥库
 if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
    [ -z "$TWA_KEY_ALIAS" ] || [ -z "$TWA_KEY_PASSWORD" ]; then
     echo "⚠️  缺少 TWA 密钥配置，使用默认调试密钥"
@@ -73,12 +81,13 @@ if [ -z "$TWA_KEYSTORE_BASE64" ] || [ -z "$TWA_KEYSTORE_PASSWORD" ] || \
     echo "    - TWA_KEY_PASSWORD"
     
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
-        echo "🛠️  使用默认密钥初始化 bubblewrap 项目..."
+        echo "🛠️  使用默认密钥初始化 bubblewrap 项目（非交互式）..."
         cd "$TWA_DIR"
-        bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --accept-license << EOF
-n
-$JAVA_HOME
-EOF
+        bubblewrap init \
+            --manifest="$DIST_DIR/manifest.json" \
+            --directory="$TWA_DIR" \
+            --jdkPath="$JAVA_HOME" \
+            --accept-license
     fi
 else
     echo "🔐 使用 GitHub Secrets 中的生产密钥"
@@ -95,18 +104,19 @@ else
         echo "❌ base64 格式无效，无法解码"
         echo "⚠️  使用调试密钥继续构建..."
         if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
-            echo "🛠️  使用默认密钥初始化 bubblewrap 项目..."
+            echo "🛠️  使用默认密钥初始化 bubblewrap 项目（非交互式）..."
             cd "$TWA_DIR"
-            bubblewrap init --manifest="$DIST_DIR/manifest.json" --directory="$TWA_DIR" --accept-license << EOF
-n
-$JAVA_HOME
-EOF
+            bubblewrap init \
+                --manifest="$DIST_DIR/manifest.json" \
+                --directory="$TWA_DIR" \
+                --jdkPath="$JAVA_HOME" \
+                --accept-license
         fi
         exit 0
     fi
     
     if [ ! -f "$TWA_DIR/twa-manifest.json" ]; then
-        echo "🛠️  使用生产密钥初始化 bubblewrap 项目..."
+        echo "🛠️  使用生产密钥初始化 bubblewrap 项目（非交互式）..."
         cd "$TWA_DIR"
         bubblewrap init \
             --manifest="$DIST_DIR/manifest.json" \
@@ -115,14 +125,13 @@ EOF
             --keystorePass="$TWA_KEYSTORE_PASSWORD" \
             --keyPass="$TWA_KEY_PASSWORD" \
             --alias="$TWA_KEY_ALIAS" \
-            --accept-license << EOF
-n
-$JAVA_HOME
-EOF
+            --jdkPath="$JAVA_HOME" \
+            --accept-license
     else
         echo "📁 使用现有的 bubblewrap 项目配置"
         cd "$TWA_DIR"
         
+        # 更新密钥库文件
         if [ -f "production.keystore" ]; then
             rm -f "production.keystore"
         fi
@@ -144,6 +153,7 @@ fi
 
 cd "$TWA_DIR"
 
+# 更新版本信息
 echo "🔄 更新版本信息..."
 if command -v jq &> /dev/null; then
     if [ -f "twa-manifest.json" ]; then
@@ -159,19 +169,23 @@ else
     fi
 fi
 
+# 更新应用名称和包名
 echo "🔄 更新应用配置..."
 if [ -f "twa-manifest.json" ] && command -v jq &> /dev/null; then
     jq '.name = "HSNPhira" | .packageId = "com.hypersn.phira"' twa-manifest.json > twa-manifest.json.tmp
     mv twa-manifest.json.tmp twa-manifest.json
 fi
 
+# 构建 APK（非交互式）
 echo "🔨 构建 APK (非交互式)..."
 echo "🔑 使用环境变量: BUBBLEWRAP_KEYSTORE_PASSWORD 和 BUBBLEWRAP_KEY_PASSWORD"
 bubblewrap build --skipPwaValidation
 
+# 构建 App Bundle（可选）
 echo "🔨 构建 App Bundle..."
 bubblewrap build --bundle --skipPwaValidation || echo "⚠️  App Bundle 构建失败，跳过"
 
+# 复制 APK 文件
 echo "📦 复制 APK 文件..."
 if [ -f "app-release-signed.apk" ]; then
     APK_FILENAME="hsnphira-v$VERSION_NAME.apk"
@@ -184,6 +198,7 @@ if [ -f "app-release-signed.apk" ]; then
     echo "   - $APPS_DIR/$APK_FILENAME"
     echo "   - $APPS_DIR/$LATEST_APK"
     
+    # 创建版本信息文件
     echo "📝 创建版本信息文件..."
     cat > "$APPS_DIR/version-info.json" << EOF
 {
@@ -202,6 +217,7 @@ else
     exit 1
 fi
 
+# 生成数字资产链接文件（如果提供了指纹）
 if [ -n "$TWA_SHA256_FINGERPRINT" ]; then
     echo "🔗 生成数字资产链接文件..."
     ASSETLINKS_DIR="$PROJECT_ROOT/public/.well-known"
