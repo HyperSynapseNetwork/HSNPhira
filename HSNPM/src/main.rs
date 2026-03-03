@@ -99,52 +99,60 @@ impl AppState {
     
     /// 确保私钥是PEM格式，如果不是则尝试转换
     fn ensure_pem_format(private_key: &str) -> String {
-        // 检查是否已经是PEM格式
-        if private_key.contains("-----BEGIN EC PRIVATE KEY-----") {
+        // 已是PEM格式（任意类型），直接返回
+        if private_key.contains("-----BEGIN") {
             log::info!("私钥已经是PEM格式");
             return private_key.to_string();
         }
-        
-        // 尝试将Base64URL格式的私钥转换为PEM格式
-        log::info!("尝试将Base64URL私钥转换为PEM格式...");
+
+        log::info!("检测到非PEM格式私钥，尝试转换...");
         log::debug!("原始私钥长度: {} 字符", private_key.len());
-        log::debug!("原始私钥前50字符: {}...", &private_key.chars().take(50).collect::<String>());
-        
-        // Base64URL格式的私钥应该是32字节标量的Base64URL编码
-        // 我们需要将其转换为PEM格式
-        // 步骤：
-        // 1. Base64URL -> 标准Base64（恢复+和/，添加填充）
-        // 2. 每64字符添加换行
-        // 3. 添加PEM头尾
-        
-        // 检查是否是Base64URL格式（仅包含字母、数字、-、_）
-        let is_base64url = private_key.chars().all(|c| 
-            c.is_ascii_alphanumeric() || c == '-' || c == '_'
-        );
-        
-        if !is_base64url {
-            log::warn!("私钥不是有效的Base64URL或PEM格式，尝试使用原值");
-            return private_key.to_string();
-        }
-        
+
         // Base64URL -> 标准Base64
-        let mut base64 = private_key.replace('-', "+").replace('_', "/");
-        
-        // 添加填充
-        let padding_needed = (4 - base64.len() % 4) % 4;
-        base64.push_str(&"=".repeat(padding_needed));
-        
-        // 每64字符添加换行
+        let b64 = private_key.replace('-', "+").replace('_', "/");
+        let padding = (4 - b64.len() % 4) % 4;
+        let b64_padded = format!("{}{}", b64, "=".repeat(padding));
+
+        // 每64字符加换行（PEM 标准格式）
         let mut pem_body = String::new();
-        for i in (0..base64.len()).step_by(64) {
-            let end = std::cmp::min(i + 64, base64.len());
-            pem_body.push_str(&base64[i..end]);
+        for chunk in b64_padded.as_bytes().chunks(64) {
+            pem_body.push_str(std::str::from_utf8(chunk).unwrap_or(""));
             pem_body.push('\n');
         }
-        
-        let pem_key = format!("-----BEGIN EC PRIVATE KEY-----\n{}-----END EC PRIVATE KEY-----", pem_body);
-        log::info!("已成功将Base64URL私钥转换为PEM格式");
-        pem_key
+
+        // ---------------------------------------------------------------
+        // 关键修复：区分 PKCS#8 和 SEC1 两种 DER 格式
+        //
+        // web-push CLI / 某些工具生成的私钥是 PKCS#8 DER（base64 后以
+        // MIGHAgEA 开头），必须先包成 BEGIN PRIVATE KEY 才能被 openssl
+        // 解析，然后再提取 EC key 转成 BEGIN EC PRIVATE KEY 供 web-push
+        // 库的 from_pem() 使用。
+        //
+        // openssl ecparam 生成的是 SEC1 格式，直接包成 BEGIN EC PRIVATE KEY。
+        // ---------------------------------------------------------------
+
+        // 先尝试按 PKCS#8 解析（BEGIN PRIVATE KEY）
+        let pkcs8_pem = format!("-----BEGIN PRIVATE KEY-----\n{}-----END PRIVATE KEY-----", pem_body);
+        if let Ok(pkey) = openssl::pkey::PKey::private_key_from_pem(pkcs8_pem.as_bytes()) {
+            if let Ok(ec_key) = pkey.ec_key() {
+                if let Ok(sec1_bytes) = ec_key.private_key_to_pem() {
+                    if let Ok(sec1_pem) = String::from_utf8(sec1_bytes) {
+                        log::info!("已将 PKCS#8 密钥成功转换为 EC SEC1 PEM 格式");
+                        return sec1_pem;
+                    }
+                }
+            }
+        }
+
+        // 再尝试按 SEC1 解析（BEGIN EC PRIVATE KEY）
+        let sec1_pem = format!("-----BEGIN EC PRIVATE KEY-----\n{}-----END EC PRIVATE KEY-----", pem_body);
+        if openssl::ec::EcKey::private_key_from_pem(sec1_pem.as_bytes()).is_ok() {
+            log::info!("私钥已是有效的 SEC1 EC PEM 格式");
+            return sec1_pem;
+        }
+
+        log::warn!("无法识别私钥格式（既非 PKCS#8 也非 SEC1），返回原始值——推送可能失败");
+        private_key.to_string()
     }
 }
 
