@@ -58,7 +58,7 @@ async function testServerConnection(): Promise<number> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 3000)
 
-    await fetch(`http://service.htadiy.com:7865`, {
+    await fetch(`https://htadiy.com/`, {
       mode: 'no-cors',
       signal: controller.signal,
       method: 'HEAD'

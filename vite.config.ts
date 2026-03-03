@@ -103,11 +103,12 @@ export default defineConfig(({ mode }) => {
           ws: false, // SSE 不是 WebSocket，但保持为 false
           rewrite: (path) => path // 保持路径不变
         },
-        // HSNPM 通知服务代理（开发环境）
+        // HSNPM 通知服务代理（开发环境） - 代理到远程HSNPM服务
         '/hsnpm-api': {
-          target: 'http://localhost:3030',
+          target: 'https://phira.htadiy.com',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/hsnpm-api/, '')
+          secure: true,
+          rewrite: (path) => path // 保持路径不变，前端请求 /hsnpm-api/api/subscriptions -> https://phira.htadiy.com/hsnpm-api/api/subscriptions
         }
       } : undefined,
     },

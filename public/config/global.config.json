@@ -1,10 +1,10 @@
 {
   "server": {
     "phiraServerAddress": {
-      "zh": "service.htadiy.cc:7865",
-      "zh-TW": "service.htadiy.cc:7865",
-      "en": "service.htadiy.cc:7865",
-      "ja": "service.htadiy.cc:7865"
+      "zh": "service.htadiy.com:7865",
+      "zh-TW": "service.htadiy.com:7865",
+      "en": "service.htadiy.com:7865",
+      "ja": "service.htadiy.com:7865"
     },
     "qqGroup": {
       "zh": "1049578201",

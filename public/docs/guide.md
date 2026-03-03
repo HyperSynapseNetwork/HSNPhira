@@ -46,7 +46,7 @@
 
 这里有以下免费<style>.a{background:#000;color:#000;transition:.2s;}.a:hover{color:#fff;};</style><span class=a title='你知道的太多了'>其实也没有付费的啦～</span>服务器可选
 
--   HSN服务器（链接service.htadiy.cc:7865）C++ Server
+-   HSN服务器（链接service.htadiy.com:7865）C++ Server
     
 -   Auto服务器(链接yee.autos:2000)TypeScript Server
     
