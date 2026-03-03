@@ -278,14 +278,22 @@ class NotificationService {
 
       console.log('🔑 订阅推送服务... vapidKeyLength:', VAPID_PUBLIC_KEY.length)
 
+      // Firefox 要求 applicationServerKey 是一个拥有独立 ArrayBuffer 的 Uint8Array
+      // 用 new Uint8Array(...) 拷贝一份，确保 buffer 没有偏移/共享问题
+      const rawKey = this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      const cleanKey = new Uint8Array(rawKey)
+
       const subscribeOptions: PushSubscriptionOptionsInit = {
         userVisibleOnly: true,
-        // ⚠️ 传 Uint8Array 本身，不要传 .buffer
-        // 传 .buffer 会传入整个底层 ArrayBuffer（含填充），Firefox 会创建无加密订阅导致 getKey() 返回 null
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource
+        applicationServerKey: cleanKey
       }
 
       const subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscribeOptions)
+
+      // Firefox Android 在推送服务不可达时可能返回 null 而不是 throw
+      if (!subscription) {
+        throw new DOMException('pushManager.subscribe() returned null', 'AbortError')
+      }
 
       console.log('✅ 推送订阅成功，发送到服务器...')
       await this.sendSubscriptionToHSNPM(subscription)
