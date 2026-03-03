@@ -141,12 +141,26 @@ async fn main() {
 fn api_routes(state: Arc<AppState>) -> impl Filter<Extract = impl Reply, Error = warp::Rejection> + Clone {
     let state_filter = warp::any().map(move || state.clone());
 
-    // POST /api/subscriptions - 注册 Web-Push 订阅
-    let subscribe = warp::path!("api" / "subscriptions")
+    // POST /api/subscriptions - 注册 Web-Push 订阅（旧路径，保持兼容）
+    let subscribe_api = warp::path!("api" / "subscriptions")
         .and(warp::post())
         .and(warp::body::json())
         .and(state_filter.clone())
         .and_then(handle_subscribe);
+
+    // POST /subscriptions - 注册 Web-Push 订阅（新路径）
+    let subscribe = warp::path!("subscriptions")
+        .and(warp::post())
+        .and(warp::body::json())
+        .and(state_filter.clone())
+        .and_then(handle_subscribe);
+
+    // POST /subscriptions/verify - 验证订阅是否存在
+    let verify_subscription = warp::path!("subscriptions" / "verify")
+        .and(warp::post())
+        .and(warp::body::json())
+        .and(state_filter.clone())
+        .and_then(handle_verify_subscription);
 
     // GET /health - 健康检查
     let health = warp::path!("health")
@@ -154,7 +168,7 @@ fn api_routes(state: Arc<AppState>) -> impl Filter<Extract = impl Reply, Error =
         .map(|| "OK");
 
     // 组合所有路由
-    subscribe.or(health)
+    subscribe_api.or(subscribe).or(verify_subscription).or(health)
 }
 
 /// 处理Web-Push订阅
@@ -172,6 +186,38 @@ async fn handle_subscribe(
         "success": true,
         "id": sub_id
     })))
+}
+
+/// 验证Web-Push订阅是否存在
+async fn handle_verify_subscription(
+    subscription_data: Subscription,
+    state: Arc<AppState>,
+) -> Result<impl Reply, warp::Rejection> {
+    let subs = state.subscriptions.lock().unwrap();
+    
+    // 查找匹配的订阅（基于 endpoint）
+    let exists = subs.values().any(|sub| sub.endpoint == subscription_data.endpoint);
+    
+    log::info!("验证订阅 {}: {}", subscription_data.endpoint, if exists { "存在" } else { "不存在" });
+    
+    if exists {
+        Ok(warp::reply::with_status(
+            warp::reply::json(&serde_json::json!({
+                "success": true,
+                "exists": true
+            })),
+            warp::http::StatusCode::OK,
+        ))
+    } else {
+        Ok(warp::reply::with_status(
+            warp::reply::json(&serde_json::json!({
+                "success": false,
+                "exists": false,
+                "error": "Subscription not found"
+            })),
+            warp::http::StatusCode::NOT_FOUND,
+        ))
+    }
 }
 
 /// 监听远程SSE事件

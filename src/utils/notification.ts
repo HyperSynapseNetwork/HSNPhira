@@ -165,7 +165,7 @@ class NotificationService {
         }
       }
 
-      const response = await fetch(`${HSNPM_SERVER}/api/subscriptions/verify`, {
+      const response = await fetch(`${HSNPM_SERVER}/subscriptions/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subscriptionData)
@@ -365,7 +365,7 @@ class NotificationService {
       user_id: null // 可以添加用户ID，如果需要用户关联
     }
 
-    const response = await fetch(`${HSNPM_SERVER}/api/subscriptions`, {
+    const response = await fetch(`${HSNPM_SERVER}/subscriptions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(subscriptionData)

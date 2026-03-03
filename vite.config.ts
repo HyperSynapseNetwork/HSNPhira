@@ -108,7 +108,7 @@ export default defineConfig(({ mode }) => {
           target: 'https://phira.htadiy.com',
           changeOrigin: true,
           secure: true,
-          rewrite: (path) => path // 保持路径不变，前端请求 /hsnpm-api/api/subscriptions -> https://phira.htadiy.com/hsnpm-api/api/subscriptions
+          rewrite: (path) => path.replace(/^\/hsnpm-api/, '') // 去掉 /hsnpm-api 前缀，前端请求 /hsnpm-api/subscriptions -> https://phira.htadiy.com/subscriptions
         }
       } : undefined,
     },

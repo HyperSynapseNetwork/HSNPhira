@@ -170,7 +170,7 @@ self.addEventListener('pushsubscriptionchange', event => {
     self.registration.pushManager.subscribe(event.oldSubscription.options)
       .then(newSubscription => {
         // 将新的订阅信息发送到服务器
-        return fetch('/api/subscriptions', {
+        return fetch('/hsnpm-api/subscriptions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newSubscription)
