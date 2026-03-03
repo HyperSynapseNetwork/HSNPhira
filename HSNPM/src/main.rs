@@ -397,7 +397,7 @@ async fn send_web_push_notifications(state: &AppState, event: &RoomEvent) {
 
     log::info!("向 {} 个订阅者发送Web-Push通知", subscriptions.len());
 
-    let host_name = extract_host_name(event.data.as_ref());
+    let host_name = fetch_host_name(event.data.as_ref()).await;
     let notification_title = "HSNPhira服务器上有新房间";
     let notification_body = format!("房间名:{} 房主:{}", event.room, host_name);
 
@@ -408,16 +408,47 @@ async fn send_web_push_notifications(state: &AppState, event: &RoomEvent) {
     }
 }
 
-/// 提取房主名称
-fn extract_host_name(data: Option<&Value>) -> String {
-    data.and_then(|d| d.get("host"))
-        .and_then(|host_id| host_id.as_u64())
-        .map(|host_id| {
-            // 这里应该调用用户信息API获取房主名称
-            // 但为了简化，我们返回"未知"或使用host_id
+/// 通过 Phira API 获取房主用户名
+async fn fetch_host_name(data: Option<&Value>) -> String {
+    let host_id = match data
+        .and_then(|d| d.get("host"))
+        .and_then(|v| v.as_u64())
+    {
+        Some(id) => id,
+        None => return "未知".to_string(),
+    };
+
+    let url = format!("https://phira.5wyxi.com/user/{}", host_id);
+    log::debug!("获取房主信息: {}", url);
+
+    match Client::new()
+        .get(&url)
+        .header("Accept", "application/json")
+        .send()
+        .await
+    {
+        Ok(resp) if resp.status().is_success() => {
+            match resp.json::<Value>().await {
+                Ok(json) => json
+                    .get("name")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("未知")
+                    .to_string(),
+                Err(e) => {
+                    log::warn!("解析用户信息失败: {}", e);
+                    format!("用户#{}", host_id)
+                }
+            }
+        }
+        Ok(resp) => {
+            log::warn!("获取用户信息失败，状态码: {}", resp.status());
             format!("用户#{}", host_id)
-        })
-        .unwrap_or_else(|| "未知".to_string())
+        }
+        Err(e) => {
+            log::warn!("请求用户信息失败: {}", e);
+            format!("用户#{}", host_id)
+        }
+    }
 }
 
 /// 发送单个Web-Push通知
