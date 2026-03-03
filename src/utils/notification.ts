@@ -278,16 +278,27 @@ class NotificationService {
     } catch (error: any) {
       console.error('❌ 订阅推送失败:', error)
 
-      let errorMessage = '订阅失败: ' + error.message
-
-      if (error.name === 'NotAllowedError') {
-        errorMessage = '通知权限被拒绝，请在浏览器设置中启用通知权限'
-      } else if (error.name === 'AbortError' || error.message?.includes('push service')) {
-        errorMessage = '推送服务暂时不可用，请稍后重试'
+      // push service error = 浏览器无法连接到 FCM/推送服务
+      // 常见于：移动端网络限制、GFW 屏蔽 FCM、弱网环境
+      // 处理方式：静默失败 + 稍后自动重试，不向用户显示错误弹窗
+      if (error.name === 'AbortError' || error.message?.includes('push service')) {
+        console.warn('⚠️  推送服务暂时不可达（FCM 网络问题），将在 60 秒后自动重试')
+        setTimeout(() => {
+          console.log('🔄 重试推送订阅...')
+          this.subscribeToPush().catch((e) => {
+            console.warn('🔄 重试失败，放弃订阅:', e.message)
+          })
+        }, 60_000)
+        return null
       }
 
-      showError('通知订阅', errorMessage)
-      throw new Error(errorMessage)
+      if (error.name === 'NotAllowedError') {
+        showInfo('通知权限', '通知权限被拒绝，如需接收房间通知请在浏览器设置中启用')
+        throw new Error('通知权限被拒绝')
+      }
+
+      showError('通知订阅', '订阅失败: ' + error.message)
+      throw new Error(error.message)
     }
   }
 
