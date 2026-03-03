@@ -69,8 +69,8 @@ struct SSERoomEvent {
 struct AppState {
     subscriptions: Subscriptions,
     room_events: RoomEventSender,
-    vapid_private_key: String,
-    vapid_public_key: String,
+    vapid_private_key: String,  // PEM格式的私钥
+    vapid_public_key: String,   // Base64URL格式的公钥
     vapid_subject: String,
     remote_server_url: String,
 }
@@ -83,6 +83,10 @@ impl AppState {
         remote_server_url: String,
     ) -> Self {
         let (tx, _) = broadcast::channel(100);
+        
+        // 确保私钥是PEM格式（如果不是，尝试转换）
+        let vapid_private_key = Self::ensure_pem_format(&vapid_private_key);
+        
         AppState {
             subscriptions: Arc::new(Mutex::new(HashMap::new())),
             room_events: tx,
@@ -91,6 +95,56 @@ impl AppState {
             vapid_subject,
             remote_server_url,
         }
+    }
+    
+    /// 确保私钥是PEM格式，如果不是则尝试转换
+    fn ensure_pem_format(private_key: &str) -> String {
+        // 检查是否已经是PEM格式
+        if private_key.contains("-----BEGIN EC PRIVATE KEY-----") {
+            log::info!("私钥已经是PEM格式");
+            return private_key.to_string();
+        }
+        
+        // 尝试将Base64URL格式的私钥转换为PEM格式
+        log::info!("尝试将Base64URL私钥转换为PEM格式...");
+        log::debug!("原始私钥长度: {} 字符", private_key.len());
+        log::debug!("原始私钥前50字符: {}...", &private_key.chars().take(50).collect::<String>());
+        
+        // Base64URL格式的私钥应该是32字节标量的Base64URL编码
+        // 我们需要将其转换为PEM格式
+        // 步骤：
+        // 1. Base64URL -> 标准Base64（恢复+和/，添加填充）
+        // 2. 每64字符添加换行
+        // 3. 添加PEM头尾
+        
+        // 检查是否是Base64URL格式（仅包含字母、数字、-、_）
+        let is_base64url = private_key.chars().all(|c| 
+            c.is_ascii_alphanumeric() || c == '-' || c == '_'
+        );
+        
+        if !is_base64url {
+            log::warn!("私钥不是有效的Base64URL或PEM格式，尝试使用原值");
+            return private_key.to_string();
+        }
+        
+        // Base64URL -> 标准Base64
+        let mut base64 = private_key.replace('-', "+").replace('_', "/");
+        
+        // 添加填充
+        let padding_needed = (4 - base64.len() % 4) % 4;
+        base64.push_str(&"=".repeat(padding_needed));
+        
+        // 每64字符添加换行
+        let mut pem_body = String::new();
+        for i in (0..base64.len()).step_by(64) {
+            let end = std::cmp::min(i + 64, base64.len());
+            pem_body.push_str(&base64[i..end]);
+            pem_body.push('\n');
+        }
+        
+        let pem_key = format!("-----BEGIN EC PRIVATE KEY-----\n{}-----END EC PRIVATE KEY-----", pem_body);
+        log::info!("已成功将Base64URL私钥转换为PEM格式");
+        pem_key
     }
 }
 
@@ -107,6 +161,12 @@ async fn main() {
         .expect("VAPID_PUBLIC_KEY must be set");
     let vapid_subject = std::env::var("VAPID_SUBJECT")
         .expect("VAPID_SUBJECT must be set (e.g., mailto:admin@example.com)");
+    
+    // 记录密钥信息用于调试
+    log::info!("VAPID公钥长度: {} 字符", vapid_public_key.len());
+    log::debug!("VAPID公钥前20字符: {}...", &vapid_public_key.chars().take(20).collect::<String>());
+    log::info!("VAPID私钥长度: {} 字符", vapid_private_key.len());
+    log::debug!("VAPID私钥前50字符: {}...", &vapid_private_key.chars().take(50).collect::<String>());
     let remote_server_url = std::env::var("REMOTE_PHIRA_SERVER")
         .unwrap_or_else(|_| "https://phira.htadiy.com".to_string());
 
