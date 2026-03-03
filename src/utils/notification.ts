@@ -157,11 +157,31 @@ class NotificationService {
   private async verifySubscriptionWithServer(subscription: PushSubscription) {
     try {
       console.log('🔍 验证服务器订阅状态...')
+      
+      // 使用相同的转换逻辑
+      const p256dhKey = subscription.getKey('p256dh');
+      const authKey = subscription.getKey('auth');
+      
+      if (!p256dhKey || !authKey) {
+        console.warn('⚠️  订阅信息中缺少加密密钥，重新订阅...')
+        await this.subscribeToPush()
+        return
+      }
+      
+      const p256dhArray = new Uint8Array(p256dhKey);
+      const authArray = new Uint8Array(authKey);
+      
+      const p256dhBase64 = btoa(String.fromCharCode(...p256dhArray));
+      const authBase64 = btoa(String.fromCharCode(...authArray));
+      
+      const p256dh = p256dhBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      const auth = authBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      
       const subscriptionData = {
         endpoint: subscription.endpoint,
         keys: {
-          p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')!))),
-          auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')!)))
+          p256dh,
+          auth
         }
       }
 
@@ -191,14 +211,25 @@ class NotificationService {
       console.warn('⚠️  不在浏览器环境中，跳过推送订阅')
       return null
     }
-    
+
     if (!this.serviceWorkerRegistration) {
       console.error('❌ Service Worker 未注册，无法订阅推送')
       throw new Error('Service Worker 未注册，无法订阅推送')
     }
 
+    // 检查浏览器支持
+    if (!('PushManager' in window)) {
+      const error = new Error('此浏览器不支持推送通知')
+      console.error('❌', error.message)
+      showError('通知订阅', error.message)
+      throw error
+    }
+
+    // 检查是否是移动端（某些移动浏览器可能有问题）
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     try {
-      console.log('📝 开始订阅推送通知...')
+      console.log('📝 开始订阅推送通知...', { isMobile })
 
       // 确保有通知权限
       if (Notification.permission !== 'granted') {
@@ -210,12 +241,24 @@ class NotificationService {
         }
       }
 
-      // 订阅推送
-      console.log('🔑 订阅推送服务...')
-      const subscription = await this.serviceWorkerRegistration.pushManager.subscribe({
+      // 检查VAPID公钥格式
+      if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY === 'YOUR_VAPID_PUBLIC_KEY') {
+        const error = new Error('VAPID公钥未配置，请联系管理员')
+        console.error('❌', error.message)
+        showError('通知订阅', error.message)
+        throw error
+      }
+
+      console.log('🔑 订阅推送服务...', { isMobile, vapidKeyLength: VAPID_PUBLIC_KEY.length })
+      
+      // 对于移动端，使用更保守的选项
+      const subscribeOptions = {
         userVisibleOnly: true,
         applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer
-      })
+      };
+
+      // 尝试订阅
+      const subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscribeOptions)
 
       console.log('✅ 推送订阅成功，发送到服务器...')
 
@@ -226,10 +269,24 @@ class NotificationService {
       console.log('🎉 推送通知订阅完成')
       showSuccess('通知订阅', '已成功订阅房间通知')
       return subscription
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ 订阅推送失败:', error)
-      showError('通知订阅', '订阅失败: ' + (error as Error).message)
-      throw error
+      
+      let errorMessage = '订阅失败: ' + error.message
+      
+      // 针对特定错误提供更友好的消息
+      if (error.name === 'AbortError' || error.message.includes('push service error')) {
+        if (isMobile) {
+          errorMessage = '移动端浏览器推送服务暂不可用，请尝试使用桌面版Chrome/Firefox'
+        } else {
+          errorMessage = '推送服务错误，可能是VAPID密钥配置问题或浏览器不支持'
+        }
+      } else if (error.message.includes('permission')) {
+        errorMessage = '通知权限被拒绝，请在浏览器设置中启用通知权限'
+      }
+      
+      showError('通知订阅', errorMessage)
+      throw new Error(errorMessage)
     }
   }
 
@@ -355,11 +412,30 @@ class NotificationService {
 
   // 发送订阅信息到 HSNPM 服务器
   private async sendSubscriptionToHSNPM(subscription: PushSubscription) {
+    // 正确的将ArrayBuffer转换为base64（URL-safe）
+    const p256dhKey = subscription.getKey('p256dh');
+    const authKey = subscription.getKey('auth');
+    
+    if (!p256dhKey || !authKey) {
+      throw new Error('订阅信息中缺少必要的加密密钥')
+    }
+    
+    const p256dhArray = new Uint8Array(p256dhKey);
+    const authArray = new Uint8Array(authKey);
+    
+    // 使用标准方法转换为base64
+    const p256dhBase64 = btoa(String.fromCharCode(...p256dhArray));
+    const authBase64 = btoa(String.fromCharCode(...authArray));
+    
+    // 转换为URL-safe base64（web-push标准格式）
+    const p256dh = p256dhBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    const auth = authBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    
     const subscriptionData = {
       endpoint: subscription.endpoint,
       keys: {
-        p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')!))),
-        auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')!)))
+        p256dh,
+        auth
       },
       expires_at: subscription.expirationTime ? new Date(subscription.expirationTime).toISOString() : null,
       user_id: null // 可以添加用户ID，如果需要用户关联

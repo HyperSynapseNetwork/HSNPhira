@@ -69,7 +69,7 @@ struct SSERoomEvent {
 struct AppState {
     subscriptions: Subscriptions,
     room_events: RoomEventSender,
-    vapid_private_key: Vec<u8>,
+    vapid_private_key: String,
     vapid_public_key: String,
     vapid_subject: String,
     remote_server_url: String,
@@ -77,7 +77,7 @@ struct AppState {
 
 impl AppState {
     fn new(
-        vapid_private_key: Vec<u8>,
+        vapid_private_key: String,
         vapid_public_key: String,
         vapid_subject: String,
         remote_server_url: String,
@@ -102,9 +102,7 @@ async fn main() {
     // 从环境变量加载配置
     dotenv::dotenv().ok();
     let vapid_private_key = std::env::var("VAPID_PRIVATE_KEY")
-        .expect("VAPID_PRIVATE_KEY must be set")
-        .as_bytes()
-        .to_vec();
+        .expect("VAPID_PRIVATE_KEY must be set");
     let vapid_public_key = std::env::var("VAPID_PUBLIC_KEY")
         .expect("VAPID_PUBLIC_KEY must be set");
     let vapid_subject = std::env::var("VAPID_SUBJECT")
@@ -368,17 +366,29 @@ async fn send_single_web_push_notification(
     // 首先创建 SubscriptionInfo
     // 克隆 SubscriptionKeys 通过序列化/反序列化
     let keys_json = serde_json::to_string(&subscription.keys).expect("Failed to serialize keys");
+    log::debug!("序列化的keys JSON长度: {}", keys_json.len());
     let keys: SubscriptionKeys = serde_json::from_str(&keys_json).expect("Failed to deserialize keys");
     
+    // 检查keys是否有效
+    log::debug!("成功反序列化keys，准备构建SubscriptionInfo");
+
     let subscription_info = SubscriptionInfo {
         endpoint: subscription.endpoint.clone(),
         keys,
     };
     
+    // 记录私钥信息用于调试
+    log::debug!("VAPID私钥长度: {} 字节", state.vapid_private_key.len());
+    
     let mut builder = VapidSignatureBuilder::from_pem(
-        &*state.vapid_private_key,
+        state.vapid_private_key.as_bytes(),
         &subscription_info,
-    )?;
+    )
+    .map_err(|e| {
+        log::error!("VAPID私钥格式错误: {}", e);
+        log::error!("私钥前100字符: {}...", &state.vapid_private_key.chars().take(100).collect::<String>());
+        e
+    })?;
     builder.add_claim("sub", state.vapid_subject.as_str());
     let signature = builder.build()?;
 
