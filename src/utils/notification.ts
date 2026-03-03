@@ -260,7 +260,8 @@ class NotificationService {
       // 对于移动端，使用更保守的选项
       const subscribeOptions = {
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        // 修复 TypeScript 类型错误：断言 applicationServerKey 为 BufferSource
+        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource
       };
 
       // 尝试订阅
@@ -296,7 +297,6 @@ class NotificationService {
     }
   }
 
-  // 取消订阅 Web-Push
   // 手动重新检查并修复订阅状态
   async recheckSubscription() {
     if (!this.isClient) {
