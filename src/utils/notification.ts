@@ -263,7 +263,7 @@ class NotificationService {
 
       const subscribeOptions: PushSubscriptionOptionsInit = {
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer
       }
 
       const subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscribeOptions)
