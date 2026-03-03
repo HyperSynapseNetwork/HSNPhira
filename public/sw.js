@@ -1,183 +1,192 @@
-// HSNPhira Service Worker - 用于推送通知和离线缓存
+// HSNPhira Service Worker - 推送通知 + 离线缓存
+// ⚠️ 此文件通过 VitePWA injectManifest 策略处理：
+//    构建时 self.__WB_MANIFEST 会被替换为实际的预缓存文件清单
 
-const CACHE_NAME = 'hsnphira-v1'
-const OFFLINE_URL = '/offline.html'
+const CACHE_NAME = 'hsnphira-v2'
 
-// 需要缓存的资源
-const STATIC_CACHE_URLS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo.png',
-  '/favicon.png',
-  '/apple-touch-icon.png',
-  '/css/main.css',
-  '/js/main.js'
-]
+// VitePWA 会在构建时将 self.__WB_MANIFEST 替换为带版本号的资源列表
+// 开发环境或未替换时回退为空数组
+const PRECACHE_LIST = self.__WB_MANIFEST || []
 
-// 安装 Service Worker
-self.addEventListener('install', event => {
-  console.log('[Service Worker] 安装中...')
-  
+// ─────────────────────────────────────────
+// 安装：预缓存 Vite 构建产物（带哈希的文件）
+// ─────────────────────────────────────────
+self.addEventListener('install', (event) => {
+  console.log('[SW] 安装中，预缓存资源数量:', PRECACHE_LIST.length)
+
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[Service Worker] 缓存静态资源')
-        return cache.addAll(STATIC_CACHE_URLS)
-      })
-      .then(() => {
-        console.log('[Service Worker] 安装完成，跳过等待')
-        return self.skipWaiting()
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      const urls = PRECACHE_LIST.map((entry) =>
+        typeof entry === 'string' ? entry : entry.url
+      )
+      // 逐个缓存，单个失败不阻断整体安装
+      return Promise.allSettled(
+        urls.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('[SW] 预缓存失败，跳过:', url, err.message)
+          })
+        )
+      )
+    }).then(() => {
+      console.log('[SW] 安装完成，跳过等待立即激活')
+      return self.skipWaiting()
+    })
   )
 })
 
-// 激活 Service Worker
-self.addEventListener('activate', event => {
-  console.log('[Service Worker] 激活中...')
-  
-  // 清理旧缓存
+// ─────────────────────────────────────────
+// 激活：清理旧版本缓存，接管所有客户端
+// ─────────────────────────────────────────
+self.addEventListener('activate', (event) => {
+  console.log('[SW] 激活中...')
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] 删除旧缓存:', cacheName)
-            return caches.delete(cacheName)
-          }
-        })
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => {
+            console.log('[SW] 删除旧缓存:', name)
+            return caches.delete(name)
+          })
       )
-    })
-    .then(() => {
-      console.log('[Service Worker] 激活完成，接管页面')
+    ).then(() => {
+      console.log('[SW] 激活完成，接管页面')
       return self.clients.claim()
     })
   )
 })
 
-// 拦截网络请求
-self.addEventListener('fetch', event => {
-  // 跳过非 GET 请求
+// ─────────────────────────────────────────
+// Fetch：缓存优先，回落网络（SPA 友好）
+// ─────────────────────────────────────────
+self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
-
-  // 跳过 Chrome 扩展等
   if (event.request.url.startsWith('chrome-extension://')) return
+  // 跳过 API / SSE 动态请求
+  if (event.request.url.includes('/hsnpm-api')) return
+  if (event.request.url.includes('/api/')) return
 
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        // 返回缓存响应，否则从网络获取
-        const fetchPromise = fetch(event.request)
-          .then(networkResponse => {
-            // 将新响应添加到缓存
-            if (event.request.method === 'GET' && networkResponse.ok) {
-              const responseToCache = networkResponse.clone()
-              caches.open(CACHE_NAME)
-                .then(cache => cache.put(event.request, responseToCache))
-            }
-            return networkResponse
-          })
-          .catch(error => {
-            console.error('[Service Worker] 获取失败:', error)
-            
-            // 如果请求的是 HTML 页面，返回离线页面
-            if (event.request.destination === 'document') {
-              return caches.match(OFFLINE_URL)
-            }
-            
-            // 其他情况返回缓存响应
-            return cachedResponse
-          })
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse
 
-        return cachedResponse || fetchPromise
+      return fetch(event.request).then((networkResponse) => {
+        if (networkResponse.ok && networkResponse.type !== 'opaque') {
+          const responseClone = networkResponse.clone()
+          caches.open(CACHE_NAME).then((cache) =>
+            cache.put(event.request, responseClone)
+          )
+        }
+        return networkResponse
+      }).catch(() => {
+        if (event.request.destination === 'document') {
+          return caches.match('/index.html')
+        }
       })
+    })
   )
 })
 
-// 处理推送通知
-self.addEventListener('push', event => {
-  console.log('[Service Worker] 收到推送通知:', event)
+// ─────────────────────────────────────────
+// Push：展示推送通知
+// ─────────────────────────────────────────
+// 修复关键：
+// 1. 任何情况下都必须调用 showNotification —— 否则 Chrome 显示默认"已更新"通知
+// 2. event.data 为 null（加密失败/空 payload）时也显示兜底通知
+// 3. JSON 解析失败时不静默 return
+self.addEventListener('push', (event) => {
+  console.log('[SW] 收到推送通知')
 
-  if (!event.data) return
+  let title = 'HSNPhira'
+  let body = '服务器有新消息'
+  let icon = '/logo.png'
+  let badge = '/pwa-192x192.png'
+  let tag = 'hsnphira-notification'
+  let notifData = {}
 
-  let data = {}
-  try {
-    data = event.data.json()
-  } catch (e) {
-    console.warn('[Service Worker] 推送数据不是 JSON 格式，使用默认消息')
-    data = {
-      title: 'HSNPhira',
-      body: '您收到一条新消息',
-      icon: '/logo.png'
+  if (event.data) {
+    try {
+      const payload = event.data.json()
+      title    = payload.title  || title
+      body     = payload.body   || body
+      icon     = payload.icon   || icon
+      tag      = payload.tag    || tag
+      notifData = payload.data  || {}
+    } catch (e) {
+      const text = event.data.text()
+      if (text) body = text
+      console.warn('[SW] 推送 JSON 解析失败，使用文本:', text)
     }
+  } else {
+    console.warn('[SW] 推送 payload 为空（可能是 VAPID 密钥问题），展示兜底通知')
   }
 
   const options = {
-    body: data.body || 'HSNPhira服务器通知',
-    icon: data.icon || '/logo.png',
-    badge: '/logo.png',
-    tag: data.tag || 'hsnphira-notification',
-    data: data.data || {},
-    actions: data.actions || [
-      { action: 'open', title: '打开' },
-      { action: 'dismiss', title: '忽略' }
+    body,
+    icon,
+    badge,
+    tag,
+    renotify: true,
+    requireInteraction: false,
+    data: notifData,
+    actions: [
+      { action: 'open',    title: '查看房间' },
+      { action: 'dismiss', title: '忽略'     }
     ]
   }
 
+  // ⚠️ 必须用 event.waitUntil 包裹，否则 push handler 提前退出
+  //    浏览器会显示 "phira.htadiy.com已更新" 这个默认通知
   event.waitUntil(
-    self.registration.showNotification(data.title || 'HSNPhira', options)
+    self.registration.showNotification(title, options)
   )
 })
 
-// 处理通知点击
-self.addEventListener('notificationclick', event => {
-  console.log('[Service Worker] 通知被点击:', event.notification.tag)
-
+// ─────────────────────────────────────────
+// 通知点击
+// ─────────────────────────────────────────
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] 通知点击:', event.action)
   event.notification.close()
 
-  const data = event.notification.data || {}
-  const url = data.url || '/'
+  if (event.action === 'dismiss') return
 
-  if (event.action === 'open' || event.action === '') {
-    // 打开对应页面
-    event.waitUntil(
-      self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-        .then(clients => {
-          // 如果有打开的客户端，聚焦它
-          for (const client of clients) {
-            if (client.url === url && 'focus' in client) {
-              return client.focus()
-            }
-          }
-          
-          // 否则打开新窗口
-          if (self.clients.openWindow) {
-            return self.clients.openWindow(url)
-          }
-        })
-    )
-  } else if (event.action === 'dismiss') {
-    // 忽略通知，不做任何操作
-    console.log('[Service Worker] 通知被忽略')
-  }
-})
-
-// 处理推送订阅变更
-self.addEventListener('pushsubscriptionchange', event => {
-  console.log('[Service Worker] 推送订阅变更:', event)
+  const url = (event.notification.data && event.notification.data.url) || '/rooms'
 
   event.waitUntil(
-    self.registration.pushManager.subscribe(event.oldSubscription.options)
-      .then(newSubscription => {
-        // 将新的订阅信息发送到服务器
-        return fetch('/hsnpm-api/subscriptions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newSubscription)
-        })
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ('focus' in client) {
+          client.focus()
+          client.postMessage({ type: 'NAVIGATE', url })
+          return
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url)
+      }
+    })
+  )
+})
+
+// ─────────────────────────────────────────
+// 订阅变更（修复：event.oldSubscription 可能为 null）
+// ─────────────────────────────────────────
+self.addEventListener('pushsubscriptionchange', (event) => {
+  console.log('[SW] 推送订阅变更，重新订阅...')
+
+  const options = (event.oldSubscription && event.oldSubscription.options) ||
+    { userVisibleOnly: true }
+
+  event.waitUntil(
+    self.registration.pushManager.subscribe(options).then((newSubscription) => {
+      return fetch('/hsnpm-api/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSubscription.toJSON())
       })
-      .catch(error => {
-        console.error('[Service Worker] 更新订阅失败:', error)
-      })
+    }).catch((err) => {
+      console.error('[SW] 重新订阅失败:', err)
+    })
   )
 })
