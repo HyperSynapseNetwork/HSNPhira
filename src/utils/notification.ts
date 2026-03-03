@@ -40,33 +40,42 @@ class NotificationService {
 
     console.log('🔔 初始化通知服务...')
 
-    // 检查浏览器支持
-    if (!('Notification' in window)) {
-      console.warn('⚠️  此浏览器不支持通知')
+    // Service Worker 必须先注册（无论是否支持通知）
+    // ⚠️ 不在此处检查 Notification API：
+    //   Firefox Android 移动模式下 'Notification' in window 可能为 false，
+    //   但 serviceWorker + PushManager 是可用的，过早 return 会导致 SW 不注册
+    if (!('serviceWorker' in navigator)) {
+      console.warn('⚠️  浏览器不支持 Service Worker，跳过通知服务')
       this._isInitialized.value = true
       return
     }
 
-    // 始终注册 Service Worker（无论是否在后台）
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      try {
-        console.log('🔧 注册 Service Worker...')
-        await navigator.serviceWorker.register('/sw.js', {
-          scope: '/'
-        })
-        // 等待 SW 完全激活，再才能调用 pushManager.subscribe()
-        this.serviceWorkerRegistration = await navigator.serviceWorker.ready
-        console.log('✅ Service Worker 已激活:', this.serviceWorkerRegistration)
+    try {
+      console.log('🔧 注册 Service Worker...')
+      await navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      // 等待 SW 完全激活，再才能调用 pushManager.subscribe()
+      this.serviceWorkerRegistration = await navigator.serviceWorker.ready
+      console.log('✅ Service Worker 已激活:', this.serviceWorkerRegistration)
+    } catch (error) {
+      console.error('❌ Service Worker 注册失败:', error)
+      showError('通知服务', 'Service Worker 注册失败，推送通知不可用')
+      this._isInitialized.value = true
+      return
+    }
 
-        // 自动处理通知权限和订阅
-        await this.autoHandleNotificationPermission()
+    // PushManager 检查（订阅推送需要）
+    if (!('PushManager' in window)) {
+      console.warn('⚠️  浏览器不支持 Push API，无法订阅推送通知')
+      this._isInitialized.value = true
+      return
+    }
 
-      } catch (error) {
-        console.error('❌ Service Worker 注册失败:', error)
-        showError('通知服务', 'Service Worker 注册失败，推送通知不可用')
-      }
-    } else {
-      console.warn('⚠️  浏览器不支持 Service Worker 或 Push API')
+    // Notification API 检查：Firefox Android 可能需要先请求权限才暴露该对象
+    // 用 try/catch 包裹，避免因 API 不存在而崩溃
+    try {
+      await this.autoHandleNotificationPermission()
+    } catch (error) {
+      console.error('❌ 处理通知权限失败:', error)
     }
 
     this._isInitialized.value = true
@@ -78,6 +87,14 @@ class NotificationService {
     if (!this.isClient) return
 
     console.log('🔔 检查通知权限状态...')
+
+    // Firefox Android 移动模式下 Notification 对象可能不在 window 上
+    // 但 requestPermission 可以通过 serviceWorker.ready 后触发
+    if (!('Notification' in window)) {
+      console.warn('⚠️  Notification API 不可用（Firefox Android 移动模式？），尝试直接订阅...')
+      await this.subscribeToPush()
+      return
+    }
 
     const permission = Notification.permission
 
@@ -263,7 +280,9 @@ class NotificationService {
 
       const subscribeOptions: PushSubscriptionOptionsInit = {
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer
+        // ⚠️ 传 Uint8Array 本身，不要传 .buffer
+        // 传 .buffer 会传入整个底层 ArrayBuffer（含填充），Firefox 会创建无加密订阅导致 getKey() 返回 null
+        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource
       }
 
       const subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscribeOptions)
@@ -278,17 +297,36 @@ class NotificationService {
     } catch (error: any) {
       console.error('❌ 订阅推送失败:', error)
 
-      // push service error = 浏览器无法连接到 FCM/推送服务
-      // 常见于：移动端网络限制、GFW 屏蔽 FCM、弱网环境
-      // 处理方式：静默失败 + 稍后自动重试，不向用户显示错误弹窗
+      // push service error 根本原因分析：
+      // - Android Chrome：推送注册走 Google Play 服务原生 TCP 连接（OS 层），
+      //   完全绕过浏览器 VPN/代理，在无 Google 服务的环境中永久失败，重试无效。
+      // - 桌面 Chrome：直接通过 HTTPS 连接 FCM，VPN 有效，偶发失败可重试。
       if (error.name === 'AbortError' || error.message?.includes('push service')) {
-        console.warn('⚠️  推送服务暂时不可达（FCM 网络问题），将在 60 秒后自动重试')
-        setTimeout(() => {
-          console.log('🔄 重试推送订阅...')
-          this.subscribeToPush().catch((e) => {
-            console.warn('🔄 重试失败，放弃订阅:', e.message)
-          })
-        }, 60_000)
+        const ua = navigator.userAgent
+        const isAndroidChrome = /Android/i.test(ua) &&
+                                /Chrome\//.test(ua) &&
+                                !/Firefox\//.test(ua) &&
+                                !/SamsungBrowser\//.test(ua)
+
+        if (isAndroidChrome) {
+          // Android Chrome 的 FCM 依赖 Google Play 服务，在受限网络下无法修复
+          // Firefox for Android 使用 Mozilla 推送服务，不需要 Google Play 服务
+          console.warn('⚠️  Android Chrome 推送订阅失败：Google Play 服务无法连接 FCM（与网络/VPN 无关，系统层面绕过）')
+          showInfo(
+            '推送通知不可用',
+            'Android Chrome 的推送通知依赖 Google 服务，当前环境无法使用。' +
+            '建议安装 Firefox for Android（使用 Mozilla 推送服务，无需 Google 服务）来接收房间通知。'
+          )
+        } else {
+          // 桌面或其他平台：可能是临时网络问题，60 秒后重试一次
+          console.warn('⚠️  推送服务暂时不可达，将在 60 秒后自动重试')
+          setTimeout(() => {
+            console.log('🔄 重试推送订阅...')
+            this.subscribeToPush().catch((e) => {
+              console.warn('🔄 重试失败，放弃订阅:', e.message)
+            })
+          }, 60_000)
+        }
         return null
       }
 
