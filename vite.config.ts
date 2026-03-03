@@ -13,42 +13,20 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       VitePWA({
+        // 使用 injectManifest 策略：VitePWA 只注入预缓存清单，
+        // 完整 SW 逻辑（含 push 事件处理）保留在 public/sw.js
+        // 这样 Workbox 不会覆盖我们的自定义 SW，推送通知才能正常工作
+        strategies: 'injectManifest',
+        srcDir: 'public',
+        filename: 'sw.js',
         registerType: 'autoUpdate',
-        // Use public/manifest.json directly (manifest: false)
         manifest: false,
         includeAssets: ['favicon.png', 'logo.png', 'apple-touch-icon.png', 'robots.txt', 'sitemap.xml'],
-        workbox: {
+        injectManifest: {
+          // 预缓存这些文件类型（Vite 构建产物）
           globPatterns: ['**/*.{js,css,html,png,jpg,jpeg,svg,gif,ico,woff,woff2,ttf,eot}'],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                cacheableResponse: { statuses: [0, 200] }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                cacheableResponse: { statuses: [0, 200] }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/api\./i,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                networkTimeoutSeconds: 10,
-                expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
-                cacheableResponse: { statuses: [0, 200] }
-              }
-            }
-          ]
+          // 排除 HSNPM 相关文件
+          globIgnores: ['**/workbox-*.js', '**/sw.js']
         },
         devOptions: { enabled: false }
       }),
