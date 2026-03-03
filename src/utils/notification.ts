@@ -54,11 +54,7 @@ class NotificationService {
         await navigator.serviceWorker.register('/sw.js', {
           scope: '/'
         })
-        // ⚠️ 关键修复：必须等待 Service Worker 进入 activated 状态
-        // register() 返回时 SW 可能仍在 installing/waiting 阶段，此时
-        // 调用 pushManager.subscribe() 会触发 AbortError: no active Service Worker
-        // navigator.serviceWorker.ready 会等到有 active SW 才 resolve
-        console.log('⏳ 等待 Service Worker 激活...')
+        // 等待 SW 完全激活，再才能调用 pushManager.subscribe()
         this.serviceWorkerRegistration = await navigator.serviceWorker.ready
         console.log('✅ Service Worker 已激活:', this.serviceWorkerRegistration)
 
@@ -231,11 +227,19 @@ class NotificationService {
       throw error
     }
 
-    // 检查是否是移动端（某些移动浏览器可能有问题）
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+    // iOS Safari 仅在安装为 PWA（添加到主屏幕）后才支持 Push API（iOS 16.4+）
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         (window.navigator as any).standalone === true
+
+    if (isIOS && !isStandalone) {
+      console.warn('⚠️  iOS Safari 非 PWA 模式，不支持 Push API')
+      showInfo('推送通知', 'iOS 用户请点击底部分享按鈕 → 添加到主屏幕，安装后即可订阅房间通知')
+      return null
+    }
+
     try {
-      console.log('📝 开始订阅推送通知...', { isMobile })
+      console.log('📝 开始订阅推送通知...')
 
       // 确保有通知权限
       if (Notification.permission !== 'granted') {
@@ -247,29 +251,24 @@ class NotificationService {
         }
       }
 
-      // 检查VAPID公钥格式
+      // 检查VAPID公鑰格式
       if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY === 'YOUR_VAPID_PUBLIC_KEY') {
-        const error = new Error('VAPID公钥未配置，请联系管理员')
+        const error = new Error('VAPID公鑰未配置，请联系管理员')
         console.error('❌', error.message)
         showError('通知订阅', error.message)
         throw error
       }
 
-      console.log('🔑 订阅推送服务...', { isMobile, vapidKeyLength: VAPID_PUBLIC_KEY.length })
-      
-      // 对于移动端，使用更保守的选项
-      const subscribeOptions = {
-        userVisibleOnly: true,
-        // 修复 TypeScript 类型错误：断言 applicationServerKey 为 BufferSource
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource
-      };
+      console.log('🔑 订阅推送服务... vapidKeyLength:', VAPID_PUBLIC_KEY.length)
 
-      // 尝试订阅
+      const subscribeOptions: PushSubscriptionOptionsInit = {
+        userVisibleOnly: true,
+        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      }
+
       const subscription = await this.serviceWorkerRegistration.pushManager.subscribe(subscribeOptions)
 
       console.log('✅ 推送订阅成功，发送到服务器...')
-
-      // 将订阅信息发送到 HSNPM 服务器
       await this.sendSubscriptionToHSNPM(subscription)
       this.isSubscribed.value = true
 
@@ -278,25 +277,21 @@ class NotificationService {
       return subscription
     } catch (error: any) {
       console.error('❌ 订阅推送失败:', error)
-      
+
       let errorMessage = '订阅失败: ' + error.message
-      
-      // 针对特定错误提供更友好的消息
-      if (error.name === 'AbortError' || error.message.includes('push service error')) {
-        if (isMobile) {
-          errorMessage = '移动端浏览器推送服务暂不可用，请尝试使用桌面版Chrome/Firefox'
-        } else {
-          errorMessage = '推送服务错误，可能是VAPID密钥配置问题或浏览器不支持'
-        }
-      } else if (error.message.includes('permission')) {
+
+      if (error.name === 'NotAllowedError') {
         errorMessage = '通知权限被拒绝，请在浏览器设置中启用通知权限'
+      } else if (error.name === 'AbortError' || error.message?.includes('push service')) {
+        errorMessage = '推送服务暂时不可用，请稍后重试'
       }
-      
+
       showError('通知订阅', errorMessage)
       throw new Error(errorMessage)
     }
   }
 
+  // 取消订阅 Web-Push
   // 手动重新检查并修复订阅状态
   async recheckSubscription() {
     if (!this.isClient) {
