@@ -51,10 +51,16 @@ class NotificationService {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       try {
         console.log('🔧 注册 Service Worker...')
-        this.serviceWorkerRegistration = await navigator.serviceWorker.register('/sw.js', {
+        await navigator.serviceWorker.register('/sw.js', {
           scope: '/'
         })
-        console.log('✅ Service Worker 注册成功:', this.serviceWorkerRegistration)
+        // ⚠️ 关键修复：必须等待 Service Worker 进入 activated 状态
+        // register() 返回时 SW 可能仍在 installing/waiting 阶段，此时
+        // 调用 pushManager.subscribe() 会触发 AbortError: no active Service Worker
+        // navigator.serviceWorker.ready 会等到有 active SW 才 resolve
+        console.log('⏳ 等待 Service Worker 激活...')
+        this.serviceWorkerRegistration = await navigator.serviceWorker.ready
+        console.log('✅ Service Worker 已激活:', this.serviceWorkerRegistration)
 
         // 自动处理通知权限和订阅
         await this.autoHandleNotificationPermission()
@@ -254,7 +260,7 @@ class NotificationService {
       // 对于移动端，使用更保守的选项
       const subscribeOptions = {
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer
+        applicationServerKey: this.urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       };
 
       // 尝试订阅
