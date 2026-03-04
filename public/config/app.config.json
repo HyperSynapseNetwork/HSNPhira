@@ -11,9 +11,9 @@
       "visitedCount": "/api/auth/visited/count"
     },
     "rooms": {
-      "list": "/api/rooms/info",
-      "history": "/api/rooms/history",
-      "listen": "/api/rooms/listen"
+      "list": "/newapi/rooms/info",
+      "history": "/newapi/rooms/history",
+      "listen": "/newapi/rooms/listen"
     },
     "charts": {
       "rank": "/chart/:id/rank",
