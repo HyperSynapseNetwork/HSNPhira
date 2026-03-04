@@ -240,7 +240,7 @@ async function loadRooms(page = 1) {
 
     // 直接从API获取房间数据，参考HSNPhira实现
     const baseURL = getBaseURL()
-    const response = await fetch(`${baseURL}/api/rooms/info`)
+    const response = await fetch(`${baseURL}/newapi/rooms/info`)
     if (!response.ok) throw new Error('获取房间信息失败')
     const roomsData = await response.json()
 
@@ -633,7 +633,7 @@ function updatePaginatedRooms() {
 function setupSSE() {
   try {
     const baseURL = getBaseURL()
-    const sseUrl = `${baseURL}/api/rooms/listen`
+    const sseUrl = `${baseURL}/newapi/rooms/listen`
     
     const es = new EventSource(sseUrl)
     eventSource.value = es
