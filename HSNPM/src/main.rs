@@ -199,7 +199,7 @@ async fn main() {
     let port = std::env::var("PORT").unwrap_or_else(|_| "3030".to_string());
     let addr = format!("0.0.0.0:{}", port);
     println!("🚀 HSNPM通知服务启动于 http://{}", addr);
-    println!("📡 正在连接到远程SSE: {}/api/rooms/listen", state.remote_server_url);
+    println!("📡 正在连接到远程SSE: {}/newapi/rooms/listen", state.remote_server_url);
     warp::serve(routes).run(addr.parse::<SocketAddr>().unwrap()).await;
 }
 
@@ -288,7 +288,7 @@ async fn handle_verify_subscription(
 
 /// 监听远程SSE事件
 async fn listen_remote_sse(state: Arc<AppState>) {
-    let sse_url = format!("{}/api/rooms/listen", state.remote_server_url);
+    let sse_url = format!("{}/newapi/rooms/listen", state.remote_server_url);
     
     log::info!("开始监听远程SSE: {}", sse_url);
 
