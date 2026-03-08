@@ -82,7 +82,7 @@
         "en": "Phira Multiplayer Game Server Status Query",
         "ja": "Phiraマルチプレイゲームサーバーステータス確認"
       },
-      "link": "https://status.phira.htadiy.com/"
+      "link": "https://phira.dmocken.top/status"
     },
     {
       "id": "hsn-phira-server",
@@ -94,39 +94,6 @@
         "ja": "HyperSynapse Network Phiraマルチプレイゲームサーバー"
       },
       "link": "https://phira.htadiy.com/"
-    },
-    {
-      "id": "funxlink-phira-panel",
-      "groupId": "multiplayer",
-      "title": {
-        "zh": "FunXLink Studio Phira 联机服务器 Web 监控面板",
-        "zh-TW": "FunXLink Studio Phira 連線伺服器 Web 監控面板",
-        "en": "FunXLink Studio Phira Server Web Monitoring Panel",
-        "ja": "FunXLink Studio PhiraサーバーWeb監視パネル"
-      },
-      "link": "https://phira.funxlink.cn/"
-    },
-    {
-      "id": "toyama-phira-rooms",
-      "groupId": "multiplayer",
-      "title": {
-        "zh": "户山兔兔的phira服务器房间列表查询",
-        "zh-TW": "戶山兔兔的phira伺服器房間列表查詢",
-        "en": "Toyama's Phira Server Room List Query",
-        "ja": "ToyamaのPhiraサーバールームリスト確認"
-      },
-      "link": "https://phira.toyamatudon.com/"
-    },
-    {
-      "id": "auto-room-query",
-      "groupId": "multiplayer",
-      "title": {
-        "zh": "Auto房间查询",
-        "zh-TW": "Auto房間查詢",
-        "en": "Auto Room Query",
-        "ja": "Autoルーム確認"
-      },
-      "link": "https://phira.yee.autos/"
     },
     {
       "id": "hsn-phira-repo",
@@ -204,6 +171,17 @@
         "ja": "C# Phira-mp"
       },
       "link": "https://github.com/HyperSynapseNetwork/Csharp-Phira-mp"
+    },
+    {
+      "id": "multiserver",
+      "groupId": "community",
+      "title": {
+        "zh": "Phira其他多人游戏服务器",
+        "zh-TW": "Phira其他多人遊戲伺服器",
+        "en": "Phira other Multipalyer Server",
+        "ja": "Phiraの他のマルチプレイヤーサーバー"
+      },
+      "link": "https://phira.dmocken.top/mulity"
     },
     {
       "id": "go-phira-mp",
