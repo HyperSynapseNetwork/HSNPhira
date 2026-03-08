@@ -172,10 +172,10 @@ export async function setPageMeta(routeName: string, language: Language) {
     setMetaName('keywords', keywords)
   }
 
-  // Always use logo.png as share image
-  const logoUrl = `${BASE_URL}/logo.png`
-  setMetaProperty('og:image', logoUrl)
-  setMetaName('twitter:image', logoUrl)
+  // Always use favicon.png as share image
+  const favicon.pngUrl = `${BASE_URL}/favicon.png`
+  setMetaProperty('og:image', favicon.pngUrl)
+  setMetaName('twitter:image', favicon.pngUrl)
 
   // OG locale for current language
   setMetaProperty('og:locale', LANG_TO_OG_LOCALE[language] || 'zh_CN')
