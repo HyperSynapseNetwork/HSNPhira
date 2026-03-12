@@ -58,7 +58,7 @@ async function testServerConnection(): Promise<number> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 3000)
 
-    await fetch(`https://htadiy.com/`, {
+    await fetch(`https://phira.htadiy.com/api/rooms/info`, {
       mode: 'no-cors',
       signal: controller.signal,
       method: 'HEAD'
