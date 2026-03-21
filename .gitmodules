@@ -1,3 +1,6 @@
 [submodule "phira-web-mointor"]
 	path = phira-web-mointor
 	url = https://github.com/HyperSynapseNetwork/phira-web-monitor
+[submodule "HSNPM"]
+	path = HSNPM
+	url = https://github.com/HyperSynapseNetwork/HSN-Push
