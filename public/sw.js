@@ -65,6 +65,8 @@ self.addEventListener('fetch', (event) => {
   // 跳过 API / SSE 动态请求
   if (event.request.url.includes('/hsnpm-api')) return
   if (event.request.url.includes('/api/')) return
+  if (event.request.url.includes('/about')) return
+  if (event.request.url.includes('/newapi/')) return
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
