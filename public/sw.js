@@ -68,6 +68,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.url.includes('/about')) return
   if (event.request.url.includes('/newapi/')) return
   if (event.request.url.includes('/rankapi/')) return
+  if (event.request.url.includes('/phira-download')) return
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
