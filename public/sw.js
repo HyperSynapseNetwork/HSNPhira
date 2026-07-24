@@ -67,6 +67,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.url.includes('/api/')) return
   if (event.request.url.includes('/about')) return
   if (event.request.url.includes('/newapi/')) return
+  if (event.request.url.includes('/rankapi/')) return
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
