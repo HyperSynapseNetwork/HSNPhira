@@ -1,5 +1,5 @@
 {
-  "latestVersion": "v0.6.7",
+  "latestVersion": "v0.8.1",
   "downloadCards": [
     {
       "id": "android",
@@ -21,7 +21,7 @@
         "en": "Download APK",
         "ja": "APKをダウンロード"
       },
-      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-v0.6.7-arm64-v8a.apk"
+      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.1/Phira-android-arm64-v8a-v0.8.1.apk"
     },
     {
       "id": "windows",
@@ -43,7 +43,7 @@
         "en": "Download ZIP",
         "ja": "ZIPをダウンロード"
       },
-      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-v0.6.7-windows-x64.zip"
+      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.1/Phira-windows-x86_64-v0.8.1.zip"
     },
     {
       "id": "linux",
@@ -54,10 +54,10 @@
         "ja": "Linux"
       },
       "description": {
-        "zh": "适用于各种 Linux 发行版",
-        "zh-TW": "適用於各種 Linux 發行版",
-        "en": "For various Linux distributions",
-        "ja": "各種Linuxディストリビューション向け"
+        "zh": "适用于各种 Linux x86_64 发行版",
+        "zh-TW": "適用於各種 Linux x86_64 發行版",
+        "en": "For various Linux x86_64 distributions",
+        "ja": "各種 Linux x86_64 ディストリビューション向け"
       },
       "buttonText": {
         "zh": "下载 ZIP",
@@ -65,7 +65,7 @@
         "en": "Download ZIP",
         "ja": "ZIPをダウンロード"
       },
-      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.6.7/Phira-v0.6.7-linux-x64.zip"
+      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.1/Phira-linux-x86_64-v0.8.1.zip"
     }
   ]
 }
