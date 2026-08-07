@@ -1,5 +1,5 @@
 {
-  "latestVersion": "v0.8.1",
+  "latestVersion": "v0.8.2",
   "downloadCards": [
     {
       "id": "android",
@@ -21,7 +21,7 @@
         "en": "Download APK",
         "ja": "APKをダウンロード"
       },
-      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.1/Phira-android-arm64-v8a-v0.8.1.apk"
+      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.2/Phira-android-arm64-v8a-v0.8.2.apk"
     },
     {
       "id": "windows",
@@ -43,7 +43,7 @@
         "en": "Download ZIP",
         "ja": "ZIPをダウンロード"
       },
-      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.1/Phira-windows-x86_64-v0.8.1.zip"
+      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.2/Phira-windows-x86_64-v0.8.2.zip"
     },
     {
       "id": "linux",
@@ -65,7 +65,7 @@
         "en": "Download ZIP",
         "ja": "ZIPをダウンロード"
       },
-      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.1/Phira-linux-x86_64-v0.8.1.zip"
+      "buttonLink": "https://hk.gh-proxy.org/https://github.com/TeamFlos/phira/releases/download/v0.8.2/Phira-linux-x86_64-v0.8.2.zip"
     }
   ]
 }
