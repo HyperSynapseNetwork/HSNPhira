@@ -2,11 +2,34 @@
 // ⚠️ 此文件通过 VitePWA injectManifest 策略处理：
 //    构建时 self.__WB_MANIFEST 会被替换为实际的预缓存文件清单
 
-const CACHE_NAME = 'hsnphira-v2'
-
 // VitePWA 会在构建时将 self.__WB_MANIFEST 替换为带版本号的资源列表
 // 开发环境或未替换时回退为空数组
 const PRECACHE_LIST = self.__WB_MANIFEST || []
+
+// ─────────────────────────────────────────
+// 缓存命名：由预缓存清单签名派生，每次构建自动变化
+// ─────────────────────────────────────────
+// ⚠️ 之前 CACHE_NAME 固定为 'hsnphira-v2'，activate 里"删除名字不同的缓存"
+// 永远删不到它自己，旧 index.html / 旧 JS（仍请求 /newapi/）被一直命中。
+// 现在缓存名随构建产物变化：产物一变 → 缓存名一变 →
+// activate 自动删除旧的（含 /newapi/ 的旧包），旧浏览器下次加载即生效。
+const MANIFEST_SIGNATURE = PRECACHE_LIST
+  .map((entry) => {
+    const url = typeof entry === 'string' ? entry : entry.url
+    const rev = typeof entry === 'string' ? '' : (entry.revision || '')
+    return `${url}:${rev}`
+  })
+  .join('|')
+
+function hashString(str) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0
+  }
+  return (hash >>> 0).toString(36)
+}
+
+const CACHE_NAME = `hsnphira-${hashString(MANIFEST_SIGNATURE)}`
 
 // ─────────────────────────────────────────
 // 安装：预缓存 Vite 构建产物（带哈希的文件）
@@ -57,6 +80,27 @@ self.addEventListener('activate', (event) => {
 })
 
 // ─────────────────────────────────────────
+// Message：接收页面更新流程下发的指令
+//  - CLEAR_CACHES：立即清空全部缓存（更新流程在检测到新版本时调用）
+//  - SKIP_WAITING：跳过等待，立即激活新 SW
+// ─────────────────────────────────────────
+self.addEventListener('message', (event) => {
+  const data = (event && event.data) || {}
+  if (data.type === 'CLEAR_CACHES') {
+    console.log('[SW] 收到 CLEAR_CACHES，清空全部缓存')
+    event.waitUntil(
+      caches.keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .then(() => console.log('[SW] 缓存已清空'))
+    )
+    return
+  }
+  if (data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+})
+
+// ─────────────────────────────────────────
 // Fetch：缓存优先，回落网络（SPA 友好）
 // ─────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
@@ -71,8 +115,10 @@ self.addEventListener('fetch', (event) => {
   if (event.request.url.includes('/phira-download')) return
   if (event.request.url.includes('/config/')) return
 
+  // 只匹配当前版本的缓存：即便新旧缓存短暂共存（安装→激活期间），
+  // 也绝不命中旧的 index.html / 旧 JS 包
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { cacheName: CACHE_NAME }).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse
 
       return fetch(event.request).then((networkResponse) => {
@@ -85,7 +131,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse
       }).catch(() => {
         if (event.request.destination === 'document') {
-          return caches.match('/index.html')
+          return caches.match('/index.html', { cacheName: CACHE_NAME })
         }
       })
     })

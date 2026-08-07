@@ -87,19 +87,32 @@ function handleCacheRefresh() {
     
     // 提示完成
     showSuccess('更新完成', '页面已更新到最新版本')
-    
-    // 清除Service Worker缓存（如果有）
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => {
-          if (name.startsWith('hsn-')) {
-            caches.delete(name)
-          }
-        })
-      })
-    }
+
+    // 清除 Service Worker 缓存
+    // ⚠️ 旧实现用 name.startsWith('hsn-') 过滤，但 SW 缓存名是
+    //    'hsnphira-v2'（无连字符），永远匹配不上 → 旧缓存从不清除，
+    //    旧 index.html / 旧 JS（/newapi/）被一直命中，更新永远不生效。
+    //    现在改为清空全部缓存，并通知 SW 也清空它自己的缓存。
+    clearServiceWorkerCaches()
   } catch (error) {
     console.error('Cache refresh failed:', error)
+  }
+}
+
+async function clearServiceWorkerCaches() {
+  // 1) 页面侧直接删除所有 CacheStorage（页面与 SW 共享同源的缓存存储）
+  if ('caches' in window) {
+    try {
+      const names = await caches.keys()
+      await Promise.all(names.map(name => caches.delete(name)))
+    } catch (error) {
+      console.error('Clear caches failed:', error)
+    }
+  }
+
+  // 2) 通知当前激活的 SW 也清空缓存（双保险，防止新缓存刚写入又被命中）
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHES' })
   }
 }
 </script>
