@@ -128,8 +128,16 @@ export const messages = {
       donateText: '您可以加群获取HSN2026年度预算报表，并前往我们的爱发电主页进行捐赠，感谢❤️❤️❤️。',
       donateButton: '前往爱发电',
       joinUs: '关于HSN Phira多人游戏服务器使用的项目',
-      joinUsText: 'HSN Phira多人游戏服务器由HSNPhira(https://github.com/HyperSynapseNetwork/HSNPhira),PMP (https://github.com/HyperSynapseNetwork/Phira-mp-plus),phira-web-monitor(https://github.com/HyperSynapseNetwork/phira-web-monitor),phira-mp-logprocessor(https://github.com/HyperSynapseNetwork/phira-mp-logprocessor)等项目强势驱动',
-      joinUsButton: '提交问卷',
+      joinUsPrefix: 'HSN Phira多人游戏服务器由',
+      joinUsProjects: [
+        { name: 'HSNPhira', url: 'https://github.com/HyperSynapseNetwork/HSNPhira' },
+        { name: 'PMP', url: 'https://github.com/HyperSynapseNetwork/Phira-mp-plus' },
+        { name: 'phira-web-monitor', url: 'https://github.com/HyperSynapseNetwork/phira-web-monitor' },
+        { name: 'phira-mp-logprocessor', url: 'https://github.com/HyperSynapseNetwork/phira-mp-logprocessor' }
+      ],
+      joinUsSeparator: '，',
+      joinUsSuffix: '等项目强势驱动',
+      joinUsButton: '加入我们',
       acknowledgements: '致谢',
       acknowledgementsNote: '注：以下贡献者排序不分先后'
     },
@@ -686,8 +694,16 @@ export const messages = {
       donateText: 'You can join the group to get the HSN 2026 annual budget report and donate at our Afdian homepage. Thank you ❤️❤️❤️.',
       donateButton: 'Go to Afdian',
       joinUs: 'About the Projects Powering HSN Phira Multiplayer Server',
-      joinUsText: 'HSN Phira Multiplayer Server is proudly powered by HSNPhira (https://github.com/HyperSynapseNetwork/HSNPhira), PMP (https://github.com/HyperSynapseNetwork/Phira-mp-plus), phira-web-monitor (https://github.com/HyperSynapseNetwork/phira-web-monitor), phira-mp-logprocessor (https://github.com/HyperSynapseNetwork/phira-mp-logprocessor), and other projects.',
-      joinUsButton: 'Submit Questionnaire',
+      joinUsPrefix: 'HSN Phira Multiplayer Server is proudly powered by ',
+      joinUsProjects: [
+        { name: 'HSNPhira', url: 'https://github.com/HyperSynapseNetwork/HSNPhira' },
+        { name: 'PMP', url: 'https://github.com/HyperSynapseNetwork/Phira-mp-plus' },
+        { name: 'phira-web-monitor', url: 'https://github.com/HyperSynapseNetwork/phira-web-monitor' },
+        { name: 'phira-mp-logprocessor', url: 'https://github.com/HyperSynapseNetwork/phira-mp-logprocessor' }
+      ],
+      joinUsSeparator: ', ',
+      joinUsSuffix: ', and other projects.',
+      joinUsButton: 'Join Us',
       acknowledgements: 'Acknowledgements',
       acknowledgementsNote: 'Note: Contributors are listed in no particular order'
     },
@@ -1244,8 +1260,16 @@ export const messages = {
       donateText: 'グループに参加してHSN2026年度予算報告書を取得し、愛発電ホームページで寄付することができます。ありがとうございます❤️❤️❤️。',
       donateButton: '愛発電へ行く',
       joinUs: 'HSN Phira マルチプレイヤーサーバーを支えるプロジェクトについて',
-      joinUsText: 'HSN Phira マルチプレイヤーサーバーは、HSNPhira（https://github.com/HyperSynapseNetwork/HSNPhira）、PMP（https://github.com/HyperSynapseNetwork/Phira-mp-plus）、phira-web-monitor（https://github.com/HyperSynapseNetwork/phira-web-monitor）、phira-mp-logprocessor（https://github.com/HyperSynapseNetwork/phira-mp-logprocessor）などのプロジェクトによって強力に支えられています。',
-      joinUsButton: 'アンケートを提出',
+      joinUsPrefix: 'HSN Phira マルチプレイヤーサーバーは、',
+      joinUsProjects: [
+        { name: 'HSNPhira', url: 'https://github.com/HyperSynapseNetwork/HSNPhira' },
+        { name: 'PMP', url: 'https://github.com/HyperSynapseNetwork/Phira-mp-plus' },
+        { name: 'phira-web-monitor', url: 'https://github.com/HyperSynapseNetwork/phira-web-monitor' },
+        { name: 'phira-mp-logprocessor', url: 'https://github.com/HyperSynapseNetwork/phira-mp-logprocessor' }
+      ],
+      joinUsSeparator: '、',
+      joinUsSuffix: 'などのプロジェクトによって強力に支えられています。',
+      joinUsButton: '参加する',
       acknowledgements: '謝辞',
       acknowledgementsNote: '注：貢献者の順序は特に決まっていません'
     },
@@ -1803,8 +1827,16 @@ export const messages = {
       donateText: '您可以加群獲取HSN2026年度預算報表，並前往我們的愛發電主頁進行捐贈，感謝❤️❤️❤️。',
       donateButton: '前往愛發電',
       joinUs: '關於驅動 HSN Phira 多人遊戲伺服器的專案',
-      joinUsText: 'HSN Phira 多人遊戲伺服器由 HSNPhira（https://github.com/HyperSynapseNetwork/HSNPhira）、PMP（https://github.com/HyperSynapseNetwork/Phira-mp-plus）、phira-web-monitor（https://github.com/HyperSynapseNetwork/phira-web-monitor）、phira-mp-logprocessor（https://github.com/HyperSynapseNetwork/phira-mp-logprocessor）等專案強勢驅動。',
-      joinUsButton: '提交問卷',
+      joinUsPrefix: 'HSN Phira 多人遊戲伺服器由 ',
+      joinUsProjects: [
+        { name: 'HSNPhira', url: 'https://github.com/HyperSynapseNetwork/HSNPhira' },
+        { name: 'PMP', url: 'https://github.com/HyperSynapseNetwork/Phira-mp-plus' },
+        { name: 'phira-web-monitor', url: 'https://github.com/HyperSynapseNetwork/phira-web-monitor' },
+        { name: 'phira-mp-logprocessor', url: 'https://github.com/HyperSynapseNetwork/phira-mp-logprocessor' }
+      ],
+      joinUsSeparator: '、',
+      joinUsSuffix: '等專案強勢驅動。',
+      joinUsButton: '加入我們',
       acknowledgements: '致謝',
       acknowledgementsNote: '注：以下貢獻者排序不分先後'
     },

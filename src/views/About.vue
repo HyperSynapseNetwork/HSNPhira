@@ -109,7 +109,15 @@
           <h2 class="text-2xl md:text-3xl font-bold text-white mb-6">{{ t('about.joinUs') }}</h2>
           <div class="glass-dark rounded-2xl p-6">
             <p class="text-white/80 mb-4">
-              {{ t('about.joinUsText') }}
+              {{ t('about.joinUsPrefix') }}<template
+                v-for="(project, index) in joinUsProjects"
+                :key="project.name"
+              ><a
+                :href="project.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary underline decoration-primary/40 hover:decoration-primary transition-colors"
+              >{{ project.name }}</a><template v-if="index < joinUsProjects.length - 1">{{ t('about.joinUsSeparator') }}</template></template>{{ t('about.joinUsSuffix') }}
             </p>
             <a
               href="https://v.wjx.cn/vm/rCUAXVd.aspx"
@@ -167,6 +175,9 @@ const teamIntroductionText = computed(() => {
   const config = getAboutConfig()
   return getLocalizedText(config.teamIntroduction)
 })
+
+// 加入我们 - 驱动项目列表（可点击跳转）
+const joinUsProjects = computed(() => t('about.joinUsProjects') as { name: string; url: string }[])
 
 // 团队成员数据（从配置加载）
 const teamMembers = computed(() => {

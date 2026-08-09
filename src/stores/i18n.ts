@@ -9,7 +9,7 @@ export const useI18nStore = defineStore('i18n', () => {
   const currentLanguage = ref<Language>(detectLanguage())
 
   const t = computed(() => {
-    return (key: string, params?: Record<string, any>): string => {
+    return (key: string, params?: Record<string, any>): any => {
       const keys = key.split('.')
       let value: any = (messages as any)[currentLanguage.value]
 
@@ -17,12 +17,13 @@ export const useI18nStore = defineStore('i18n', () => {
         value = value?.[k]
       }
 
-      if (typeof value !== 'string') {
+      // 支持返回数组/对象等非字符串值（如 about.joinUsProjects）
+      if (value === undefined || value === null) {
         return key
       }
 
       // 替换参数
-      if (params) {
+      if (params && typeof value === 'string') {
         return value.replace(/\{(\w+)\}/g, (_: string, key: string) => params[key] || '')
       }
 
