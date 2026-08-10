@@ -4,7 +4,6 @@ HyperSynapse Network Phira多人游戏服务器前端应用
 
 ## 项目简介
 
-> 本项目由多个顶尖AI研究所提供技术支持<br>
 > 本项目使用了多种AI工具进行开发
 
 这是一个基于 Vue 3 + TypeScript + Tailwind CSS 构建的现代化Web应用，为HSNPhira多人游戏服务器提供完整的前端界面。
