@@ -40,7 +40,7 @@
         <p class="text-white/80 text-sm">
           {{ t('navigation.tip') }}
           <a href="mailto:nb3502022@outlook.com" class="text-primary glow-on-hover font-medium">
-            nb3502022@outlook.com
+            FireflyF09@outlook.com
           </a>
         </p>
       </div>
